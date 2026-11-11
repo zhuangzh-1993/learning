@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learning Notes</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100vh;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f8fafc;color:#334155}
+  .app{display:flex;height:calc(100vh - 56px)}
+  .topbar{height:56px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 20px;font-weight:900;color:#0f172a}
+  .side{width:260px;background:#fff;border-right:1px solid #e2e8f0;padding:16px;overflow-y:auto;flex-shrink:0}
+  .nav{display:block;width:100%;text-align:left;padding:10px 14px;background:none;border:none;border-radius:8px;font-size:14px;color:#334155;cursor:pointer;margin-bottom:4px;font-family:inherit}
+  .nav:hover{background:#f1f5f9;color:#0f172a}
+  .nav.on{background:#eff6ff;color:#2563eb;font-weight:700}
+  main{flex:1;border:none}
+  iframe{width:100%;height:100%;border:none;background:#fff}
+  @media(max-width:768px){.side{display:none}}
+</style>
+</head>
+<body>
+<header class="topbar">📚 Learning Notes</header>
+<div class="app">
+  <aside class="side" id="side"></aside>
+  <main><iframe id="frame" src="ai.html" title="content"></iframe></main>
+</div>
+<script>
+// 新增学习资料：往这个数组加一项即可，无需改其它代码。
+const MATERIALS = [
+  { title: "大模型 (LLM) 全景通识", file: "ai.html" }
+];
+
+const side = document.getElementById("side");
+const frame = document.getElementById("frame");
+MATERIALS.forEach((m, i) => {
+  const btn = document.createElement("button");
+  btn.className = "nav" + (i === 0 ? " on" : "");
+  btn.textContent = m.title;
+  btn.onclick = () => {
+    frame.src = m.file;
+    document.querySelectorAll(".nav").forEach(b => b.classList.remove("on"));
+    btn.classList.add("on");
+  };
+  side.appendChild(btn);
+});
+</script>
+</body>
+</html>
