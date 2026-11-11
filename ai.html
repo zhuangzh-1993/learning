@@ -208,6 +208,10 @@ c2_1:{tag:"思考机制",title:"5. 解码参数与 reasoning_effort",html:`
 <p>这是厂商中立的参数，控制模型在内部推理阶段花多少 Token。OpenAI 支持 low 到 xhigh，DeepSeek 默认 high。</p>
 <p><strong>互斥陷阱：</strong> GPT-6 Astra 在推理模式下会直接拒绝 temperature 和 top_p 参数。要恢复采样控制，必须显式传 <code>reasoning_effort: "none"</code>（且部分模型不支持 none）。</p>
 <p><strong>收益递减：</strong> 2026 年实测，xhigh 的成本是 medium 的 2-4 倍，但在很多代码任务上得分反而更低。日常用 medium 更稳。</p>
+<h3>2b. 三个重复惩罚参数：Repetition / Presence / Frequency</h3>
+<p><strong>Repetition Penalty：</strong>对已出现词的 Logits 做乘法缩放（如 1.1），重复概率被成倍压低，力度随重复累积，是治"复读机"的首选，与下方生产口诀对应。<strong>Presence Penalty：</strong>只要词出现过就整体减一个固定值，只看出没出现过、不看次数，适合逼模型换新话题。<strong>Frequency Penalty：</strong>按出现次数成比例施加惩罚，出现越多压得越狠，介于前两者之间，适合抑制高频词堆砌。</p>
+<p class="plain-text">大白话：Repetition Penalty 是"再说一遍，价格翻倍"；Presence Penalty 是"提过一次就收一张入场费"；Frequency Penalty 是"说得越多次，收费越贵"。复读机优先调 Repetition Penalty；想话题发散用 Presence；想少说口头禅用 Frequency。</p>
+<p><strong>叠加提醒：</strong>三参数可同时生效，但方向要一致；同时调高惩罚与调高 Temperature 会互相拉扯，多数场景只调一个即可。部分推理模式（见上文互斥陷阱）不接受这些采样参数，需先退出推理模式再调。</p>
 <div class="note exam"><div class="note-t">💡 生产配置口诀</div>
 延迟敏感→low；日常通用→medium；复杂代码→high；极难审计→xhigh。出现复读机时，优先调高 Repetition Penalty。</div>
 `},
