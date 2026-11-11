@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>大模型 (LLM) 全景通识 · 极客深度版</title>
+<style>
+  :root{--bg:#f8fafc;--panel:#fff;--code-bg:#0f172a;--text:#334155;--title:#0f172a;--muted:#64748b;--border:#e2e8f0;--b:#2563eb;--p:#7c3aed;--c:#0891b2;--g:#059669;--o:#ea580c;--r:#e11d48;--shadow:0 10px 30px -5px rgba(15,23,42,.08)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100vh;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.8;-webkit-font-smoothing:antialiased}
+  ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+  .topbar{height:60px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:110;position:relative}
+  .topbar-left{display:flex;align-items:center;gap:12px}
+  .menu-btn{display:none;background:none;border:none;font-size:24px;color:var(--title);cursor:pointer;padding:4px 8px;border-radius:6px}
+  .menu-btn:active{background:#f1f5f9}
+  .brand{font-size:17px;font-weight:900;color:var(--title);display:flex;align-items:center;gap:10px;letter-spacing:-.5px}
+  .brand span{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--b),var(--p));display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
+  .badge{font-size:12px;font-weight:700;color:var(--r);background:#fff1f2;padding:4px 12px;border-radius:20px;border:1px solid #fecdd3}
+  @media(max-width:768px){.badge{display:none}.brand{font-size:15px}.brand span{width:24px;height:24px;font-size:12px}.topbar{padding:0 12px}}
+  .app{display:flex;height:calc(100vh - 60px);position:relative}
+  .overlay{display:none;position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(15,23,42,.4);z-index:90;opacity:0;transition:opacity .3s}
+  .overlay.show{display:block;opacity:1}
+  .side{width:320px;background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:24px 16px;flex-shrink:0;z-index:100;transition:transform .3s ease}
+  .group{margin-bottom:24px}
+  .group-title{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding-left:10px;margin-bottom:8px}
+  .nav{display:block;width:100%;text-align:left;padding:10px 14px;background:none;border:none;border-radius:8px;font-size:14px;font-weight:500;color:var(--text);cursor:pointer;transition:all .2s;margin-bottom:2px;line-height:1.5;position:relative;font-family:inherit}
+  .nav:hover{background:#f1f5f9;color:var(--title)}
+  .nav.on{font-weight:700}
+  .nav.on::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:4px;height:16px;border-radius:0 4px 4px 0}
+  .c0 .nav.on{color:#475569;background:#f1f5f9}.c0 .nav.on::before{background:#475569}
+  .c1 .nav.on{color:var(--b);background:#eff6ff}.c1 .nav.on::before{background:var(--b)}
+  .c2 .nav.on{color:var(--p);background:#f5f3ff}.c2 .nav.on::before{background:var(--p)}
+  .c3 .nav.on{color:var(--c);background:#ecfeff}.c3 .nav.on::before{background:var(--c)}
+  .c4 .nav.on{color:var(--g);background:#ecfdf5}.c4 .nav.on::before{background:var(--g)}
+  .c5 .nav.on{color:var(--o);background:#fff7ed}.c5 .nav.on::before{background:var(--o)}
+  .c6 .nav.on{color:var(--r);background:#fff1f2}.c6 .nav.on::before{background:var(--r)}
+  .c-exam .nav.on{color:#fff;background:var(--r)}.c-exam .nav.on::before{background:#fff}
+  .main{flex:1;overflow-y:auto;padding:40px;scroll-behavior:smooth;position:relative}
+  .article{max-width:900px;margin:0 auto;background:var(--panel);border-radius:16px;box-shadow:var(--shadow);padding:50px 60px;border:1px solid var(--border);animation:fade .4s ease-out}
+  @keyframes fade{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+  @media(max-width:768px){.menu-btn{display:block}.side{position:fixed;top:60px;left:0;bottom:0;transform:translateX(-100%);border-right:none;box-shadow:2px 0 10px rgba(0,0,0,.1)}.side.open{transform:translateX(0)}.main{padding:16px 12px}.article{padding:28px 20px;border-radius:12px}.h1{font-size:24px;margin-bottom:24px}.body p{font-size:15px;margin-bottom:14px}.body li{font-size:15px}.plain-text{font-size:14px;padding:12px}.note{padding:14px 16px;font-size:14px}.tbl{-webkit-overflow-scrolling:touch}}
+  .tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1px;padding:4px 12px;border-radius:6px;margin-bottom:16px;background:#f1f5f9;color:var(--b)}
+  .h1{font-size:30px;font-weight:900;color:var(--title);margin-bottom:32px;line-height:1.3;letter-spacing:-.8px}
+  .body h3{font-size:19px;font-weight:800;color:var(--title);margin:36px 0 16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9}
+  .body h4{font-size:16px;font-weight:700;color:var(--title);margin:24px 0 10px}
+  .body p{font-size:16px;color:var(--text);margin-bottom:18px;text-align:justify}
+  .body ul,.body ol{padding-left:24px;margin-bottom:20px}
+  .body li{font-size:16px;margin-bottom:10px}
+  .body li::marker{color:var(--b);font-weight:700}
+  .body strong{color:var(--title);font-weight:800;background:linear-gradient(120deg,#e0e7ff,#e0e7ff) no-repeat 0 88%/100% 40%;padding:0 4px;border-radius:2px}
+  .plain-text{color:#475569;font-style:italic;background:#f8fafc;border-left:3px solid #cbd5e1;padding:10px 16px;margin:-8px 0 20px;font-size:15px;border-radius:0 6px 6px 0}
+  .note{padding:18px 24px;border-radius:8px;margin:24px 0;font-size:15px}
+  .note-t{font-weight:800;margin-bottom:8px;font-size:16px}
+  .note.exam{background:#fff1f2;border:1px solid #fecdd3;color:#9f1239}.note.exam .note-t{color:#be123c}
+  .note.tip{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}.note.tip .note-t{color:#15803d}
+  .tbl{overflow-x:auto;margin:24px 0;border:1px solid var(--border);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.02)}
+  table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:500px}
+  th,td{padding:14px 16px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+  th{background:#f8fafc;font-weight:800;color:var(--title);white-space:nowrap}
+  tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
+  .code{background:var(--code-bg);color:#e2e8f0;padding:16px 20px;border-radius:8px;font-family:Consolas,monospace;font-size:14px;line-height:1.6;overflow-x:auto;margin:20px 0}
+  .code .c{color:#64748b;font-style:italic}
+  .exam-header{text-align:center;margin-bottom:32px}
+  .exam-title{font-size:32px;font-weight:900;color:var(--title);letter-spacing:-1px}
+  .exam-desc{color:var(--muted);font-size:14.5px;margin-top:8px}
+  .q-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;transition:box-shadow .2s}
+  .q-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.05)}
+  .q-title{font-size:16px;font-weight:800;color:var(--title);margin-bottom:16px;line-height:1.6}
+  .q-title span{color:var(--b);margin-right:6px}
+  .opt-list{display:flex;flex-direction:column;gap:10px}
+  .opt-item{display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px 16px;border:1px solid var(--border);border-radius:8px;transition:all .2s;background:#f8fafc}
+  .opt-item:hover{background:#f1f5f9;border-color:#cbd5e1}
+  .opt-item input[type="checkbox"]{width:18px;height:18px;margin-top:3px;cursor:pointer;accent-color:var(--b);flex-shrink:0}
+  .opt-text{font-size:15px;color:var(--text);line-height:1.5}
+  .opt-item.selected{background:#eff6ff;border-color:#93c5fd}
+  .opt-item.correct{background:#ecfdf5;border-color:#86efac;color:#166534}
+  .opt-item.wrong{background:#fef2f2;border-color:#fca5a5;color:#991b1b}
+  .ans-box{margin-top:20px;padding:20px;background:#f8fafc;border-radius:8px;border-left:4px solid var(--b);display:none}
+  .ans-box.show{display:block}
+  .ans-title{font-size:15px;font-weight:800;color:var(--b);margin-bottom:10px}
+  .ans-text{font-size:14.5px;color:var(--text);line-height:1.7;margin-bottom:10px}
+  .ans-exp{font-size:14px;color:#475569;background:#fff;padding:12px 16px;border-radius:6px;border:1px solid #e2e8f0}
+  .score-panel{position:sticky;bottom:20px;background:#fff;border:2px solid var(--b);border-radius:12px;padding:20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 -10px 30px rgba(0,0,0,.1);z-index:10;margin-top:40px}
+  .score-panel .stats{display:flex;gap:24px}
+  .stat-item{display:flex;flex-direction:column}
+  .stat-val{font-size:24px;font-weight:900;color:var(--title)}
+  .stat-label{font-size:12px;color:var(--muted);font-weight:700}
+  .btn-submit{background:var(--b);color:#fff;border:none;padding:12px 32px;font-size:16px;font-weight:800;border-radius:8px;cursor:pointer;transition:all .2s}
+  .btn-submit:hover{background:#1d4ed8;transform:translateY(-2px);box-shadow:0 4px 12px rgba(37,99,235,.3)}
+  .btn-submit:disabled{background:#cbd5e1;cursor:not-allowed;transform:none;box-shadow:none}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="menu-btn" id="menuBtn">☰</button>
+    <div class="brand"><span>LLM</span> 极客深度版</div>
+  </div>
+  <div class="badge">白话硬核通识 · 50题抽题测试</div>
+</header>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="app">
+  <aside class="side" id="side">
+    <div class="group c0"><div class="group-title">第 0 章：全局认知</div><button class="nav on" data-id="c0">1. AI 概念全景图</button></div>
+    <div class="group c1">
+      <div class="group-title">第 1 章：大模型是怎么长大的</div>
+      <button class="nav" data-id="c1_1">2. 预训练与分词算法 (BPE)</button>
+      <button class="nav" data-id="c1_2">3. SFT 与人类对齐 (RLHF/DPO)</button>
+      <button class="nav" data-id="c1_3">4. 企业调优与 LoRA/QLoRA</button>
+    </div>
+    <div class="group c2">
+      <div class="group-title">第 2 章：大模型是怎么思考的</div>
+      <button class="nav" data-id="c2_1">5. 解码参数与 reasoning_effort</button>
+      <button class="nav" data-id="c2_2">6. 深度拆解：Transformer</button>
+      <button class="nav" data-id="c2_2b">7. Transformer 进阶：残差与 FFN</button>
+      <button class="nav" data-id="c2_3">8. 架构范式：Dense 与 MoE</button>
+      <button class="nav" data-id="c2_4">9. 推理模型 vs 指令模型</button>
+    </div>
+    <div class="group c3">
+      <div class="group-title">第 3 章：怎么让它替我们干活</div>
+      <button class="nav" data-id="c3_1">10. RAG：检索增强</button>
+      <button class="nav" data-id="c3_2">11. Agent 与 MCP 协议</button>
+      <button class="nav" data-id="c3_3">12. AI 工作流设计模式</button>
+    </div>
+    <div class="group c4">
+      <div class="group-title">第 4 章：大模型解决不了什么</div>
+      <button class="nav" data-id="c4_1">13. 算不准数、幻觉与复杂度墙</button>
+      <button class="nav" data-id="c4_2">14. 品味的真相</button>
+    </div>
+    <div class="group c5">
+      <div class="group-title">第 5 章：工程部署与商业变现</div>
+      <button class="nav" data-id="c5_1">15. KV Cache 与 PagedAttention</button>
+      <button class="nav" data-id="c5_maas">16. MaaS 模式</button>
+      <button class="nav" data-id="c5_2">17. 安全红线与商业 ROI</button>
+    </div>
+    <div class="group c6">
+      <div class="group-title">第 6 章：Harness 与工程生态</div>
+      <button class="nav" data-id="c6_harness">18. Harness 五大模块</button>
+      <button class="nav" data-id="c6_spec">19. AGENTS / SKILL / DESIGN</button>
+      <button class="nav" data-id="c6_sdd">20. SDD 规格驱动开发</button>
+        <button class="nav" data-id="c6_eco">21. 工程生态与落地</button>
+      <button class="nav" data-id="c6_2026">22. 2026.11 模型与工具实测</button>
+    </div>
+    <div class="group c6"><div class="group-title">附录</div><button class="nav" data-id="glossary">📖 核心术语表</button></div>
+    <div class="group c-exam"><div class="group-title">考试中心</div><button class="nav" data-id="exam">🎯 终极通关测验</button></div>
+  </aside>
+
+  <main class="main" id="main"><article class="article" id="article"></article></main>
+</div>
+
+<script>
+const D = {
+c0:{tag:"全局认知",title:"1. AI 概念全景图",html:`
+<p>如果你把 LLM 想象成一个<strong>刚招进公司的超级实习生</strong>，一切就顺理成章了：</p>
+<div class="tbl"><table>
+<tr><th>概念</th><th>在“实习生”身上代表什么</th><th>解决什么问题</th></tr>
+<tr><td><strong>预训练/后训练</strong></td><td>大学读的书 + 入职岗前培训</td><td>怎么把模型造出来</td></tr>
+<tr><td><strong>调优 (LoRA)</strong></td><td>针对特殊业务开的小灶</td><td>通用模型→专用模型</td></tr>
+<tr><td><strong>MoE</strong></td><td>大脑结构：叫醒相关脑区而非全脑运转</td><td>更聪明又省算力（但不省显存）</td></tr>
+<tr><td><strong>RAG</strong></td><td>发给他一本《规章制度手册》</td><td>不知道公司内部事、容易瞎编</td></tr>
+<tr><td><strong>Agent</strong></td><td>配了手机和电脑，动手去办</td><td>从“聊天”走向“执行”</td></tr>
+<tr><td><strong>Harness</strong></td><td>公司的审批流+风控+操作记录仪</td><td>限制能做什么、追踪做了什么</td></tr>
+</table></div>
+`},
+c1_1:{tag:"如何长大",title:"2. 预训练与分词算法 (BPE)",html:`
+<h3>核心动作：文字接龙</h3>
+<p>预训练是让模型在数万亿 Token 上做填空题。但模型不认识汉字，只认识数字 ID。如何把文本变成数字？靠<strong>分词器（Tokenizer）</strong>。</p>
+<h3>BPE 与中文痛点</h3>
+<p><strong>BPE (Byte-Pair Encoding)</strong> 是最主流的算法：从单个字符开始，不断将<strong>出现频率最高的相邻字符对</strong>合并成新 Token。</p>
+<p>目前主流模型普遍使用 <strong>Byte-level BPE</strong>，即按字节（Byte）来合并。这导致一个中文汉字通常需要 2-3 个字节，换算下来，同一段话的中文消耗 Token 数往往是英文的 1.5 到 2 倍，直接推高了中文 API 的成本。</p>
+<p class="plain-text">大白话：把文字当积木拼。BPE 找出现频率最高的两块拼在一起，变成大积木。因为中文的偏旁部首比英文单词更碎，所以拼同样意思的一句话，中文往往比英文多消耗点积木（Token）。</p>
+<h3>缩放定律 (Scaling Laws)</h3>
+<p>Chinchilla 定律表明，模型的参数量（N）与训练数据量（D）应按约 1:20 的比例同步增长。</p>
+`},
+c1_2:{tag:"如何长大",title:"3. SFT 与人类对齐 (RLHF/DPO)",html:`
+<p>预训练出来的叫基座模型，像个只会接龙的书呆子。后训练让它变成有用且安全的助手。</p>
+<h3>SFT (监督微调)</h3>
+<p>用几万条人类写的高质量“指令-回复”对，教模型：当人类提问时，你要这样回答，而不是继续写诗。</p>
+<h3>人类对齐 (Alignment)</h3>
+<p>模型会说话了，但可能不礼貌或说脏话。需要让它符合人类价值观。</p>
+<ul>
+<li><strong>RLHF (PPO)：</strong> 极其复杂。先训练一个“奖励模型”模仿人类打分。然后用 PPO 算法让大模型（演员）去生成，奖励模型（裁判）打分，再由一个价值网络（评论家）计算优势，引导大模型更新参数。极易崩溃。</li>
+<li><strong>DPO (直接偏好优化)：</strong> 2026年绝对主流。直接用“好回答 vs 坏回答”的数据对优化。在数学上它把奖励模型“内化”进了大模型本身，不需要再单独练裁判和评论家，训练极其稳定。</li>
+</ul>
+<p class="plain-text">RLHF 就像老板（奖励模型）给你打分，中间还要经过 HR（价值网络）传达，你才知道自己哪里好；DPO 则是老板直接把两份方案（好与坏）拍你桌上：“你自己对比着看，以后照着好的写”。</p>
+`},
+c1_3:{tag:"如何长大",title:"4. 企业调优与 LoRA/QLoRA",html:`
+<h3>全参微调 vs LoRA vs QLoRA</h3>
+<p>全参微调需要更新所有参数，容易发生<strong>灾难性遗忘</strong>，且要求极高的显存。</p>
+<p><strong>LoRA (低秩适应)：</strong> 冻结原模型。在每层旁外挂极小的矩阵，只训练这些旁路。显存需求大降。</p>
+<p><strong>QLoRA：</strong> 更极端的省钱大法。先把基座模型<strong>量化（压缩）到 4-bit</strong> 存在显存里，计算时临时反量化回 16-bit，同时外挂 LoRA 训练。这让单张 24GB 甚至 12GB 的消费级显卡都能微调 70B 的大模型。</p>
+<p class="plain-text">大白话：LoRA 是不拆原模型的脑子，在旁边外挂一小块可训练的"补丁"，只练补丁；QLoRA 更狠，先把原模型压缩打包塞进小显存，要用时再临时解压，所以一张家用级显卡也能调教 70B 的大模型。</p>
+`},
+c2_1:{tag:"思考机制",title:"5. 解码参数与 reasoning_effort",html:`
+<p>模型输出前，解码参数决定了如何从概率中选词；而对于推理模型，<code>reasoning_effort</code> 决定了思考深度。</p>
+<h3>1. 传统采样参数</h3>
+<ul>
+<li><strong>Temperature：</strong> 缩放 Logits。越低越保守，越高越发散。</li>
+<li><strong>Top_k：</strong> 固定保留概率最高的 K 个词。</li>
+<li><strong>Top_p：</strong> 动态保留累计概率达到 p 的词。</li>
+<li class="plain-text-li">大白话：Top_k 是"只留成绩前 K 名"；Top_p 是"只留加起来占九成把握（p=0.9）的那批人"，人多人少看战况，分布分散时多留几个，分布集中时少留几个，比固定名额更灵活。</li>
+<li><strong>Min_p：</strong> 相对概率下限。词的概率必须 ≥ (Min_p × 最大概率)。对分布形状更鲁棒。</li>
+</ul>
+<h3>2. reasoning_effort：思考预算控制</h3>
+<p>这是厂商中立的参数，控制模型在内部推理阶段花多少 Token。OpenAI 支持 low 到 xhigh，DeepSeek 默认 high。</p>
+<p><strong>互斥陷阱：</strong> GPT-6 Astra 在推理模式下会直接拒绝 temperature 和 top_p 参数。要恢复采样控制，必须显式传 <code>reasoning_effort: "none"</code>（且部分模型不支持 none）。</p>
+<p><strong>收益递减：</strong> 2026 年实测，xhigh 的成本是 medium 的 2-4 倍，但在很多代码任务上得分反而更低。日常用 medium 更稳。</p>
+<div class="note exam"><div class="note-t">💡 生产配置口诀</div>
+延迟敏感→low；日常通用→medium；复杂代码→high；极难审计→xhigh。出现复读机时，优先调高 Repetition Penalty。</div>
+`},
+c2_2:{tag:"底层架构",title:"6. 深度拆解：Transformer",html:`
+<h3>Q、K、V 矩阵</h3>
+<p>每个词变成向量后，乘三个矩阵得到 Q(Query)、K(Key)、V(Value)。用 Q 和 K 点积算相关性权重，再对 V 加权求和。</p>
+<h3>Transformer 到底在干什么？</h3>
+<p>一句话：<strong>让句子里的每个词，去句子里的其他词那里按需取信息，然后更新自己。</strong>一个 Transformer Block 只做两件事：开会（注意力，词与词交换信息）和消化（FFN，各词独立加工）。剩下的所有零件——Q/K/V、√d_k、多头、位置编码、残差、Norm——都是为了把这两件事做得又准又稳。</p>
+<p class="plain-text">大白话：处理"小明把苹果给了小红，她很开心"这句话，"她"这个词要通过注意力去问全场："谁最像我指的对象？"其他词各自报上匹配分，"小红"分最高，"她"就把"小红"的信息大量拿过来，变成了"她=小红"的向量。这就是 Transformer 的全部核心，后面的公式只是把这个问答做得更精细。</p>
+<p class="plain-text">你在图书馆找书。Q 是搜索词；K 是书上的标签；V 是书里的内容。Q 和 K 匹配得越高，书的 V 权重就越大。</p>
+<h3>为什么除以 √d_k？</h3>
+<p>点积是把 Q 和 K 的每个维度对应相乘再求和。维度 d_k 越大，加在一起的项就越多，点积的结果数值也就越大（大约随 √d_k 增长）。</p>
+<p>问题在于 Softmax 是一个“指数放大器”：输入数值一大，输出就变成接近 1 和接近 0 的极端分布。极端分布下梯度几乎为 0，训练就停摆了。除以 √d_k 正是把点积分数拉回 Softmax 的“舒适区”。</p>
+<p class="plain-text">大白话：点积分数会随维度变大而虚高，直接喂给 Softmax 会导致“一家独大”。除以 √d_k 是给分数降降温，让注意力权重保持平滑、可训练。</p>
+<h3>自注意力与多头注意力是什么关系？</h3>
+<p><strong>自注意力（Self-Attention）是一种机制，多头注意力是它的多份并行副本。</strong>“自”指的是 Q、K、V 都来自同一句话：序列中每个词对这句话里的所有词（包括自己）算相关性，再按权重取信息，而不是去别处要信息。</p>
+<p>一次自注意力只有一组 Q/K/V 权重，只能捕捉一种关系模式（比如只盯住指代关系）。为了让模型同时看到多种关系，把每个词的向量切成 h 份，每份配上各自独立的 Q、K、V 矩阵，独立做一次完整的自注意力——这就是<strong>多头注意力</strong>。各头的输出拼接后再过一次线性变换融合。</p>
+<p class="plain-text">大白话：自注意力是“开一次会，全场互相打分、按分取信息”；多头注意力是“同时开 h 个主题不同的小组会，每个会场只拿一小份人马，各聊各的角度（语法、指代、位置……），散会后把所有会议纪要拼接汇总”。多头不是新机制，而是把自注意力并行复制多份、让每份学不同的关注点。</p>
+<h3>位置编码：RoPE 旋转</h3>
+<p>Transformer 是同时看所有词的，不知道语序。现在最主流的 <strong>RoPE</strong> 把位置信息当成一种<strong>旋转角度</strong>，加到 Q 和 K 向量上。</p>
+<p class="plain-text">想象两个齿轮咬合（词与词的注意力匹配），如果它们的位置不同，相对旋转的角度就不同。通过这种“转圈圈”，模型就精确知道了谁在前面、谁在后面。</p>
+`},
+c2_2b:{tag:"底层架构",title:"7. Transformer 进阶：残差、FFN 与整体流水线",html:`
+<h3>一个完整 Block 的流水线</h3>
+<p>上一节讲了注意力，但一个 Transformer Block 还有一个常被忽略的另一半：<strong>前馈网络（FFN）</strong>。完整流水线是：</p>
+<div class="code"><span class="c">// 一个 Block 的数据流（Pre-Norm 结构）</span>
+x = x + Attention(Norm(x))   <span class="c">// 注意力子层：词与词交换信息</span>
+x = x + FFN(Norm(x))         <span class="c">// 前馈子层：每个词独立加工</span></div>
+<p class="plain-text">注意力像开会：大家互相交流信息；FFN 像会后各自回工位消化笔记。开会交换的是“谁和谁相关”，消化才是把信息真正变成自己的知识——FFN 通常占模型三分之二的参数量。</p>
+<h3>残差连接：为什么 x = x + f(x)？</h3>
+<p>深层网络直接堆叠时，梯度传回去会一路衰减，几十层根本训不动。<strong>残差连接</strong>让每一层只学“增量”（要改什么），而不是重写全部：</p>
+<ul>
+<li>梯度可以经由恒等捷径无损地直通底层，几十上百层也能训练。</li>
+<li>每层默认做“无操作”是安全的，网络只需学习在此基础上微调，训练更稳定。</li>
+</ul>
+<h3>LayerNorm / RMSNorm：稳定数值</h3>
+<p>归一化把每层输出的数值拉回稳定区间，防止训练中数值爆炸。<strong>LayerNorm</strong> 对每个 Token 的特征维度算均值和方差再缩放；现代大模型（LLaMA 等）多用简化版 <strong>RMSNorm</strong>（去掉均值中心化），配合 <strong>Pre-Norm</strong>（归一化放在子层之前）比早期 Post-Norm 训练更稳定。</p>
+<h3>FFN 里的 SwiGLU 激活</h3>
+<p>FFN 是两层矩阵变换夹一个非线性激活，没有激活整个网络就退化成一次线性变换。现代主流激活是 <strong>SwiGLU</strong>：把输入分成两路，一路过 Swish 激活后与另一路相乘（门控），让网络自己学会“哪些特征该放行”。</p>
+<h3>Encoder-Decoder 与 Decoder-Only</h3>
+<ul>
+<li><strong>Encoder-Decoder：</strong> 原始 Transformer 设计，编码器理解输入、解码器生成输出，适合翻译这类“先读懂再写出”的任务（T5、BART）。</li>
+<li><strong>Decoder-Only：</strong> 只保留解码器，统一做“接下一个词”，GPT、LLaMA、DeepSeek 及当前几乎所有大模型都是这一形态。对生成任务和统一接口（万物皆 Token 接龙）来说，它更简洁高效。</li>
+<li><strong>BERT 类（Encoder-Only）：</strong> 只做理解不做生成，用于分类、检索、句向量。</li>
+</ul>
+<p class="plain-text">记住一个判断式：只输出理解结果（打标签、算相似度）用 Encoder-Only；要生成文字，现在一律 Decoder-Only。</p>
+`},
+c2_3:{tag:"架构范式",title:"8. 架构范式：Dense 与 MoE",html:`
+<h3>Dense (稠密模型)</h3>
+<p>每次推理，所有参数都参与计算。</p>
+<h3>MoE (混合专家)</h3>
+<p>模型拆成多个专家。Router 只选择 Top-K 个专家计算，打破参数量与计算量的绑定。</p>
+<h3>MoE 的核心难题：负载均衡</h3>
+<p>如果 Router 总是选那几个专家，其他专家会“饿死”，模型退化。为了解决这个，训练时引入<strong>负载均衡损失（Auxiliary Loss）</strong>，强迫 Router 把任务均匀分给各个专家。</p>
+<p class="plain-text">公司有几百个部门（专家），前台（Router）派活时，不能总把活派给那几个劳模，否则其他人闲死，劳模累死。系统要强行干预，确保每个部门都有活干，这样才能全面发展。</p>
+`},
+c2_4:{tag:"模型范式",title:"9. 推理模型 vs 指令模型",html:`
+<h3>Instruct (指令模型)</h3>
+<p>快思考。适合日常对话、翻译、写文案。</p>
+<h3>Reasoning (推理模型)</h3>
+<p>慢思考。在内部生成隐藏的“思维链”进行推演。它靠什么训练出来的？</p>
+<ul>
+<li><strong>RLVR (可验证奖励强化学习)：</strong> 数学题有唯一解，代码有测试用例。模型做对了给奖励，做错了给惩罚，逼迫它学会严密推理。</li>
+<li><strong>PRM (过程奖励模型)：</strong> 不只奖励最终答案，而是对推理的每一个中间步骤打分，防止模型“过程全错，答案蒙对”。</li>
+</ul>
+<h3>CoT 与 CoD：推理模型怎么“想”</h3>
+<p><strong>CoT (Chain-of-Thought，思维链)：</strong> 让模型把推理过程一步步写出来——“先算 A，得到中间结论，再推 B，最后得出答案”。本质是把复杂问题拆成一串简单步骤，每一步只做一小次“文字接龙”，出错概率大幅下降。它既是提示技巧（“让我们一步一步思考”），也是推理模型训练出来的默认行为。</p>
+<p><strong>CoD (Chain-of-Draft，草稿链)：</strong> CoT 的问题是把推理全程写出来，输出长、延迟高、费用贵。CoD 让模型只输出每一步的极简草稿（每步一句话、几个词），砍掉解释性废话，精度与 CoT 相近，但 token 消耗和延迟大幅降低。</p>
+<p class="plain-text">大白话：CoT 是“把草稿纸上的每一步推导都工工整整写出来给人看”，CoD 是“只在草稿纸上写关键中间结果，不写废话”。推理模型的“思考中……”刷出来的大段内容就是 CoT；CoD 是它的省钱提速版。</p>
+<h3>为什么 CoT 是当前主流？</h3>
+<p><strong>结论：是的，CoT（及其内部变体）是当前推理范式的主流，CoD 只是特定场景下的优化手段。</strong>原因有三：</p>
+<ul>
+<li><strong>错误可回溯：</strong> CoT 把每一步显式写出，错了能定位到具体步骤（配合 PRM 逐步打分纠正）；CoD 只留结论草稿，中间依据缺失，出错难以诊断。</li>
+<li><strong>可验证奖励的前提：</strong> RLVR 训练需要完整推理轨迹来分配奖励，CoT 天然提供这条轨迹；模型也是先学会“写全”再学会“压缩”。</li>
+<li><strong>能力上限更高：</strong> 写出全过程等于给模型更多“思考 token”，难题上准确率明显更高；CoD 压缩步数是拿上限换速度。</li>
+</ul>
+<h3>正式场景举例：CoT 与 CoD 各用在哪</h3>
+<p><strong>该用 CoT 的场景（要准确、要可审计）：</strong></p>
+<ul>
+<li><strong>金融研报审核：</strong> 核对“该子公司营收占比 43%”这类结论时，必须逐步列出“找哪张表→取哪个数→怎么算”，审计员才能复核每一步。</li>
+<li><strong>医疗辅助诊断：</strong> 从症状到鉴别诊断的每步依据都要留痕，医生需要看到“为什么先排除 A 再考虑 B”，只给结论无法采信。</li>
+<li><strong>法律合同审查：</strong> 逐条比对条款与法规，中间推理即工作底稿，出争议时要能追溯判断依据。</li>
+</ul>
+<p><strong>该用 CoD 的场景（量大、要快、结论简单）：</strong></p>
+<ul>
+<li><strong>客服工单批量分类：</strong> 每天几十万条工单打标签，用户只看“投诉/咨询/退款”这个结论，无需展示推理，CoD 可省 60% 以上 token 和延迟。</li>
+<li><strong>代码评审初筛：</strong> CI 流水线里对每个 commit 快速圈出可疑点，每步只写“第 3 行：未判空”，秒级返回即可。</li>
+<li><strong>实时风控拦截：</strong> 交易请求毫秒级必须出放行/拦截判断，只留关键判断依据，不能等模型写完千字推理。</li>
+</ul>
+<p class="plain-text">一句话选型：结论要被人复核、错了代价大 → CoT；量大管饱、只要结论、延迟敏感 → CoD。</p>
+`},
+c3_1:{tag:"外挂系统",title:"10. RAG：检索增强",html:`
+<p>RAG 给模型提供“开卷考试”能力。但做好很难。</p>
+<h3>切块 (Chunking) 的艺术</h3>
+<p>文档不能乱切。切太大，检索不准；切太小，丢失上下文。必须按照段落、标题进行<strong>语义切块</strong>。</p>
+<h3>重排 (Rerank)</h3>
+<p>向量检索捞出的片段往往是粗糙的。需要用一个专门的小模型（Rerank模型），把问题和候选片段放在一起做精细打分，把最相关的 3 条提取出来给大模型，大幅降低幻觉。</p>
+<p class="plain-text">大白话：向量检索像图书管理员按印象先抱来一摞"大概有关"的书，数量多但不保证都对口；Rerank 是再派一位细心的助理，把这摞书一本本翻开和你的问题逐条比对，只挑出真正最相关的两三本放在你桌上。资料给得准，模型才不容易瞎编。</p>
+<h3>混合检索 (Hybrid Search)</h3>
+<p>纯向量检索不懂精确编号。必须结合 BM25（关键词搜索），并用 RRF 算法融合排序。</p>
+<p class="plain-text">大白话：向量检索像"凭感觉找意思相近的段落"，但遇到产品型号、编号这种一字不能差的，它会看走眼；BM25 就是老式的"按关键词精确查找"。两者各查一遍，再用 RRF（把两份榜单的名次揉在一起重新排名）合并结果，既找得准又找得稳。</p>
+`},
+c3_2:{tag:"外挂系统",title:"11. Agent 与 MCP 协议",html:`
+<h3>Agent 的三大规划模式</h3>
+<ul>
+<li><strong>ReAct：</strong> 边想边做。思考 -> 行动 -> 观察结果 -> 再思考。适合探索型任务。</li>
+<li><strong>Plan-and-Execute：</strong> 先列出 1,2,3 步骤计划，再一步步执行。适合稳定流程。</li>
+<li><strong>Reflexion：</strong> 执行完后，开启一个“反思者”角色，检查自己的输出有没有错，打回重做。</li>
+</ul>
+<p class="plain-text">ReAct 像无头苍蝇边撞边找路；Plan 像先写好剧本再按部就班拍戏；Reflexion 像做完卷子自己先检查一遍再交。</p>
+<h3>MCP</h3>
+<p>统一了标准接口（Client-Host-Server），让工具像 USB-C 一样即插即用。</p>
+`},
+c3_3:{tag:"外挂系统",title:"12. AI 工作流设计模式",html:`
+<h3>先分清：Workflow 还是 Agent？</h3>
+<ul>
+<li><strong>Workflow（工作流）：</strong> 流程控制权在代码里，LLM 与工具按预定义路径编排。步骤可枚举、要求稳定可复现的标准化任务选它，出问题能在日志里定位到具体哪一步。</li>
+<li><strong>Agent（智能体）：</strong> 流程控制权在模型手里，由 LLM 动态决定下一步与工具。适合开放式任务，代价是延迟与成本，必须配护栏：最大迭代次数、人工检查点、沙箱隔离。</li>
+</ul>
+<p class="plain-text">判断标准一句话：在没有用户新指令的前提下，AI 会不会主动推进下一步。会，是 Agent；不会，哪怕连续调了五个工具，也只是 Workflow 或增强型 LLM。</p>
+<h3>五大经典 Workflow 模式（Anthropic《Building Effective Agents》）</h3>
+<ul>
+<li><strong>Prompt Chaining 提示链：</strong> 任务拆成固定序列，前一步输出即后一步输入，中间可加程序化检查门（Gate）把关，用延迟换准确。</li>
+<li><strong>Routing 路由：</strong> 先分类再分发。客服按意图分流；简单问题给小模型、难题给强模型，兼顾成本与质量。</li>
+<li><strong>Parallelization 并行化：</strong> 分段（独立子任务并行）与投票（同任务多次采样取多数）两种变体，安全护栏与代码漏洞审查常用多视角投票。</li>
+<li><strong>Orchestrator-Workers 编排-工作者：</strong> 中心 LLM 动态分解任务、派发工作者、再汇总。与提示链的区别在于子任务不是预定义的。</li>
+<li><strong>Evaluator-Optimizer 评估-优化：</strong> 生成器产出、评估器按标准打分给反馈，循环迭代直到达标。</li>
+</ul>
+<h3>选型原则与平台落地</h3>
+<p>三层渐进：先优化单次 LLM 调用（配检索与示例），不够再上 Workflow，最后才是自主 Agent；如无必要不增加复杂性。平台落地：n8n 节点驱动、集成最广、可自托管，适合跨系统流程自动化；Dify 主打 AI 应用编排与知识库（LLMOps），适合企业级 AI 应用；Coze 轻量低代码、多智能体协作，适合快速搭建智能体。</p>
+`},
+c4_1:{tag:"能力边界",title:"13. 算不准数、幻觉与复杂度墙",html:`
+<h3>计算分裂脑</h3>
+<p>LLM 懂数学原理但算不对数。因为它是概率接龙，不是符号运算。必须外挂代码解释器。</p>
+<h3>幻觉 (Hallucination)</h3>
+<p>模型不知道时，一本正经地胡说八道。</p>
+<h3>复杂度墙</h3>
+<p>100 步的任务，每步 99% 正确率，整体成功率只有 37%。长任务必须有人工兜底。</p>
+<p class="plain-text">大白话：模型算不对数，因为它是在"猜下一个字"，不是在按计算器——让它算账，就像让一个语文很好的学生心算，原理懂但容易错，正确做法是递给他一个计算器（代码解释器）。它瞎编（幻觉）是因为不知道时也不肯说"不知道"，就像考试硬要蒙一个答案。至于复杂度墙：一步对 99% 听着很稳，但连续走 100 步，全对的可能只剩三成多——好比接力赛每人只掉链子 1%，跑完 100 棒大概率还是掉棒，所以长流程必须设人工检查点兜底。</p>
+`},
+c4_2:{tag:"能力边界",title:"14. 品味的真相",html:`
+<p>AI 审美是预训练 + 人类对齐的统计学产物，是大众审美的最大公约数。为了安全讨好人类，棱角被磨平，产生了“AI 油腻味”。</p>
+<h3>“油腻味”从哪来：三个来源</h3>
+<ul>
+<li><strong>RLHF 的平均化效应：</strong> 标注员多数偏好工整、面面俱到、语气饱满的回答，模型学会“什么都有一点”，反而失去锋利的个人风格（2025 年哈工大 NLP 报告将此归入对齐与评测安全问题）。</li>
+<li><strong>安全对齐的磨平：</strong> 拒答模板、免责声明、对称式表态（“一方面…另一方面…”）是训练中被强化的安全模式，输出在风格上趋同。</li>
+<li><strong>数据的同质化：</strong> 预训练语料中网络流行文风占比高，模型天然向高均值文风回归。</li>
+</ul>
+<h3>如何品味：判断力是可以训练的</h3>
+<ul>
+<li><strong>建立反例库：</strong> 主动收集“一眼 AI”的特征——排比开头、总结式收尾、滥用“不仅…更是…”——以后识别成本从通读降到扫读。</li>
+<li><strong>用约束逼出风格：</strong> 要求模型模仿具体作者、限定禁用词表、指定篇幅与信息密度；约束越具体，平均化越难生效。</li>
+<li><strong>多模型交叉品味：</strong> 同一问题让不同模型作答，差异处往往就是各自对齐策略的痕迹，是理解“品味从何而来”的最直接实验。</li>
+</ul>
+<p class="plain-text">一句话：AI 的品味是它见过的平均值，你的品味是你主动选择偏离多少。会用 AI 的人不是让它替你审美，而是把它当成素材库，判断权留在自己手里。</p>
+`},
+c5_1:{tag:"工程部署",title:"15. KV Cache 与 PagedAttention",html:`
+<p>生成每个 Token 时复用历史 K/V 向量（KV Cache）。</p>
+<h3>PagedAttention 革命</h3>
+<p>传统 KV Cache 在显存中是连续存储的，容易产生大量的内存碎片。vLLM 框架引入了操作系统中的<strong>虚拟内存分页技术（PagedAttention）</strong>，把 KV Cache 切成固定大小的块，按需分配。这使得吞吐量提升了数十倍。</p>
+<p class="plain-text">大白话：模型说话时要"记住"前文，记住的内容（KV Cache）得放在显存里。以前是整块连续占用，就像餐厅只接整桌客人，留下很多坐不满的空位（内存碎片）；PagedAttention 学操作系统管内存的办法，把座位拆成小卡座按需分配，同样大的餐厅能接待多得多的客人，所以吞吐量暴涨。</p>
+<h3>DeepSeek 的缓存偏移</h3>
+<p>MLA 架构把缓存压缩存到 SSD（缓存偏移）。前缀必须完全匹配才命中。</p>
+`},
+c5_maas:{tag:"商业变现",title:"16. MaaS 模式",html:`
+<h3>四种模式的分界</h3>
+<p>IaaS 卖裸算力（服务器、GPU 卡），PaaS 卖开发平台，SaaS 卖成型的软件订阅，<strong>MaaS 租 AI 大脑按 Token 计费</strong>。MaaS 的定价逻辑与传统软件不同：成本随用量线性增长，没有传统 SaaS 的高毛利边际成本优势。</p>
+<h3>计费方式</h3>
+<p>主流为按 Token 计费，输入与输出价格不同（输出约为输入的 3~5 倍）。此外还有按订阅包月（如各家 Chat 产品）、按席位、按效果分成的模式。缓存命中的 Token 通常以折扣价计费，这也是重复前缀场景降本的核心抓手。</p>
+<h3>降本与毛利</h3>
+<p>MaaS 公司的毛利取决于推理成本：模型压缩（量化、蒸馏、投机解码）、上下文缓存、连续 batching 都是压低单次调用成本的手段。企业侧则通过提示词精简、分级模型路由与请求缓存控制账单。</p>
+<h3>选型考量</h3>
+<p>自建（开权重私有化部署）还是买 API，取决于数据敏感度、调用量与运维能力：数据不可出域或调用规模大到边际成本倒挂时倾向自建；小规模、快速验证场景直接用 API 更划算。</p>
+`},
+c5_2:{tag:"安全与商业",title:"17. 安全红线与商业 ROI",html:`
+<h3>三大红线</h3>
+<p>未公开源码、核心财务、个人隐私绝对不能发给公网大模型。判断标准不是"内容看起来不敏感"，而是泄露后能否被聚合还原：单条看似无害的片段，与公开信息交叉比对后可能拼出完整机密。涉密与强合规场景应选择私有化部署或本地模型，并在网关层做脱敏与敏感词拦截，而不是靠员工自觉。</p>
+<h3>企业落地的安全分层</h3>
+<ul>
+<li><strong>输入侧：</strong> 提示词注入防护、敏感信息脱敏、用户输入与系统指令隔离。</li>
+<li><strong>输出侧：</strong> 内容安全过滤、结构化校验、工具调用白名单。</li>
+<li><strong>权限侧：</strong> Agent 能触达的系统按最小权限授权，高危操作需人工确认。</li>
+<li><strong>审计侧：</strong> 全量日志留存与回放，出问题能定位到具体请求与责任环节。</li>
+</ul>
+<h3>商业 ROI 怎么算</h3>
+<p>不要算调用次数，要算人效提升、周期缩短。正确姿势是选定高频、可量化的人工流程做基线：对比引入大模型前后的处理时长、人力投入与错误率，把节省折算成钱。典型高 ROI 场景是文档摘要、客服初筛、代码辅助这类"人做很慢、AI 做很快但需人复核"的任务；收益递减最快的场景是低频、强专业判断、错误代价极高的决策，这类场景 AI 只能当参考而非替代。</p>
+<h3>常见的算账误区</h3>
+<p>只算 API 账单不算人工复核成本；只看试点指标不看上线后的真实分布；把一次性提效当成可持续收益。ROI 结论必须来自小流量灰度后的长期数据，而不是演示环境。</p>
+`},
+c6_harness:{tag:"Harness",title:"18. Harness 五大模块",html:`
+<h3>定位</h3>
+<p><strong>Harness 是模型之外的运行时执行框架。</strong> 模型负责“想”，Harness 负责“跑”：它把模型的输出变成真实世界里可执行、可回滚、可审计的动作。</p>
+<h3>五大模块</h3>
+<ul>
+<li><strong>执行循环（Agent Loop）：</strong> 推理 → 调工具 → 观察结果 → 再推理，直到任务完成或触发终止条件。</li>
+<li><strong>工具集（Tools）：</strong> 文件读写、Shell 执行、浏览器、检索等能力的统一注册与调用协议。</li>
+<li><strong>记忆管理（Memory）：</strong> 会话上下文、长期记忆与上下文窗口的裁剪和持久化策略。</li>
+<li><strong>权限控制（Permissions）：</strong> 危险操作（删文件、外发数据、执行命令）需白名单或人工确认，遵循最小权限原则。</li>
+<li><strong>可观测性（Observability）：</strong> 全程操作日志、Trace 与回放，出错可定位到具体一步。</li>
+</ul>
+<h3>为什么重要</h3>
+<p>同一模型接不同 Harness，通过率和成本差距可达数倍——模型能力是上限，Harness 决定能稳定兑现多少。企业落地时，完善 Harness 往往比更换模型更值得投入。</p>
+`},
+c6_spec:{tag:"Harness",title:"19. AGENTS / SKILL / DESIGN",html:`
+<h3>三层指令体系</h3>
+<p>AI 编码的质量上限很大程度取决于给它的常驻上下文。三层分工让"该长期在场的"和"该按需加载的"各归其位，避免把所有规范塞进一个巨大的系统提示词。</p>
+<ul>
+<li><strong>AGENTS.md（常驻）：</strong> 项目级宪法。写技术栈约定、目录结构、编码规范、禁止事项，每次会话自动加载，是最稳定的约束层。</li>
+<li><strong>SKILL.md（按需）：</strong> 具体技能的操作手册。做某类任务（如部署、写迁移脚本）时才注入，含步骤、命令与易错点，用完即走，不占常驻上下文。</li>
+<li><strong>DESIGN.md（视觉规范）：</strong> 前端项目专用。统一配色、间距、组件样式与交互约定，保证 AI 生成多轮界面后风格仍然一致。</li>
+</ul>
+<h3>实践要点</h3>
+<p>三层文件都应短小、可执行、带例子；写得越模糊，AI 自由发挥的空间越大。规范冲突时以更具体的一层为准，AGENTS.md 中可声明加载顺序。规范文件本身要随项目演进定期修订，过时的约束比没有约束更糟。</p>
+`},
+c6_sdd:{tag:"SDD",title:"20. SDD 规格驱动开发",html:`
+<h3>核心理念</h3>
+<p>先写结构化规格，再让 AI 编码。规格是唯一的真相来源（Single Source of Truth）：人审规格的成本远低于人审代码，而 AI 按规格实现，偏差可以被逐条核对。</p>
+<h3>五步流程</h3>
+<ul>
+<li><strong>Specify（规格）：</strong> 用自然语言或结构化文档写清需求、边界、验收标准，写“做什么”而不是“怎么做”。</li>
+<li><strong>Plan（计划）：</strong> 让 AI 把规格翻译成技术方案：模块划分、数据结构、依赖关系，人审方案再放行。</li>
+<li><strong>Tasks（任务）：</strong> 拆成可独立验证的小任务，每个任务带明确的完成判据，避免一次性生成大块代码。</li>
+<li><strong>Implement（实现）：</strong> AI 按任务逐个实现，每个任务完成即提交，保证可回滚。</li>
+<li><strong>Converge（收敛）：</strong> 用验收标准与测试核对实现与规格的偏差，迭代修正直到一致。</li>
+</ul>
+<h3>与传统开发的关系</h3>
+<p>TDD 把正确性锚定在测试上，SDD 把正确性锚定在规格上；两者可以叠加：规格定义“做对的事”，测试定义“事做对了”。在 AI 生成代码的时代，审查点上移到规格层，是控制质量最划算的位置。</p>
+`},
+c6_eco:{tag:"生态",title:"21. 工程生态与落地",html:`
+<h3>多模态与长上下文</h3>
+<p>VLM（视觉语言模型）把图像编码为 token 序列与文本统一建模；长上下文窗口虽扩大到百万级，但“有效上下文”通常远小于标称值，中间信息容易被忽略（lost in the middle），关键信息应放在首尾。</p>
+<h3>训练与推理工程</h3>
+<ul>
+<li><b>知识蒸馏</b>：用大模型（教师）的输出训练小模型（学生），核心目的是在更低成本下保留大部分能力。</li>
+<li><b>混合精度（FP16/BF16）</b>：训练用半精度省显存、提速，BF16 数值范围与 FP32 相同更稳定。</li>
+<li><b>Prefill 与 Decode</b>：Prefill 一次并行处理整段 prompt，Decode 逐 token 生成；首字延迟看 Prefill，生成速度看 Decode。</li>
+<li><b>KV Cache 低比特量化</b>：把 KV Cache 压到 INT8/FP8，显存省数倍，是长上下文部署的关键手段。</li>
+<li><b>FlashAttention</b>：通过分块计算减少显存读写，让注意力计算更快更省显存。</li>
+</ul>
+<h3>生态与架构</h3>
+<ul>
+<li><b>Hugging Face</b>：模型托管 + Transformers 库 + Datasets，是开源模型生态事实标准。</li>
+<li><b>开源私有化 vs 公有云 API</b>：数据合规与长期成本选私有化，快速验证与前沿能力选 API。</li>
+<li><b>System Prompt</b>：设定角色与边界的最高优先级指令，但仍需代码层校验兜底，不能只靠提示词。</li>
+<li><b>可观测性</b>：企业 Agent 必须记录每步调用、工具输入输出与 token 成本，否则无法定位失败与核算 ROI。</li>
+<li><b>AI 原生分层架构</b>：交互层 → 编排/Agent 层 → 模型网关 → 模型层 → 数据层，逐层可替换。</li>
+</ul>
+<p>本章节为补充超纲考点新增，覆盖题库中此前无大纲对应的工程与生态类题目。</p>
+`},
+c6_2026:{tag:"2026.11",title:"22. 2026年11月 模型与工具实测",html:`
+<h3>模型前三</h3>
+<p>Gemini 4 Carbon, Claude Opus 5.5, GPT-6 Astra。三者差距已缩小到个位数百分点，选型更多看生态与价格而非跑分：Gemini 长上下文与多模态占优，Claude 在代码任务与指令遵循上口碑最好，GPT 生态插件与工具链最全。</p>
+<h3>Harness 实测</h3>
+<p>同一模型，通过率最高差 13.4%，每次通过成本最高差 17.5 倍。结论：换 Harness 的收益可能大于换模型，评测必须把模型和运行时当成一个整体来测，单独跑模型跑分意义有限。</p>
+<h3>给企业的启示</h3>
+<p>选型时先定 Harness 再选模型：团队已有的工作流、权限与审计体系决定迁移成本；对新模型做灰度评测时固定提示词与工具集，才能把差异归因到模型本身。月度复测一次榜单即可，追热点频繁换模型反而拉高维护成本。</p>
+`},
+glossary:{tag:"附录",title:"📖 核心术语表",html:`
+<p>本表汇总全文出现的核心缩写，按主题分组，点击左侧目录可跳转对应章节查看详解。</p>
+<h3>模型与训练</h3>
+<div class="tbl"><table>
+<tr><th>缩写</th><th>全称</th><th>一句话解释</th></tr>
+<tr><td><strong>LLM</strong></td><td>Large Language Model</td><td>大语言模型，基于海量文本做文字接龙的概率模型</td></tr>
+<tr><td><strong>BPE</strong></td><td>Byte-Pair Encoding</td><td>分词算法，把高频相邻字节对合并成 Token</td></tr>
+<tr><td><strong>SFT</strong></td><td>Supervised Fine-Tuning</td><td>监督微调，用人工标注问答对教会模型对话格式</td></tr>
+<tr><td><strong>RLHF</strong></td><td>Reinforcement Learning from Human Feedback</td><td>基于人类反馈的强化学习对齐，流程复杂易崩溃</td></tr>
+<tr><td><strong>DPO</strong></td><td>Direct Preference Optimization</td><td>直接偏好优化，把奖励模型内化，训练稳定，当前主流</td></tr>
+<tr><td><strong>RLVR</strong></td><td>Reinforcement Learning with Verifiable Rewards</td><td>可验证奖励强化学习，靠标准答案/测试用例训练推理能力</td></tr>
+<tr><td><strong>PRM</strong></td><td>Process Reward Model</td><td>过程奖励模型，对推理的每个中间步骤打分</td></tr>
+<tr><td><strong>PEFT</strong></td><td>Parameter-Efficient Fine-Tuning</td><td>参数高效微调，LoRA/P-Tuning 等技术的统称</td></tr>
+<tr><td><strong>LoRA</strong></td><td>Low-Rank Adaptation</td><td>低秩适应，冻结基座只训练外挂小矩阵</td></tr>
+<tr><td><strong>QLoRA</strong></td><td>Quantized LoRA</td><td>先把基座量化到 4-bit 再外挂 LoRA，消费级显卡可微调大模型</td></tr>
+</table></div>
+<h3>架构与组件</h3>
+<div class="tbl"><table>
+<tr><th>缩写</th><th>全称</th><th>一句话解释</th></tr>
+<tr><td><strong>FFN</strong></td><td>Feed-Forward Network</td><td>Transformer Block 中的前馈网络，负责逐词独立加工</td></tr>
+<tr><td><strong>RoPE</strong></td><td>Rotary Position Embedding</td><td>旋转位置编码，用旋转角度注入相对位置信息</td></tr>
+<tr><td><strong>RMSNorm</strong></td><td>Root Mean Square Normalization</td><td>层归一化的简化版，现代大模型标配</td></tr>
+<tr><td><strong>SwiGLU</strong></td><td>Swish-Gated Linear Unit</td><td>带门控的激活函数，FFN 中的主流选择</td></tr>
+<tr><td><strong>MoE</strong></td><td>Mixture of Experts</td><td>混合专家，Router 只激活部分专家，省算力不省显存</td></tr>
+<tr><td><strong>MLA / GQA</strong></td><td>Multi-head Latent Attention / Grouped-Query Attention</td><td>压缩 KV Cache 的注意力变体</td></tr>
+<tr><td><strong>FlashAttention</strong></td><td>—</td><td>分块计算注意力的加速算法，结果完全等价</td></tr>
+</table></div>
+<h3>推理与应用</h3>
+<div class="tbl"><table>
+<tr><th>缩写</th><th>全称</th><th>一句话解释</th></tr>
+<tr><td><strong>CoT</strong></td><td>Chain-of-Thought</td><td>思维链，把推理逐步写出，当前推理范式主流</td></tr>
+<tr><td><strong>CoD</strong></td><td>Chain-of-Draft</td><td>草稿链，每步只留极简草稿，精度相近、延迟大降</td></tr>
+<tr><td><strong>RAG</strong></td><td>Retrieval-Augmented Generation</td><td>检索增强生成，开卷考试，外挂知识库缓解幻觉</td></tr>
+<tr><td><strong>MCP</strong></td><td>Model Context Protocol</td><td>AI 界的 USB-C，工具发现与复用的开放标准</td></tr>
+<tr><td><strong>ReAct</strong></td><td>Reasoning + Acting</td><td>Agent 规划模式，边想边做不断试错</td></tr>
+<tr><td><strong>KV Cache</strong></td><td>Key-Value Cache</td><td>缓存历史 Token 的 K/V 向量，避免重算，占显存</td></tr>
+<tr><td><strong>MaaS</strong></td><td>Model as a Service</td><td>模型即服务，按 Token 计费，位于 IaaS/PaaS 之上</td></tr>
+<tr><td><strong>BM25</strong></td><td>Best Matching 25</td><td>基于词频的经典稀疏检索算法，关键词检索基线，常与向量检索混合使用</td></tr>
+<tr><td><strong>PagedAttention</strong></td><td>—</td><td>借鉴操作系统分页机制管理 KV Cache 显存的推理加速技术，vLLM 的核心</td></tr>
+<tr><td><strong>AGENTS.md</strong></td><td>—</td><td>项目级常驻说明文件，写技术栈、目录与规范，每次会话自动加载</td></tr>
+<tr><td><strong>SKILL.md</strong></td><td>—</td><td>按需加载的技能说明文件，教会模型某项具体能力</td></tr>
+<tr><td><strong>SDD</strong></td><td>Spec-Driven Development</td><td>规格驱动开发，先写规格文档再由模型生成代码</td></tr>
+<tr><td><strong>VLM</strong></td><td>Vision-Language Model</td><td>多模态大模型，图像转视觉 Token 接入语言模型</td></tr>
+</table></div>
+`},
+exam:{tag:"考试中心",title:"",html:`<div id="exam-container"></div>`}
+};
+
+// ======= 题库（共110题，考试取前60题） =======
+const QUIZ_BANK = [
+  { q: "关于大模型的预训练（Pre-training），以下说法正确的有？", o: ["A. 模型在此阶段学会了语法和常识", "B. 核心任务是 Next-Token Prediction（文字接龙）", "C. 预训练出来的模型能完美听从人类指令", "D. 模型此时已具备拒绝有害指令的安全对齐能力", "E. 消耗了模型训练周期中 99% 的算力"], a: [0,1,4], e: "C、D错误。预训练产出的是基座模型，不懂对话格式，需经过 SFT 和人类对齐才能听懂指令并拒绝有害请求。" },
+  { q: "BPE（字节对编码）分词算法的核心原理包括？", o: ["A. 必须依赖外部词典库进行实时查询", "B. 能够完全理解语言的语法结构", "C. 从单个字符开始构建词表", "D. 寻找文本中出现频率最高的相邻字符对并合并", "E. 生僻词会被拆分成多个 Token"], a: [2,3,4], e: "A、B错误。BPE是纯粹的统计学频率算法，不理解语义，也不需要外部词典实时查询。" },
+  { q: "由于 Byte-level BPE 的存在，关于中文与英文的 Token 消耗，正确的有？", o: ["A. 同一个汉字在不同语境下可能被拆成多个字节", "B. 表达同样意思的句子，中文消耗的 Token 数通常比英文多", "C. 这导致中文的 API 调用成本往往高于英文", "D. 中文的 Unicode 编码比英文 ASCII 码更短", "E. BPE 对中文和英文的处理逻辑完全一样，只是字典不同"], a: [0,1,2], e: "D错误，Unicode更长；E错误，BPE是基于字节频率合并，中英文字节分布不同导致切分逻辑表现有差异。" },
+  { q: "关于 SFT（监督微调），下列描述正确的有？", o: ["A. SFT 阶段通常不需要计算损失函数", "B. 注入海量的新世界知识主要靠 SFT", "C. 使用人工标注的高质量问答对", "D. 主要教模型“对话的格式和流程”", "E. 激活了预训练阶段模型已经学到的能力"], a: [2,3,4], e: "A、B错误。注入新知识应使用 RAG；SFT 依然需要计算交叉熵损失进行反向传播。" },
+  { q: "关于人类对齐中的 RLHF 与 DPO，说法正确的有？", o: ["A. RLHF 流程中包含了奖励模型（裁判）和价值网络（评论家）", "B. DPO 完全不需要强化学习的 Rollout 过程", "C. DPO 在数学上将奖励模型内化进了大模型本身", "D. RLHF 通常比 DPO 更稳定，不易崩溃", "E. DPO 只能用于图像生成模型"], a: [0,1,2], e: "D错误，RLHF极易崩溃；E错误，DPO用于LLM。" },
+  { q: "关于 LoRA 和 QLoRA，说法正确的有？", o: ["A. LoRA 会完全覆盖并破坏原有模型的通用知识", "B. LoRA 冻结了基座模型，只训练旁路矩阵", "C. QLoRA 先将基座模型量化压缩到 4-bit 存显存", "D. QLoRA 让单张消费级显卡微调大模型成为可能", "E. LoRA 训练后的参数规模通常只有原来的 1% 左右"], a: [1,2,3,4], e: "A错误。LoRA冻结了原模型，保留了通用知识。" },
+  { q: "关于 reasoning_effort 参数，以下说法正确的有？", o: ["A. 它是厂商中立的参数，控制模型内部思考预算", "B. 它和 temperature 作用在完全相同的阶段，可以互相替代", "C. GPT-6 Astra 在推理模式下拒绝接受 temperature 参数", "D. 在部分模型中，必须显式传 'none' 才能恢复采样参数控制", "E. 设了 xhigh 就一定会产生大量推理 token，收益永远最高"], a: [0,2,3], e: "B错误，作用阶段不同；E错误，GPT-5.6+ 的 effort 是天花板而非地板，且 xhigh 边际收益可能为负。" },
+  { q: "关于 xhigh / max 档位的 reasoning_effort，正确的有？", o: ["A. 实测中，xhigh 成本是 medium 的 2.1–4.2 倍", "B. 在实测中，xhigh 在三个模型中的两个上得分反而更低", "C. xhigh 专为长周期编码、安全审计等极难任务设计", "D. 日常开发用 medium 比 xhigh 更稳", "E. 只要预算充足，所有任务都应该用 max 档位"], a: [0,1,2,3], e: "E错误。max / xhigh 的边际收益可能为负，日常任务用 medium 或 low 更合理。" },
+  { q: "关于解码参数 Temperature 与 Top_p、Top_k，以下说法正确的有？", o: ["A. Temperature 在 Softmax 之前缩放 Logits", "B. Top_k 保留固定数量 K 个最高概率 Token", "C. Top_p 保留动态的 Token 集合，使累计概率达到 p", "D. Temperature 设为 0 时等价于贪心解码", "E. 生产环境中通常把 Top_k 和 Top_p 都设得很低"], a: [0,1,2,3], e: "E错误。同时把 Top_k 和 Top_p 设得过低会导致输出退化，通常二选一。" },
+  { q: "关于 Min_p（相对概率下限）与 Top_p 的区别，正确的有？", o: ["A. Min_p 要求 Token 概率 ≥ Min_p × 最大Token概率", "B. Min_p 是动态相对阈值，对分布形状更鲁棒", "C. Top_p 的候选集合大小随分布形状变化", "D. Min_p 和 Top_p 是同一个参数的不同叫法", "E. Min_p 能在某些情况下比 Top_p 更好地剔除低质量长尾词"], a: [0,1,2,4], e: "D错误。两者机制不同。" },
+  { q: "关于三类重复惩罚（Repetition / Presence / Frequency Penalty），正确的有？", o: ["A. Repetition Penalty 是乘法惩罚，正数 Logit 除以 γ", "B. Presence Penalty 是固定减法，只要 Token 出现过就扣减", "C. Frequency Penalty 的惩罚量与该 Token 出现次数成正比", "D. Repetition Penalty 只看生成部分，不看 Prompt", "E. 出现复读机现象时，优先调高 Repetition Penalty 比单纯降温度更有效"], a: [0,1,2,4], e: "D错误。Repetition Penalty 同时作用于 prompt 和生成历史。" },
+  { q: "关于确定性解码与采样策略，正确的有？", o: ["A. 贪心（Greedy）每步取 argmax，长文本容易陷入重复循环", "B. Beam Search 维护多条候选路径，适合机器翻译", "C. 现代对话系统生产默认走采样路径", "D. Beam Search 的多样性通常优于采样，是对话系统首选", "E. Temperature = 0 时 vLLM 会走贪心路径，跳过 Top_k/Top_p 截断"], a: [0,1,2,4], e: "D错误。Beam Search 容易过度重复，对话已弃用。" },
+  { q: "深度拆解 Transformer，以下属于其核心组件的包括？", o: ["A. 循环神经网络单元 (RNN Cell)", "B. 哈希寻址表 (Hash Table)", "C. 自注意力机制 (Self-Attention)", "D. 残差连接 (Residual Connection)", "E. 层归一化 (LayerNorm / RMSNorm)"], a: [2,3,4], e: "A、B错误。" },
+  { q: "在自注意力机制中，Query (Q)、Key (K)、Value (V) 的作用是？", o: ["A. Q 代表当前词的查询意图", "B. K 代表被查询词的标签", "C. 把 Q 和 V 直接相加得到最终答案", "D. Q 和 K 的点积计算相关性权重", "E. V 是被加权提取的真实内容"], a: [0,1,3,4], e: "C错误，是加权求和不是直接相加。" },
+  { q: "为什么在注意力公式中需要除以 √d_k？", o: ["A. 为了让注意力矩阵变成正交矩阵", "B. 防止内积结果数值过大", "C. 防止 Softmax 之后梯度消失", "D. 为了直接减少显存占用", "E. 让注意力分布更平滑、更稳定"], a: [1,2,4], e: "A、D错误。" },
+  { q: "关于位置编码（Positional Encoding）和 RoPE，正确的有？", o: ["A. 让模型知道词的先后顺序", "B. RoPE 通过旋转角度给 Q 和 K 向量注入相对位置信息", "C. 绝对位置编码是目前大模型最主流的方案", "D. RoPE 支持更好的长度外推", "E. 直接把位置数字加到词向量上就是 RoPE 的原理"], a: [0,1,3], e: "C错误，RoPE是相对位置主流；E错误，RoPE是旋转。" },
+  { q: "现代大模型（如 LLaMA 系列）常采用的底层架构优化有？", o: ["A. 使用 Sigmoid 激活函数", "B. 完全去除了注意力层以节省算力", "C. 使用 RMSNorm 代替 LayerNorm", "D. 使用 SwiGLU 激活函数", "E. 使用 RoPE（旋转位置编码）"], a: [2,3,4], e: "A、B错误。" },
+  { q: "关于 Dense 和 MoE（混合专家）架构，正确的有？", o: ["A. Dense 每次推理所有参数参与计算", "B. MoE 打破了参数量与计算 FLOPs 的正比关系", "C. MoE 极大节省了显存占用", "D. MoE 架构必须引入负载均衡机制（Auxiliary Loss）防止专家闲置", "E. 逐 Token 解码时，MoE 的专家跳跃导致权重复用率低"], a: [0,1,3,4], e: "C错误。MoE 省算力，不省显存。" },
+  { q: "关于 Reasoning（推理模型）的底层训练机制，正确的有？", o: ["A. 采用慢思考机制", "B. 可以通过 reasoning_effort 控制思考预算", "C. RLVR 基于最终答案的正确性给予奖励", "D. PRM（过程奖励模型）对中间推理步骤打分，防止蒙对答案", "E. 适合日常简单的客服问答"], a: [0,1,2,3], e: "E错误。Reasoning 贵且慢，不适合日常客服。" },
+  { q: "关于 RAG（检索增强生成）链路，正确的有？", o: ["A. 改变了模型底层参数", "B. 通过外挂知识库缓解幻觉", "C. 切块（Chunking）太大容易导致检索不准，太小容易丢失上下文", "D. Rerank（重排）可以用小模型对初步召回的片段进行精细打分", "E. 纯向量检索足以应对所有场景"], a: [1,2,3], e: "A错误，RAG不改变底层参数；E错误，需要BM25混合检索。" },
+  { q: "Agent（智能体）的常见规划模式包括？", o: ["A. ReAct（边想边做，不断试错）", "B. Plan-and-Execute（先出计划，再按步执行）", "C. Reflexion（执行后自我反思并打回重做）", "D. 必须包含一个物理机器人实体", "E. 工具调用 (Tools)"], a: [0,1,2,4], e: "D错误。Agent 可以是纯软件的。" },
+  { q: "关于 MCP (Model Context Protocol)，正确的有？", o: ["A. 被称为 AI 界的 USB-C", "B. 解决了工具如何被发现和复用的标准问题", "C. 彻底替代了 Function Calling", "D. 架构包含 Host, Client, Server", "E. 由 OpenAI 独家垄断且闭源"], a: [0,1,3], e: "C错误，两者是上下游；E错误，是开源的。" },
+  { q: "大模型无法做对复杂的数学题，原因是？", o: ["A. 本质是文字接龙的概率模型", "B. 缺少严密的符号运算执行逻辑", "C. 它不懂数学逻辑，只在猜哪个数字组合最像答案", "D. 因为模型没有安装本地计算软件", "E. 因为显卡的算力不够"], a: [0,1,2], e: "D、E错误。" },
+  { q: "关于“复杂度墙”，企业落地的启示是？", o: ["A. 100 步任务，每步 99% 正确，整体成功率会暴跌", "B. 这是一个物理定律，无法通过工程手段缓解", "C. 长周期任务必须拆解为可验证的短步骤", "D. 高风险动作必须有人工兜底", "E. 只要把模型参数加到万亿就能解决"], a: [0,2,3], e: "B、E错误。" },
+  { q: "关于 KV Cache 和 PagedAttention，正确的有？", o: ["A. 缓存了历史 Token 的 K 和 V 向量", "B. 避免了生成新 Token 时重算整段历史", "C. PagedAttention 引入了类似操作系统的虚拟内存分页技术", "D. PagedAttention 大幅减少了显存碎片，提升了吞吐量", "E. PagedAttention 主要用于加速模型的预训练过程"], a: [0,1,2,3], e: "E错误。这是推理阶段的优化。" },
+  { q: "DeepSeek 的“缓存偏移 (Cache Offset)”技术如何实现？", o: ["A. 采用 MLA 架构压缩 KV Cache 体积", "B. 把压缩后的缓存下沉到 SSD 等低成本存储", "C. 只要语义相似就能命中缓存", "D. 请求前缀必须完全匹配才能命中", "E. 缓存数据在显存中只能保留 1 分钟"], a: [0,1,3], e: "C、E错误。" },
+  { q: "关于 MaaS（模型即服务），正确的有？", o: ["A. 按 Token 调用量计费", "B. 位于 IaaS 和 PaaS 之上", "C. 用户无需关心底层 GPU 的部署", "D. 用户必须自己编写底层的 CUDA 并发代码", "E. 适合所有对数据极度敏感的核心机密业务"], a: [0,1,2], e: "D、E错误。" },
+  { q: "企业 AI 落地的三大安全红线包括？", o: ["A. 未脱敏的核心源码与密码", "B. 核心财务报表与客户名单", "C. 用户的个人隐私数据（如身份证）", "D. 公开的行业新闻与论文", "E. 放在 GitHub 上的开源项目代码"], a: [0,1,2], e: "D、E是公开信息。" },
+  { q: "评估企业 AI 项目的 ROI，应该关注哪些指标？", o: ["A. 人效提升（人均产出）", "B. 交付周期缩短", "C. 模型每天调用了几万次", "D. 模型生成的文本总字数", "E. 获客成本降低/转化率提升"], a: [0,1,4], e: "C、D错误，系统指标不等于商业 ROI。" },
+  { q: "Harness（智能体执行框架）的核心模块包括？", o: ["A. 大模型的预训练权重参数", "B. 执行循环 (Loop)", "C. 工具集 (Tools)", "D. 记忆管理与权限控制", "E. 可观测性 (Observability)"], a: [1,2,3,4], e: "A错误。Harness 是模型外层的框架。" },
+  { q: "关于权限控制，为什么“不能只靠提示词”？", o: ["A. 模型会被恶意提示词注入/越狱", "B. 模型会在长上下文中产生幻觉或犯错", "C. 提示词中不能使用任何否定词", "D. 必须在 Harness 的代码层拦截高危动作（如转账）", "E. 提示词的字数有严格的限制"], a: [0,1,3], e: "C、E错误。" },
+  { q: "关于 AGENTS.md，正确的有？", o: ["A. 仓库级常驻上下文，每次会话完整加载", "B. 仅在模型需要生成图片时才加载", "C. 回答“在这里怎么工作”", "D. 由 OpenAI、Google 等联合推动，捐给 Linux 基金会", "E. 内容应该包含极致的业务细节和代码实现"], a: [0,2,3], e: "B、E错误。" },
+  { q: "关于 SKILL.md，正确的有？", o: ["A. 任务级可复用工作流", "B. 按需加载，节省上下文预算", "C. 采用“渐进式披露”机制", "D. 启动时会一次性把所有脚本和资源读入内存", "E. 由 Google Labs 主导发布"], a: [0,1,2], e: "D、E错误。" },
+  { q: "SDD（规格驱动开发）的核心要素包含？", o: ["A. 目标 (做什么)", "B. 非目标 (不做什么)", "C. 约束 (技术栈、合规)", "D. 验收标准 (怎么算完成)", "E. 预算审批流程"], a: [0,1,2,3], e: "E错误。预算审批不属于 SDD。" },
+  { q: "根据 2026年11月 FrontierHarness Eval 数据，结论正确的有？", o: ["A. 同一模型，换不同 Harness 通过率相差极大", "B. 云上算账应认准 effective_cost_per_pass（每次通过成本）", "C. Claude Code 和 DSH Creator 通过率相同，但成本相差 5.6 倍", "D. Exo Harness 虽然通过率低，但每次通过成本极低", "E. 通过率最高的 Harness 必然也是成本最低的"], a: [0,1,2,3], e: "E错误。" },
+  { q: "2026年11月 Artificial Analysis 排名前三的模型有？", o: ["A. Gemini 4 Carbon", "B. Claude Opus 5.5 Max", "C. LLaMA 2 70B", "D. GPT-6 Astra Max", "E. DeepSeek V4.1 Flash"], a: [0,1,3], e: "E排第17；C是2023年老模型。" },
+  { q: "Transformer 相比 RNN（循环神经网络）的核心优势包括？", o: ["A. 支持并行计算，训练速度快", "B. 通过自注意力机制，能更好地捕捉长距离依赖", "C. 彻底解决了梯度消失问题", "D. 不需要位置编码就能理解语序", "E. 参数量一定比 RNN 小"], a: [0,1,2], e: "D、E错误。" },
+  { q: "关于 FlashAttention 技术，正确的有？", o: ["A. 是一种加速注意力计算的算法", "B. 在数学计算结果上与原版 Attention 完全等价", "C. 通过分块计算减少 HBM（显存）的读写次数", "D. 减少了 KV Cache 的存储体积", "E. 会改变模型的最终输出结果"], a: [0,1,2], e: "D、E错误。" },
+  { q: "以下哪些属于“参数高效微调（PEFT）”技术？", o: ["A. LoRA (Low-Rank Adaptation)", "B. Prefix Tuning", "C. P-Tuning", "D. Adapter Tuning", "E. 从零开始预训练 (Pre-training)"], a: [0,1,2,3], e: "E错误。" },
+  { q: "大模型在生成长篇文本时出现“复读机”现象，原因可能是？", o: ["A. 陷入了局部最优的概率循环", "B. 解码时 Temperature 设置过低", "C. 缺乏 repetition_penalty (重复惩罚)", "D. 向量数据库崩溃", "E. 显卡显存溢出导致"], a: [0,1,2], e: "D、E错误。" },
+  { q: "企业进行 RAG 落地时，常见的难点（坑）包括？", o: ["A. PDF 文档解析极其困难（表格、跨页）", "B. 文档切块 (Chunking) 粒度难以平衡", "C. 检索出来的内容与问题不相关", "D. 只要用最新的模型，这些问题就会自动消失", "E. 模型经常无视检索到的资料，继续自由发挥"], a: [0,1,2,4], e: "D错误。" },
+  { q: "关于大模型的“对齐税 (Alignment Tax)”，正确的有？", o: ["A. 为了安全，模型可能变得过度拒答", "B. 对齐后，模型在某些专业基准测试上可能得分下降", "C. 是指调用 API 时需要缴纳的税费", "D. 可以通过 DPO 完全消除", "E. 是人类强加价值观导致的副作用"], a: [0,1,4], e: "C、D错误。" },
+  { q: "关于多模态大模型 (VLM)，正确的有？", o: ["A. 能够同时理解文本和图像", "B. 通常通过将图像转化为视觉 Token 接入语言模型", "C. 适合用于财务报表截图识别、UI 代码生成", "D. 可以直接用于生成高清视频", "E. 无法理解图像中的空间关系"], a: [0,1,2], e: "D错误，那是Sora的活。" },
+  { q: "企业在构建专属 Agent 时，为什么必须引入可观测性 (Observability)？", o: ["A. 追踪 Agent 幻觉导致的错误决策链条", "B. 为了提升模型的预训练速度", "C. 统计每个工具调用的耗时和成本", "D. 满足合规审计要求", "E. 防止 Agent 掉入死循环"], a: [0,2,3,4], e: "B错误。" },
+  { q: "关于“长上下文 (Long Context)”窗口，正确的有？", o: ["A. 128K 意味着可以一次性输入十几万字", "B. 模型在长上下文中间部分容易出现“注意力丢失”", "C. 长上下文会显著增加显存消耗 (KV Cache)", "D. 只要有长上下文，就不需要 RAG 了", "E. 长上下文需要极高的算力成本"], a: [0,1,2,4], e: "D错误。" },
+  { q: "下列关于 Hugging Face 的说法，正确的有？", o: ["A. 是全球最大的开源模型和数据集托管平台", "B. 提供了 Transformers 等核心开源代码库", "C. 它是 OpenAI 旗下的子公司", "D. 企业可以从中下载模型进行私有化部署", "E. 只有付费用户才能下载模型"], a: [0,1,3], e: "C、E错误。" },
+  { q: "为什么很多企业选择“开源模型 + 私有化部署”而不是直接用公有云 API？", o: ["A. 数据不出内网，满足极高的安全合规要求", "B. 长期高频调用下，边际成本更低", "C. 可以进行深度的底层微调", "D. 彻底不用担心模型幻觉", "E. 不需要任何 GPU 硬件成本"], a: [0,1,2], e: "D、E错误。" },
+  { q: "关于 System Prompt（系统提示词），正确的有？", o: ["A. 用于设定模型的角色、边界和输出格式", "B. 它的优先级高于用户输入的提示词", "C. 对用户是不可见的", "D. 可以完全杜绝所有的提示词注入攻击", "E. 长度没有上限"], a: [0,1,2], e: "D错误。" },
+  { q: "在 2026 年，企业进行 AI 原生应用开发时，推荐的分层架构通常包含？", o: ["A. 模型层 (LLM / 多模态模型)", "B. 编排层 (RAG / Agent / 框架)", "C. 执行层 (Harness / 工具调用)", "D. 基础设施层 (算力 / 向量数据库)", "E. 只需要大模型一层即可"], a: [0,1,2,3], e: "E错误。" },
+  { q: "关于损失函数（Cross-Entropy Loss），它衡量的是？", o: ["A. 预测概率分布与真实分布的差异", "B. 损失越小，模型预测越准", "C. 它本质上是一种强化学习算法", "D. 它是监督学习中的核心目标函数", "E. 它用于计算模型消耗的 GPU 显存"], a: [0,1,3], e: "C、E错误。" },
+  { q: "关于位置编码（Positional Encoding）与 RoPE，错误的是？", o: ["A. 位置编码让模型知道词的先后顺序", "B. RoPE 通过旋转矩阵将相对位置信息注入 Q 和 K", "C. 绝对位置编码（如正余弦）是目前最先进的方案", "D. RoPE 支持更好的长度外推能力", "E. Transformer 架构天然具备识别词序的能力，不需要位置编码"], a: [2,4], e: "C错误（RoPE是主流）；E错误（同时看所有词会丢失顺序，必须有位置编码）。本题选错误的。" },  { q: "关于量化微调 (QLoRA)，正确的有？", o: ["A. 先把基座模型量化（压缩）到 4-bit 存显存", "B. 计算时临时反量化回 16-bit", "C. 外挂 LoRA 旁路进行训练", "D. 让单张消费级显卡（如 24GB）微调大模型成为可能", "E. 它会完全破坏原有模型的通用知识"], a: [0,1,2,3], e: "E错误。" },
+  { q: "在推理模型的训练中，PRM（过程奖励模型）的主要作用是？", o: ["A. 对推理的每一个中间步骤打分", "B. 防止模型“过程全错，答案蒙对”", "C. 只用最终答案的得分作为奖励", "D. 它是一种可验证奖励（RLVR）的替代方案", "E. 帮助模型学会更严密的逻辑推演"], a: [0,1,4], e: "C错误（那是结果奖励模型）；D错误（PRM与RLVR互补）。" }
+];
+
+QUIZ_BANK.push(
+  { q: "缩放点积注意力中，除以 √d_k 的主要原因是？", o: ["A. 降低注意力计算的总量", "B. 防止点积随维度增大方差过大，使 softmax 进入饱和区", "C. 减少注意力的显存占用", "D. 让 Q 和 K 的维度对齐", "E. 增强模型的位置感知"], a: [1], e: "单选。点积方差随 d_k 增大，除以 √d_k 稳定 softmax 与梯度；其余均不成立。" },
+  { q: "关于 KV Cache 的低比特量化，正确的有？", o: ["A. 能显著降低长上下文场景的显存占用", "B. 可以提升单卡可同时服务的并发数", "C. 量化后显存占用不再随上下文长度增长", "D. 模型的上下文窗口上限会变小", "E. K 和 V 通常都可以量化"], a: [0,1,4], e: "C、D错误：占用仍随长度线性增长，窗口上限不变，只是每 token 缓存更小。" },
+  { q: "大模型知识蒸馏的核心目的是？", o: ["A. 增大模型的参数量", "B. 把教师模型的能力完整复制到更大的模型上", "C. 用教师模型的输出指导训练更小的学生模型，以更低成本获得接近的能力", "D. 提升人工标注数据的质量", "E. 彻底消除模型幻觉"], a: [2], e: "单选。蒸馏是大带小，学生模型学教师输出以获得高性价比；其余夸大或方向相反。" },
+  { q: "关于推理的 Prefill 与 Decode 两个阶段，正确的有？", o: ["A. Decode 阶段是计算密集型", "B. Prefill 一次性处理整段输入，计算密集", "C. Decode 阶段不需要计算注意力", "D. Decode 逐 token 生成，受显存带宽限制", "E. 首字延迟主要由 Prefill 耗时决定"], a: [1,3,4], e: "A、C错误：Decode 每步都要读取全部 KV Cache，瓶颈在带宽而非算力；Prefill 同样要算注意力。" },
+  { q: "下列有助于缓解大模型幻觉的做法有？", o: ["A. 用 RAG 提供可溯源的参考资料", "B. 降低 temperature 并要求模型标注不确定性", "C. 要求回答引用检索到的原文", "D. 对高风险输出增加事实校验环节", "E. 允许模型回答不知道而不是强行编造"], a: [0,1,2,3,4], e: "以上均为业界常用缓解手段，组合使用效果更好；但幻觉只能缓解，无法根除。" },
+  { q: "关于 Transformer 中的残差连接与 LayerNorm，正确的有？", o: ["A. 残差连接缓解深层网络的梯度消失", "B. Pre-Norm 结构通常比 Post-Norm 训练更稳定", "C. LayerNorm 对每个 token 的特征维度做归一化", "D. 残差连接会增加参数量", "E. LayerNorm 的作用对象是整个 batch 的统计量"], a: [0,1,2], e: "D错误：残差连接不加参数；E是 BatchNorm 的特征，LayerNorm 逐样本逐 token 计算。" },
+  { q: "大模型训练中使用混合精度（FP16/BF16）的原因包括？", o: ["A. 显著降低显存占用", "B. 利用 Tensor Core 提升计算吞吐", "C. BF16 的动态范围比 FP16 大，更不易溢出", "D. 混合精度训练完全不需要 FP32 主权重副本", "E. 混合精度会改变模型的理论精度上限"], a: [0,1,2], e: "D错误：通常保留 FP32 主权重并用优化器状态稳定训练；E不成立。" },
+  { q: "关于 Agent 的 ReAct 模式，正确的有？", o: ["A. 将推理（Thought）与行动（Action）交替进行", "B. 行动结果作为观察反馈回下一步推理", "C. ReAct 要求模型一次性输出全部计划且不再修改", "D. ReAct 依赖工具调用能力", "E. ReAct 模式下模型无法利用外部信息"], a: [0,1,3], e: "C是 Plan-and-Execute 的特征且描述也不准确；E与 ReAct 的设计目的相反。" },
+  { q: "关于向量数据库的 ANN 索引，正确的有？", o: ["A. HNSW 是一种基于图的近似最近邻索引", "B. IVF 通过聚类划分空间来缩小搜索范围", "C. ANN 检索结果与暴力检索完全一致", "D. 索引构建通常需要额外内存", "E. 索引参数可以在召回率与速度之间权衡"], a: [0,1,3,4], e: "C错误：ANN 以允许少量召回损失为代价换取速度，不保证完全一致。" },
+  { q: "大模型上下文缓存（Prompt Caching / KV Cache 复用）的价值包括？", o: ["A. 对重复前缀（如长 System Prompt）减少重复计算", "B. 降低首字延迟", "C. 命中部分通常按更低价格计费", "D. 缓存命中后模型的输出概率分布会被改变", "E. 任何请求都能 100% 命中缓存"], a: [0,1,2], e: "D错误：缓存只复用 K/V 中间结果，数学结果等价；E要求前缀一致，命中率取决于请求前缀重叠程度。" }
+);
+QUIZ_BANK.push(
+  { q: "下列属于大模型评测基准的有？", o: ["A. MMLU", "B. GSM8K", "C. HumanEval", "D. ImageNet 原始分类任务"], a: [0,1,2], e: "D是图像分类经典数据集（2012 年），不是大模型语言评测基准。" },
+  { q: "关于 Function Calling（工具调用），正确的有？", o: ["A. 模型输出结构化的参数而非直接执行", "B. 实际执行由外部程序完成", "C. 函数定义会影响模型选择哪个工具", "D. 模型可以直接修改数据库"], a: [0,1,2], e: "D错误：模型只产出调用意图与参数，执行与权限控制在外部程序。" },
+  { q: "LLM 的 token 与字符的关系，正确的有？", o: ["A. 一个汉字通常不是固定一个 token", "B. token 是模型处理文本的最小单位", "C. 英文常用词通常一个 token", "D. 中文字符数与 token 数完全相等"], a: [0,1,2], e: "D错误：中文经 BPE 切分，token 数通常与字符数不等。" },  { q: "下列属于大模型常见安全风险的有？", o: ["A. 提示词注入", "B. 越狱（Jailbreak）", "C. 训练数据投毒", "D. 梯度消失"], a: [0,1,2], e: "D是训练优化难题，不是安全风险。" },
+  { q: "关于 lost in the middle 现象，正确的有？", o: ["A. 关键信息放在长上下文开头或结尾，召回更好", "B. 中间位置的信息更容易被忽略", "C. 上下文越长模型注意力越强", "D. 可以通过重排把最相关内容前置来缓解"], a: [0,1,3], e: "C错误：长上下文反而加重注意力稀释。" },
+  { q: "DPO 相比 PPO 的特点包括？", o: ["A. 不需要单独训练奖励模型", "B. 训练流程更简单稳定", "C. 直接在偏好数据对上优化", "D. 必须在线实时采集人类反馈"], a: [0,1,2], e: "D错误：DPO 使用离线偏好数据对，不需要在线实时反馈。" },
+  { q: "下列关于开源模型生态的说法，正确的有？", o: ["A. Llama、Qwen、DeepSeek 等系列开放权重", "B. 开放权重模型可以私有化部署", "C. 开源协议对商用可能有限制条款", "D. 开放权重等于可随意改名再发行"], a: [0,1,2], e: "D错误：多数许可证要求保留署名或限制再分发方式。" },
+  { q: "大模型应用中 Guardrails（护栏）的作用包括？", o: ["A. 拦截违规或有害输出", "B. 校验结构化输出格式", "C. 防止模型泄露系统提示词", "D. 提升模型预训练速度"], a: [0,1,2], e: "D错误：护栏作用于推理输入输出侧，与预训练无关。" },
+  { q: "大模型 API 返回 401 状态码，通常意味着？", o: ["A. 请求触发限流", "B. API Key 无效或未提供", "C. 输出内容被安全策略拦截", "D. 模型版本已下线"], a: [1], e: "单选。401 = Unauthorized，对应认证失败；限流是 429，内容拦截通常 400 携带过滤说明。" }
+);
+QUIZ_BANK.push(
+  { q: "关于大模型推理时的 batching，正确的有？", o: ["A. Continuous Batching 允许请求随时加入与退出批次", "B. 静态 batching 中短请求会等待同批最长请求", "C. batching 可以显著提升 GPU 利用率", "D. batch 越大单请求延迟一定越低", "E. batching 会改变每个请求的输出内容"], a: [0,1,2], e: "D错误：batch 增大会推高排队与计算竞争，延迟通常上升；E不成立，输出数学上不变。" },
+  { q: "下列属于大模型训练数据预处理步骤的有？", o: ["A. 去重（Deduplication）", "B. 清洗低质量与有毒内容", "C. 数据配比与加权采样", "D. 直接把原始网页数据全部塞入训练集"], a: [0,1,2], e: "D错误：原始数据含大量重复与噪声，会导致记忆化与质量下降。" },
+  { q: "关于 Embedding 模型的选型，合理的考量包括？", o: ["A. 在目标领域数据上评测检索效果", "B. 关注模型支持的最大输入长度", "C. 对比检索延迟与部署成本", "D. 只看通用榜单 C-MTEB 排名即可"], a: [0,1,2], e: "D错误：通用榜单与垂直领域表现常脱节，必须业务评测。" },
+  { q: "大模型部署时 vLLM 相比 HuggingFace 原生推理的优势包括？", o: ["A. PagedAttention 减少显存碎片", "B. 高吞吐的 continuous batching", "C. 支持 tensor parallelism 多卡并行", "D. 会自动微调模型提升精度"], a: [0,1,2], e: "D错误：vLLM 是推理引擎，不做训练与微调。" },
+  { q: "关于奖励模型（Reward Model）训练，正确的有？", o: ["A. 通常用人类偏好的成对比较数据训练", "B. 输出一个标量分数表示回答质量", "C. 奖励模型也可能被 reward hacking 利用", "D. 奖励模型的分数具有绝对意义，可跨任务直接比较"], a: [0,1,2], e: "D错误：分数只在同一分布内相对有意义，跨任务不可比。" },
+  { q: "以下哪些是真实存在的大模型推理优化技术？", o: ["A. 投机解码（Speculative Decoding）", "B. KV Cache 量化", "C. 算子融合（Operator Fusion）", "D. 反向传播加速推理"], a: [0,1,2], e: "D错误：反向传播是训练概念，推理只做前向计算。" },
+  { q: "企业构建 RAG 时文档解析的难点包括？", o: ["A. PDF 中表格结构的还原", "B. 跨页段落与页眉页脚干扰", "C. 扫描件需要 OCR 且错误会传播", "D. 纯文本文档解析通常比 PDF 更困难"], a: [0,1,2], e: "D错误：纯文本解析最简单，PDF 才是重灾区。" },
+  { q: "关于大模型的思维链（CoT），正确的有？", o: ["A. 让模型先输出中间推理步骤再给答案", "B. 对多步数学与逻辑任务提升明显", "C. Zero-shot CoT 只需一句“一步一步思考”触发", "D. CoT 对所有任务都有显著收益", "E. CoT 会增加输出 token 与成本"], a: [0,1,2,4], e: "D错误：对简单分类等任务收益有限甚至无收益。" },
+  { q: "关于模型上下文窗口与 RAG 的关系，正确的有？", o: ["A. 上下文再长，检索质量差照样答错", "B. RAG 负责把相关知识放进上下文，二者互补", "C. 长上下文出现后 RAG 彻底过时", "D. RAG 可控制注入内容的成本与来源"], a: [0,1,3], e: "C错误：长上下文成本高且存在注意力稀释，RAG 仍是主流。" },
+  { q: "大模型应用上线的灰度与回滚策略，合理的做法包括？", o: ["A. 先用小流量验证新模型或新提示词", "B. 保留上一版本的模型与提示词可随时切回", "C. 建立线上质量监控指标与告警", "D. 一次性全量切换并删除旧版本"], a: [0,1,2], e: "D错误：全量切换且无回滚是高风险操作，违背灰度原则。" }
+);
+QUIZ_BANK.push(
+  { q: "下列关于提示词注入（Prompt Injection）的防范措施，合理的有？", o: ["A. 对用户输入做模板隔离，明确区分指令与数据", "B. 对工具调用做白名单与权限控制", "C. 输出侧做敏感内容过滤", "D. 只要模型够强，注入攻击就自动免疫"], a: [0,1,2], e: "D错误：注入风险与模型强弱无关，是输入输出边界问题，必须工程手段防范。" },
+  { q: "关于大模型的分布式训练，正确的有？", o: ["A. 数据并行将 batch 切分到多卡", "B. 张量并行将单个算子的权重切分到多卡", "C. 流水线并行将不同层放到不同卡上", "D. ZeRO 通过切分优化器状态与梯度降低显存冗余", "E. 分布式训练不会引入任何通信开销"], a: [0,1,2,3], e: "E错误：多卡之间梯度与激活的通信开销是分布式训练的核心代价之一。" },
+  { q: "大模型训练中学习率调度（LR Schedule）的作用，正确的有？", o: ["A. Warmup 阶段从小学习率逐步上升，稳定早期训练", "B. Cosine 衰减让学习率随训练平滑下降", "C. 学习率越大训练一定越快越好", "D. 学习率直接影响训练能否收敛"], a: [0,1,3], e: "C错误：学习率过大导致发散或震荡，并非越大越好。" },  { q: "企业部署大模型时，评估单卡吞吐的合理指标包括？", o: ["A. tokens/s（每秒生成 token 数）", "B. 并发用户数下的 P99 首字延迟", "C. 请求成功率", "D. 模型文件大小"], a: [0,1,2], e: "D错误：模型文件大小只是显存占用的参考，不代表吞吐与服务质量。" },
+  { q: "下列属于大模型常见幻觉类型的有？", o: ["A. 事实性幻觉（与客观事实不符）", "B. 忠实性幻觉（与给定资料不符）", "C. 引用幻觉（编造不存在的出处）", "D. 语法错误"], a: [0,1,2], e: "D是语言能力问题，现代大模型极少犯，不属于幻觉分类。" },
+  { q: "关于大模型的微调数据质量，正确的有？", o: ["A. 数据质量比数量更重要", "B. 含错误标签的数据会直接教坏模型", "C. 数据分布应与目标场景一致", "D. 数据越多效果一定单调上升"], a: [0,1,2], e: "D错误：低质数据的堆积会稀释信号甚至引入退化，规模不是充分条件。" },
+  { q: "关于 KV Cache 与 GQA（分组查询注意力），正确的有？", o: ["A. GQA 让多个 Query 头共享一组 K、V 头", "B. GQA 显著降低推理时的 KV Cache 显存", "C. GQA 提升的是训练阶段的梯度稳定性", "D. MHA 是每个 Query 头都有独立 K、V 头的特例"], a: [0,1], e: "C错误：GQA 的动机是推理显存与带宽，不是训练稳定性；D说反了，MHA 是全量头，GQA 才是共享的中间形态。" },
+  { q: "使用大模型生成代码时，合理的工程实践包括？", o: ["A. 生成的代码必须经人工审查与测试", "B. 用单元测试验证生成代码的行为", "C. 对生成代码做静态检查与安全扫描", "D. 生产环境直接部署未经审查的生成代码"], a: [0,1,2], e: "D错误：生成代码可能有逻辑与安全缺陷，审查与测试不可省略。" },
+  { q: "大模型在企业落地时，成本优化的可行手段包括？", o: ["A. 对高频重复请求做缓存", "B. 按任务难度分级选用不同规模的模型", "C. 精简提示词，减少输入 token", "D. 所有请求一律使用最大模型并拉满思考预算"], a: [0,1,2], e: "D错误：与成本优化目标相反，应按需分配算力。" }
+);
+QUIZ_BANK.push(  { q: "关于 Self-Attention 中 softmax 的作用，正确的有？", o: ["A. 把注意力分数归一化为概率分布", "B. 使各 token 获得的注意力权重之和为 1", "C. 分数越大权重越大", "D. softmax 只能用于二分类"], a: [0,1,2], e: "D错误：softmax 是通用归一化函数，分类只是其应用之一。" },
+  { q: "下列关于向量数据库与关系数据库的说法，正确的有？", o: ["A. 向量数据库以相似度检索为核心能力", "B. 向量检索的结果通常带相似度分数", "C. 向量数据库可以替代所有关系数据库功能", "D. 元数据过滤常与向量检索组合使用"], a: [0,1,3], e: "C错误：二者定位不同，向量库不擅长事务与精确匹配。" },
+  { q: "关于多模态模型的训练，正确的有？", o: ["A. 常用图文对数据做对齐训练", "B. 视觉编码器可以冻结只训练连接层", "C. 图文数据的配比影响各模态能力", "D. 多模态模型只能理解图像不能理解文字"], a: [0,1,2], e: "D说反了：多模态语言模型的核心正是同时理解文字与图像。" },
+  { q: "LangChain、LlamaIndex 这类编排框架的核心价值包括？", o: ["A. 提供开箱即用的 RAG 流水线组件", "B. 统一封装模型调用与工具接口", "C. 自动保证应用零幻觉", "D. 支持多步任务链与记忆管理"], a: [0,1,3], e: "C错误：框架只提供工程结构，幻觉要靠检索质量、评测与护栏控制。" },
+  { q: "关于模型权重的保存格式，正确的有？", o: ["A. safetensors 相比 pickle 更安全，不执行任意代码", "B. GGUF 常用于本地端侧推理", "C. FP16 权重文件约为参数量字节数的两倍量级", "D. 权重格式决定了模型的推理精度上限"], a: [0,1,2], e: "D错误：精度上限由模型与计算精度决定，格式只是存储与加载方式。" },
+  { q: "大模型微调中常见的过拟合信号包括？", o: ["A. 训练损失持续下降但验证损失回升", "B. 模型只会背诵训练集答案而不会泛化", "C. 对未见过的输入输出质量明显变差", "D. 训练初期损失快速下降"], a: [0,1,2], e: "D是正常现象，不是过拟合信号。" },
+  { q: "关于 ReAct 与 Plan-and-Execute 的对比，正确的有？", o: ["A. ReAct 每步都结合观察调整下一步", "B. Plan-and-Execute 先产出整体计划再执行", "C. Plan-and-Execute 遇到意外需要重规划", "D. ReAct 适合目标明确、路径可预知的任务"], a: [0,1,2], e: "D说反了：路径可预知更适合 Plan-and-Execute；ReAct 适合需要边探索边行动的任务。" },
+  { q: "企业大模型应用的评测数据集构建，正确的做法包括？", o: ["A. 覆盖真实用户的高频问题类型", "B. 包含边界与对抗样例", "C. 建立答案质量的人工评级标准", "D. 全部使用公开榜单题目以保证客观"], a: [0,1,2], e: "D错误：公开榜单与业务分布脱节，评测集应以自身业务为核心。" },
+  { q: "关于 Long Context 与 KV Cache 的关系，正确的有？", o: ["A. 上下文越长 KV Cache 显存占用越大", "B. MLA、GQA 等技术可压缩 KV Cache", "C. KV Cache 占用与批处理并发数成正比", "D. KV Cache 可以无限期保留而不占资源"], a: [0,1,2], e: "D错误：KV Cache 是显存资源，请求结束即释放，长并发场景必须做容量管理。" },
+  { q: "下列关于蒸馏与量化的组合，正确的有？", o: ["A. 蒸馏减小模型规模，量化降低单参数位宽", "B. 二者可以叠加使用进一步压缩部署成本", "C. 蒸馏会损失一定能力，量化也会带来少量精度损失", "D. 蒸馏后的模型不能再量化"], a: [0,1,2], e: "D错误：蒸馏与量化作用于不同维度，完全可组合。" },
+  { q: "Agent 系统中工具调用的结果校验，合理的做法包括？", o: ["A. 对工具返回值做结构校验与异常处理", "B. 连续失败时切换策略或上报人工", "C. 把报错信息原样回传给模型让其自我修正", "D. 假设所有工具调用都会成功"], a: [0,1,2], e: "D错误：工具是外部系统，失败是常态，必须显式处理。" },
+  { q: "关于中文分词与 LLM token，正确的有？", o: ["A. 中文专有名词常被 BPE 切碎", "B. token 数不等于汉字数", "C. 词表中的中文 token 覆盖影响中文编码效率", "D. 所有现代大模型中文一个字恒为一个 token"], a: [0,1,2], e: "D错误：中文切分因模型词表而异，常见 1~2 token 不等。" },
+  { q: "大模型输出的结构化格式（JSON 模式）的价值包括？", o: ["A. 便于下游程序解析", "B. 降低格式解析失败率", "C. 支持稳定的函数调用参数传递", "D. 保证内容事实永远正确"], a: [0,1,2], e: "D错误：结构化只约束格式，内容正确性仍需检索与校验保障。" },
+  { q: "关于 Embedding 向量的归一化，正确的有？", o: ["A. 归一化后向量长度为 1", "B. 归一化后内积等价于余弦相似度", "C. 归一化会改变向量方向", "D. 所有相似度计算都必须归一化"], a: [0,1], e: "C错误：归一化只缩放长度不改方向；D夸大，内积等方式在未归一化时也有使用场景。" },
+  { q: "大模型项目的安全评测（红队测试）应覆盖的面包括？", o: ["A. 提示词注入与越狱尝试", "B. 敏感信息泄露场景", "C. 工具调用被诱导执行危险操作", "D. 模型推理速度是否够快"], a: [0,1,2], e: "D是性能评测范畴，不属于安全红队关注面。" }
+);
+// 考试固定取前 100 题，其余题保留在题库中备用
+QUIZ_BANK.length = 60; // 60 题作为抽题池，每次考试随机抽取 50 题
+let EXAM_QS = pickExamQuestions(); // 进入页面前先抽好本卷 50 题，避免首开显示 0 题
+function pickExamQuestions() {
+  const pool = QUIZ_BANK.slice();
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
+  return pool.slice(0, 50);
+}
+function gradeMessage(score) {
+  let pool;
+  if (score >= 90) pool = ['哇！接近满分啦！你简直是行走的题库小仙女！🌟', '太强了！这份成绩单可以直接裱起来啦！🎀', '学霸少女就是你！骄傲地转个圈吧～💫'];
+  else if (score >= 80) pool = ['非常棒哦！离满分只差一点点啦，冲鸭！🚀', '成绩很优秀呢！错题本再翻翻就是满分的你～✨', '好厉害！继续保持，就是稳稳的高分少女！🌸'];
+  else if (score >= 60) pool = ['及格啦！基础已经很扎实，再努力一点会更闪哦～🌈', '不错的开始！把错题消灭掉，下次分数蹭蹭涨！📈', '有潜力！每道错题都是升级的小经验包哦～🍬'];
+  else pool = ['没关系呀～错题都是升级路上的小怪兽，打败它们就变强啦！🐱', '别灰心！错题本就是你的魔法书，下次一定更棒！🔮', '每个学霸都是从错题堆里爬出来的，加油呀！🌷'];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+// ======= 交互逻辑 =======
+const side=document.getElementById('side'),main=document.getElementById('main'),article=document.getElementById('article'),menuBtn=document.getElementById('menuBtn'),overlay=document.getElementById('overlay');
+function toggleMenu(){side.classList.toggle('open');overlay.classList.toggle('show')}
+menuBtn.addEventListener('click',toggleMenu);overlay.addEventListener('click',toggleMenu);
+
+let userAnswers = {}; 
+
+function render(id,btn){
+  const d=D[id];if(!d)return;
+  side.querySelectorAll('.nav').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  article.style.animation='none';article.offsetHeight;article.style.animation='fade .4s ease-out';
+  if(id === 'exam'){
+    article.innerHTML = renderExamUI();
+    bindExamEvents();
+  } else {
+    article.innerHTML=`<div class="tag">${d.tag}</div><h1 class="h1">${d.title}</h1><div class="body">${d.html}</div>`;
+  }
+  main.scrollTo({top:0,behavior:'instant'});
+  if(window.innerWidth<=768&&side.classList.contains('open'))toggleMenu();
+}
+
+function renderExamUI() {
+  let html = `<div class="exam-header"><h1 class="exam-title">🎯 终极通关测验</h1><p class="exam-desc">本卷共 ${EXAM_QS.length} 道高密度多选题（每题 2 分，满分 100 分；每题均为 A-E 五个选项，含 1~5 个正确项）。必须全选对才得分。交卷前无法查看答案。</p></div><div id="quiz-list">`;
+  EXAM_QS.forEach((q, qIdx) => {
+    html += `<div class="q-card" id="q-card-${qIdx}"><div class="q-title"><span>Q${qIdx+1}.</span> ${q.q}</div><div class="opt-list">`;
+    q.o.forEach((opt, oIdx) => {
+      const isChecked = userAnswers[qIdx] && userAnswers[qIdx].includes(oIdx) ? 'checked' : '';
+      html += `<label class="opt-item" id="opt-${qIdx}-${oIdx}"><input type="checkbox" data-q="${qIdx}" data-o="${oIdx}" ${isChecked}><span class="opt-text">${opt}</span></label>`;
+    });
+    html += `</div><div class="ans-box" id="ans-${qIdx}"><div class="ans-title">正确答案与解析</div><div class="ans-text" id="ans-text-${qIdx}"></div><div class="ans-exp">解析：${q.e}</div></div></div>`;
+  });
+  html += `</div><div class="score-panel" id="score-panel" style="display:none"><div class="stats"><div class="stat-item"><span class="stat-val" id="stat-total">0 / ${EXAM_QS.length}</span><span class="stat-label">正确题数</span></div><div class="stat-item"><span class="stat-val" id="stat-wrong" style="color:var(--r)">0</span><span class="stat-label">错题数</span></div><div class="stat-item"><span class="stat-val" id="stat-score" style="color:var(--g)">0%</span><span class="stat-label">正确率</span></div></div></div><div style="position:sticky;bottom:20px;z-index:10"><div class="score-panel" id="nick-panel" style="display:none;flex-direction:column;gap:12px;align-items:stretch;text-align:left"><div style="font-size:15px;font-weight:bold;line-height:1.6">💗 甜蜜对诗 · 请对出下句</div><div style="font-size:17px;font-weight:800;line-height:1.8;padding:12px 16px;background:#eff6ff;border-radius:8px"><span id="poem-q" style="color:var(--b)"></span></div><div style="display:flex;gap:12px;align-items:center"><input id="poem-a" placeholder="请写下句" style="border:2px solid var(--b);border-radius:8px;padding:12px 14px;font-size:15px;flex:1"><span style="font-size:12px;color:#64748b;white-space:nowrap">答对即可交卷</span></div></div></div><div style="position:sticky;bottom:20px;z-index:10"><div id="btn-submit-wrap" style="display:flex;justify-content:flex-end"><button class="btn-submit" id="btn-submit">交卷并核算成绩</button></div></div>`;
+  return html;
+}
+
+function bindExamEvents() {
+  const inputs = document.querySelectorAll('#quiz-list input[type="checkbox"]');
+  const submitBtn = document.getElementById('btn-submit');
+  inputs.forEach(input => {
+    input.addEventListener('change', (e) => {
+      const qIdx = parseInt(e.target.dataset.q), oIdx = parseInt(e.target.dataset.o);
+      if(submitBtn.disabled) return; 
+      if (!userAnswers[qIdx]) userAnswers[qIdx] = [];
+      if (e.target.checked) { userAnswers[qIdx].push(oIdx); e.target.closest('.opt-item').classList.add('selected'); }
+      else { userAnswers[qIdx] = userAnswers[qIdx].filter(x => x !== oIdx); e.target.closest('.opt-item').classList.remove('selected'); }
+    });
+  });
+  submitBtn.addEventListener('click', () => {
+    const nickPanel = document.getElementById('nick-panel');
+const POEMS = [
+  ['在天愿作比翼鸟', '在地愿为连理枝'], ['身无彩凤双飞翼', '心有灵犀一点通'],
+  ['两情若是久长时', '又岂在朝朝暮暮'], ['衣带渐宽终不悔', '为伊消得人憔悴'],
+  ['曾经沧海难为水', '除却巫山不是云'], ['愿得一心人', '白头不相离'],
+  ['结发为夫妻', '恩爱两不疑'], ['执手相看泪眼', '竟无语凝噎'],
+  ['山有木兮木有枝', '心悦君兮君不知'], ['只愿君心似我心', '定不负相思意'],
+  ['玲珑骰子安红豆', '入骨相思知不知'], ['春蚕到死丝方尽', '蜡炬成灰泪始干'],
+  ['在天愿为比翼鸟', '在地愿为连理枝'], ['一日不见兮', '思之如狂'],
+  ['青青子衿', '悠悠我心'], ['死生契阔', '与子成说'],
+  ['琴瑟在御', '莫不静好'], ['投我以木桃', '报之以琼瑶'],
+  ['月上柳梢头', '人约黄昏后'], ['众里寻他千百度', '蓦然回首那人却在灯火阑珊处'],
+  ['此情可待成追忆', '只是当时已惘然'], ['相见时难别亦难', '东风无力百花残'],
+  ['直道相思了无益', '未妨惆怅是清狂'], ['多情却被无情恼', '今夜还留取'],
+  ['换我心', '为你心'], ['一寸相思一寸灰', '心如烟'],
+  ['落花人独立', '微雨燕双飞'], ['金风玉露一相逢', '便胜却人间无数'],
+  ['平生不会相思', '才会相思'], ['十一年前梦一场', '相思彻']
+];
+const normPoem = s => (s || '').replace(/[^0-9A-Za-z一-龥]/g, '');
+if (!window._poemAsked || !document.getElementById('poem-q').textContent) {
+  window._poemAsked = true;
+  const pair = POEMS[Math.floor(Math.random() * POEMS.length)];
+  window._poemA = pair[1];
+  document.getElementById('poem-q').textContent = pair[0] + '，______';
+  const bw = document.getElementById('btn-submit-wrap');
+  if (bw) bw.style.display = 'none';
+  const np = document.getElementById('nick-panel');
+  if (np) np.style.display = 'flex';
+  const pa = document.getElementById('poem-a');
+  pa.focus();
+  pa.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submitBtn.click(); } });
+  return;
+}
+const poemAns = normPoem(document.getElementById('poem-a')?.value);
+if (!poemAns || poemAns !== normPoem(window._poemA)) { alert('差一点点哦～再想想这句经典诗词的下句，sweet heart 相信你可以的！'); document.getElementById('poem-a').focus(); return; }
+    submitBtn.disabled = true; submitBtn.textContent = '已交卷'; submitBtn.style.display = 'none';
+const np = document.getElementById('nick-panel'); if (np) np.style.display = 'none';
+    let correctCount = 0, wrongCount = 0;
+    EXAM_QS.forEach((q, qIdx) => {
+      const userAns = (userAnswers[qIdx] || []).sort();
+      const rightAns = q.a.sort();
+      const isCorrect = userAns.length === rightAns.length && userAns.every((v, i) => v === rightAns[i]);
+      if (isCorrect) correctCount++; else wrongCount++;
+      const cardEl = document.getElementById(`q-card-${qIdx}`);
+      if(cardEl) { cardEl.style.borderLeft = isCorrect ? '6px solid var(--g)' : '6px solid var(--r)'; }
+      const ansBox = document.getElementById(`ans-${qIdx}`);
+      if(ansBox) { ansBox.classList.add('show'); const textArr = q.a.map(idx => String.fromCharCode(65 + idx)); document.getElementById(`ans-text-${qIdx}`).innerHTML = `${isCorrect ? '✅ 回答正确' : '❌ 回答错误'}　正确选项：<strong>${textArr.join(', ')}</strong>`; }
+      q.o.forEach((_, oIdx) => {
+        const optEl = document.getElementById(`opt-${qIdx}-${oIdx}`);
+        if(!optEl) return;
+        const wasSelected = userAns.includes(oIdx), isRight = rightAns.includes(oIdx);
+        if (isRight) optEl.classList.add('correct');
+        else if (wasSelected && !isRight) optEl.classList.add('wrong');
+        optEl.classList.remove('selected');
+        const inp = optEl.querySelector('input'); if(inp) inp.disabled = true;
+      });
+    });
+    document.getElementById('stat-total').textContent = `${correctCount} / ${EXAM_QS.length}`;
+    document.getElementById('stat-wrong').textContent = wrongCount;
+    const scorePct = correctCount * 2;
+    document.getElementById('stat-score').textContent = `${scorePct}%`;
+    if(scorePct >= 80) document.getElementById('stat-score').style.color = 'var(--g)';
+    else if(scorePct >= 60) document.getElementById('stat-score').style.color = 'var(--o)';
+    else document.getElementById('stat-score').style.color = 'var(--r)';
+    const panel = document.getElementById('score-panel');
+panel.style.display = 'flex';
+panel.style.flexDirection = 'column';
+panel.style.gap = '14px';
+panel.style.alignItems = 'stretch';
+const oldTotal = document.getElementById('stat-final');
+if (oldTotal) oldTotal.parentElement.remove();
+const totalItem = document.createElement('div');
+totalItem.className = 'stat-item';
+const totalColor = scorePct >= 80 ? 'var(--g)' : scorePct >= 60 ? 'var(--o)' : 'var(--r)';
+totalItem.innerHTML = '<span class="stat-val" id="stat-final" style="color:' + totalColor + '">' + scorePct + '</span><span class="stat-label">总得分（满分100）</span>';
+panel.querySelector('.stats').appendChild(totalItem);
+const oldMsg = document.getElementById('encourage-msg');
+if (oldMsg) oldMsg.remove();
+const msg = document.createElement('div');
+msg.id = 'encourage-msg';
+msg.style.cssText = 'font-size:15px;font-weight:bold;color:var(--b);background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:10px 14px';
+msg.textContent = gradeMessage(scorePct);
+panel.appendChild(msg);
+const actionsRow = document.createElement('div');
+actionsRow.id = 'panel-actions';
+actionsRow.style.cssText = 'display:flex;gap:12px';
+panel.appendChild(actionsRow);
+const oldRb = document.getElementById('btn-refresh');
+if (oldRb) oldRb.remove();
+const rb = document.createElement('button');
+rb.id = 'btn-refresh';
+rb.className = 'btn-submit';
+rb.style.flex = '1';
+rb.style.background = 'var(--o)';
+rb.style.color = '#fff';
+rb.textContent = '刷新题目';
+rb.addEventListener('click', () => { userAnswers = {}; EXAM_QS = pickExamQuestions(); article.innerHTML = renderExamUI(); bindExamEvents(); });
+document.getElementById('panel-actions').appendChild(rb);
+const wrongList = [];
+EXAM_QS.forEach((q, qIdx) => {
+  const u = (userAnswers[qIdx] || []).slice().sort();
+  const r = q.a.slice().sort();
+  const ok = u.length === r.length && u.every((v, i) => v === r[i]);
+  if (!ok) wrongList.push({ n: qIdx + 1, q: q.q, your: (userAnswers[qIdx] || []).map(x => String.fromCharCode(65 + x)).join(', ') || '未作答', right: q.a.map(x => String.fromCharCode(65 + x)).join(', '), exp: q.e });
+});
+const oldExportBtn = document.getElementById('btn-export-wrong');
+if (oldExportBtn) oldExportBtn.remove();
+const exportBtn = document.createElement('button');
+exportBtn.id = 'btn-export-wrong';
+exportBtn.className = 'btn-submit';
+exportBtn.style.flex = '1';
+exportBtn.textContent = '导出错题';
+exportBtn.addEventListener('click', () => {
+  if (!wrongList.length) { alert('全部答对，没有错题可导出！'); return; }
+  const lines = wrongList.map(w => `${w.n}. ${w.q}
+你的答案：${w.your}
+正确答案：${w.right}
+解析：${w.exp}`);
+  const text = `错题导出（共 ${wrongList.length} 题）
+
+` + lines.join(String.fromCharCode(10)+String.fromCharCode(10)+'————————'+String.fromCharCode(10)+String.fromCharCode(10));
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '错题本.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+document.getElementById('panel-actions').appendChild(exportBtn);
+window.scrollTo({ top: document.getElementById('score-panel').offsetTop - 40, behavior: 'smooth' });
+  });
+}
+
+side.addEventListener('click',e=>{const btn=e.target.closest('.nav');if(btn)render(btn.dataset.id,btn)});
+var TERM_MAP={'KV Cache':'c5_1','FlashAttention':'c2_2','PagedAttention':'c5_1','QLoRA':'c1_3','RLHF':'c1_2','RLVR':'c2_4','LoRA':'c1_3','MaaS':'c5_maas','RoPE':'c2_2','SDD':'c6_sdd','BPE':'c1_1','CoT':'c2_4','CoD':'c2_4','DPO':'c1_2','FFN':'c2_2b','GQA':'c2_2','LLM':'c0','MCP':'c3_2','MoE':'c2_3','PRM':'c2_4','RAG':'c3_1','ReAct':'c3_2','SFT':'c1_2','VLM':'c0'};
+var TERM_LIST=Object.keys(TERM_MAP);
+var TERM_RE=new RegExp('(^|[^A-Za-z])('+TERM_LIST.join('|')+')(?![A-Za-z])','g');
+function linkTerms(){
+  var root=document.querySelector('#article .body');
+  if(!root)return;
+  var walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[],n;
+  while((n=walker.nextNode()))nodes.push(n);
+  nodes.forEach(function(t){
+    TERM_RE.lastIndex=0;
+    if(!TERM_RE.test(t.nodeValue))return;
+    TERM_RE.lastIndex=0;
+    var frag=document.createDocumentFragment(),last=0,m;
+    while((m=TERM_RE.exec(t.nodeValue))){
+      frag.appendChild(document.createTextNode(t.nodeValue.slice(last,m.index)));
+      if(m[1])frag.appendChild(document.createTextNode(m[1]));
+      var a=document.createElement('a');
+      a.textContent=m[2];
+      a.style.color='var(--b)';
+      a.style.textDecoration='underline dotted';
+      a.style.cursor='pointer';
+      a.addEventListener('click',(function(term){return function(){render('glossary',side.querySelector('[data-id="glossary"]'));setTimeout(function(){var rows=document.querySelectorAll('#article .tbl tr');for(var i=0;i<rows.length;i++){var c=rows[i].cells&&rows[i].cells[0];if(c&&c.textContent.trim()===term){rows[i].scrollIntoView({behavior:'smooth',block:'center'});rows[i].style.background='#fef9c3';break;}}},60)}})(m[2]));
+      frag.appendChild(a);
+      last=m.index+m[1].length+m[2].length;
+    }
+    if(last<t.nodeValue.length)frag.appendChild(document.createTextNode(t.nodeValue.slice(last)));
+    t.parentNode.replaceChild(frag,t);
+  });
+}
+var _render=render;
+render=function(id,btn){_render(id,btn);if(id!=='glossary'&&id!=='exam')linkTerms()};
+render('c0',side.querySelector('.nav'));
+</script>
+<script>
+(function () {
+  function pad(n) { return ("0" + n).slice(-2); }
+  function fmt(d) {
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) +
+      " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+  function show(text) {
+    var b = document.querySelector(".badge");
+    if (b) b.textContent += " · 最后保存：" + text;
+  }
+  fetch(location.href, { cache: "no-store" }).then(function (r) {
+    var lm = r.headers.get("Last-Modified");
+    if (lm) show(fmt(new Date(lm)));
+    else show("无法获取真实保存时间（当前打开方式下浏览器不提供）");
+  }).catch(function () {
+    show("无法获取真实保存时间（当前打开方式下浏览器不提供）");
+  });
+})();
+</script>
+</body>
+</html>
