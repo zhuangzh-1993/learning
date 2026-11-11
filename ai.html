@@ -848,7 +848,7 @@ window.scrollTo({ top: document.getElementById('score-panel').offsetTop - 40, be
 }
 
 side.addEventListener('click',e=>{const btn=e.target.closest('.nav');if(btn)render(btn.dataset.id,btn)});
-var TERM_MAP={'KV Cache':'c5_1','FlashAttention':'c2_2','PagedAttention':'c5_1','QLoRA':'c1_3','RLHF':'c1_2','RLVR':'c2_4','LoRA':'c1_3','MaaS':'c5_maas','RoPE':'c2_2','SDD':'c6_sdd','BPE':'c1_1','CoT':'c2_4','CoD':'c2_4','DPO':'c1_2','FFN':'c2_2b','GQA':'c2_2','LLM':'c0','MCP':'c3_2','MoE':'c2_3','PRM':'c2_4','RAG':'c3_1','ReAct':'c3_2','SFT':'c1_2','VLM':'c0'};
+var TERM_MAP={'Frequency Penalty':'c2_1','Presence Penalty':'c2_1','Repetition Penalty':'c2_1','Reflexion':'c3_3','Execute':'c3_3','Plan':'c3_3','Chinchilla':'c1_1','BM25':'c3_1','BF16':'c6_eco','FP32':'c6_eco','FP8':'c6_eco','PPO':'c1_2','Tokenizer':'c1_1','Token':'c1_1','Decoder-Only':'c2_2b','Encoder-Only':'c2_2b','Self-Attention':'c2_2','Transformer':'c2_2','LayerNorm':'c2_2b','RMSNorm':'c2_2b','SwiGLU':'c2_2b','Pre-Norm':'c2_2b','Post-Norm':'c2_2b','Scaling Laws':'c1_1','PEFT':'c1_3','MLA':'c5_1','Prefill':'c5_1','Decode':'c2_2b','FP16':'c6_eco','INT8':'c6_eco','Hallucination':'c4_1','Chunking':'c3_1','Rerank':'c3_1','RRF':'c3_1','TDD':'c6_sdd','Temperature':'c2_1','Logits':'c2_1','KV Cache':'c5_1','FlashAttention':'c2_2','PagedAttention':'c5_1','QLoRA':'c1_3','RLHF':'c1_2','RLVR':'c2_4','LoRA':'c1_3','MaaS':'c5_maas','RoPE':'c2_2','SDD':'c6_sdd','BPE':'c1_1','CoT':'c2_4','CoD':'c2_4','DPO':'c1_2','FFN':'c2_2b','GQA':'c2_2','LLM':'c0','MCP':'c3_2','MoE':'c2_3','PRM':'c2_4','RAG':'c3_1','ReAct':'c3_2','SFT':'c1_2','VLM':'c0'};
 var TERM_LIST=Object.keys(TERM_MAP);
 var TERM_RE=new RegExp('(^|[^A-Za-z])('+TERM_LIST.join('|')+')(?![A-Za-z])','g');
 function linkTerms(){
