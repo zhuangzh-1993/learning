@@ -484,6 +484,14 @@ glossary:{tag:"附录",title:"📖 核心术语表",html:`
 <tr><td><strong>PEFT</strong></td><td>Parameter-Efficient Fine-Tuning</td><td>参数高效微调，LoRA/P-Tuning 等技术的统称</td></tr>
 <tr><td><strong>LoRA</strong></td><td>Low-Rank Adaptation</td><td>低秩适应，冻结基座只训练外挂小矩阵</td></tr>
 <tr><td><strong>QLoRA</strong></td><td>Quantized LoRA</td><td>先把基座量化到 4-bit 再外挂 LoRA，消费级显卡可微调大模型</td></tr>
+<tr><td><strong>Transformer</strong></td><td>—</td><td>基于自注意力的架构，现代大模型的基础结构</td></tr>
+<tr><td><strong>Self-Attention</strong></td><td>Self-Attention（Q/K/V）</td><td>让每个词去句中其他词按需取信息并更新自己，Q/K/V 分别是查询、键、值</td></tr>
+<tr><td><strong>LayerNorm</strong></td><td>Layer Normalization</td><td>层归一化，稳定训练；现代模型多用 RMSNorm，按 Pre-Norm 放置</td></tr>
+<tr><td><strong>Pre-Norm / Post-Norm</strong></td><td>—</td><td>归一化层相对残差分支的位置，Pre-Norm 更易训练，是当前主流</td></tr>
+<tr><td><strong>Encoder-Only / Decoder-Only</strong></td><td>—</td><td>BERT 是双向编码器（理解类），GPT 是单向解码器（生成类），T5/BART 兼两者</td></tr>
+<tr><td><strong>PPO</strong></td><td>Proximal Policy Optimization</td><td>近端策略优化，RLHF 时代常用的强化学习算法</td></tr>
+<tr><td><strong>Token / Tokenizer</strong></td><td>—</td><td>词元与分词器，模型处理文本的最小单位，计费与上下文长度都以它计</td></tr>
+<tr><td><strong>Scaling Laws / Chinchilla</strong></td><td>—</td><td>算力、数据、参数间的幂律规律；Chinchilla 指出参数与数据应等比扩张</td></tr>
 </table></div>
 <h3>架构与组件</h3>
 <div class="tbl"><table>
@@ -512,6 +520,14 @@ glossary:{tag:"附录",title:"📖 核心术语表",html:`
 <tr><td><strong>SKILL.md</strong></td><td>—</td><td>按需加载的技能说明文件，教会模型某项具体能力</td></tr>
 <tr><td><strong>SDD</strong></td><td>Spec-Driven Development</td><td>规格驱动开发，先写规格文档再由模型生成代码</td></tr>
 <tr><td><strong>VLM</strong></td><td>Vision-Language Model</td><td>多模态大模型，图像转视觉 Token 接入语言模型</td></tr>
+<tr><td><strong>Temperature / Logits</strong></td><td>—</td><td>Logits 是未归一化得分，Temperature 缩放后经 Softmax 控制随机性</td></tr>
+<tr><td><strong>Repetition / Presence / Frequency Penalty</strong></td><td>—</td><td>三类重复惩罚：乘法缩放、出现即减固定值、按次数比例惩罚，治复读机</td></tr>
+<tr><td><strong>Prefill / Decode</strong></td><td>—</td><td>推理两阶段：一次性并行处理输入的预填充，与逐 Token 生成的解码</td></tr>
+<tr><td><strong>FP16 / BF16 / FP32 / INT8 / FP8</strong></td><td>—</td><td>数值精度格式，位数越低显存越省、速度越快，精度损失需权衡</td></tr>
+<tr><td><strong>Hallucination</strong></td><td>—</td><td>幻觉，模型一本正经地编造不存在的事实，RAG 可缓解</td></tr>
+<tr><td><strong>Chunking / Rerank / RRF</strong></td><td>—</td><td>RAG 流水线三环节：文档切块、用精排模型重排、倒数排名融合多路检索</td></tr>
+<tr><td><strong>TDD</strong></td><td>Test-Driven Development</td><td>测试驱动开发，先写测试再实现，AI 编码时代是验收的锚点</td></tr>
+<tr><td><strong>Plan / Execute / Reflexion</strong></td><td>—</td><td>Agent 执行循环的三种模式：先规划、直接执行、执行后反思修正</td></tr>
 </table></div>
 `},
 exam:{tag:"考试中心",title:"",html:`<div id="exam-container"></div>`}
