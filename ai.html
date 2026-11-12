@@ -223,6 +223,19 @@ c2_2:{tag:"底层架构",title:"6. 深度拆解：Transformer",html:`
 <h3>Transformer 到底在干什么？</h3>
 <p>一句话：<strong>让句子里的每个词，去句子里的其他词那里按需取信息，然后更新自己。</strong>一个 Transformer Block 只做两件事：开会（注意力，词与词交换信息）和消化（FFN，各词独立加工）。剩下的所有零件——Q/K/V、√d_k、多头、位置编码、残差、Norm——都是为了把这两件事做得又准又稳。</p>
 <p class="plain-text">大白话：处理"小明把苹果给了小红，她很开心"这句话，"她"这个词要通过注意力去问全场："谁最像我指的对象？"其他词各自报上匹配分，"小红"分最高，"她"就把"小红"的信息大量拿过来，变成了"她=小红"的向量。这就是 Transformer 的全部核心，后面的公式只是把这个问答做得更精细。</p>
+<div class="tfm-flow">
+<div class="tfm-node tfm-input">输入词向量<br><span class="tfm-sub">token embedding + 位置编码</span></div>
+<div class="tfm-arrow">↓</div>
+<div class="tfm-node tfm-attn">多头自注意力<br><span class="tfm-sub">Q / K / V 点积 → ÷ √d_k → Softmax → 加权求和 V</span></div>
+<div class="tfm-arrow">↓</div>
+<div class="tfm-node tfm-resid">残差 + Norm<br><span class="tfm-sub">x = Norm(x + Attention(x))</span></div>
+<div class="tfm-arrow">↓</div>
+<div class="tfm-node tfm-ffn">FFN 前馈网络<br><span class="tfm-sub">各词独立加工</span></div>
+<div class="tfm-arrow">↓</div>
+<div class="tfm-node tfm-resid">残差 + Norm<br><span class="tfm-sub">x = Norm(x + FFN(x))</span></div>
+<div class="tfm-arrow">↓</div>
+<div class="tfm-node tfm-output">输出（送入下一层 / 上层）</div>
+</div>
 <p class="plain-text">你在图书馆找书。Q 是搜索词；K 是书上的标签；V 是书里的内容。Q 和 K 匹配得越高，书的 V 权重就越大。</p>
 <h3>为什么除以 √d_k？</h3>
 <p>点积是把 Q 和 K 的每个维度对应相乘再求和。维度 d_k 越大，加在一起的项就越多，点积的结果数值也就越大（大约随 √d_k 增长）。</p>
@@ -323,6 +336,42 @@ c3_2:{tag:"外挂系统",title:"11. Agent 与 MCP 协议",html:`
 <li><strong>Plan-and-Execute：</strong> 先列出 1,2,3 步骤计划，再一步步执行。适合稳定流程。</li>
 <li><strong>Reflexion：</strong> 执行完后，开启一个“反思者”角色，检查自己的输出有没有错，打回重做。</li>
 </ul>
+<div style="display:flex;gap:12px;margin:16px 0;flex-wrap:wrap;">
+<div style="flex:1;min-width:180px;background:#eef4fb;border:1px solid #cfe0f3;border-radius:8px;padding:12px;">
+<div style="font-weight:bold;color:#2b5c8a;margin-bottom:8px;">ReAct</div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+<div style="background:#fff;border:1px solid #cfe0f3;border-radius:6px;padding:4px 10px;width:100%;text-align:center;box-sizing:border-box;">思考</div>
+<div style="color:#7a9cc0;font-size:12px;">↓</div>
+<div style="background:#fff;border:1px solid #cfe0f3;border-radius:6px;padding:4px 10px;width:100%;text-align:center;box-sizing:border-box;">行动</div>
+<div style="color:#7a9cc0;font-size:12px;">↓</div>
+<div style="background:#fff;border:1px solid #cfe0f3;border-radius:6px;padding:4px 10px;width:100%;text-align:center;box-sizing:border-box;">观察</div>
+<div style="color:#7a9cc0;font-size:12px;">↺ 回到思考</div>
+</div>
+</div>
+<div style="flex:1;min-width:180px;background:#f2f4f7;border:1px solid #d8dde5;border-radius:8px;padding:12px;">
+<div style="font-weight:bold;color:#4a5568;margin-bottom:8px;">Plan-and-Execute</div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+<div style="background:#fff;border:1px solid #d8dde5;border-radius:6px;padding:4px 10px;width:100%;text-align:center;box-sizing:border-box;">列出计划 1,2,3</div>
+<div style="color:#9aa5b4;font-size:12px;">↓</div>
+<div style="background:#fff;border:1px solid #d8dde5;border-radius:6px;padding:4px 10px;width:100%;text-align:center;box-sizing:border-box;">执行步骤 1</div>
+<div style="color:#9aa5b4;font-size:12px;">↓</div>
+<div style="background:#fff;border:1px solid #d8dde5;border-radius:6px;padding:4px 10px;width:100%;text-align:center;box-sizing:border-box;">执行步骤 2</div>
+<div style="color:#9aa5b4;font-size:12px;">↓</div>
+<div style="background:#fff;border:1px solid #d8dde5;border-radius:6px;padding:4px 10px;width:100%;text-align:center;box-sizing:border-box;">执行步骤 3</div>
+</div>
+</div>
+<div style="flex:1;min-width:180px;background:#eef4fb;border:1px solid #cfe0f3;border-radius:8px;padding:12px;">
+<div style="font-weight:bold;color:#2b5c8a;margin-bottom:8px;">Reflexion</div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+<div style="background:#fff;border:1px solid #cfe0f3;border-radius:6px;padding:4px 10px;width:100%;text-align:center;box-sizing:border-box;">执行</div>
+<div style="color:#7a9cc0;font-size:12px;">↓</div>
+<div style="background:#fff;border:1px solid #cfe0f3;border-radius:6px;padding:4px 10px;width:100%;text-align:center;box-sizing:border-box;">反思检查</div>
+<div style="color:#7a9cc0;font-size:12px;">↓ 有错</div>
+<div style="background:#fff;border:1px solid #cfe0f3;border-radius:6px;padding:4px 10px;width:100%;text-align:center;box-sizing:border-box;">打回重做</div>
+<div style="color:#7a9cc0;font-size:12px;">↺ 回到执行</div>
+</div>
+</div>
+</div>
 <p class="plain-text">ReAct 像无头苍蝇边撞边找路；Plan 像先写好剧本再按部就班拍戏；Reflexion 像做完卷子自己先检查一遍再交。</p>
 <h3>MCP</h3>
 <p>统一了标准接口（Client-Host-Server），让工具像 USB-C 一样即插即用。</p>
@@ -375,6 +424,51 @@ c5_1:{tag:"工程部署",title:"15. KV Cache 与 PagedAttention",html:`
 <h3>PagedAttention 革命</h3>
 <p>传统 KV Cache 在显存中是连续存储的，容易产生大量的内存碎片。vLLM 框架引入了操作系统中的<strong>虚拟内存分页技术（PagedAttention）</strong>，把 KV Cache 切成固定大小的块，按需分配。这使得吞吐量提升了数十倍。</p>
 <p class="plain-text">大白话：模型说话时要"记住"前文，记住的内容（KV Cache）得放在显存里。以前是整块连续占用，就像餐厅只接整桌客人，留下很多坐不满的空位（内存碎片）；PagedAttention 学操作系统管内存的办法，把座位拆成小卡座按需分配，同样大的餐厅能接待多得多的客人，所以吞吐量暴涨。</p>
+<div style="display:flex;gap:16px;flex-wrap:wrap;margin:16px 0;">
+<div style="flex:1 1 260px;min-width:240px;background:#f4f7fa;border:1px solid #d6e0ea;border-radius:8px;padding:12px;">
+<div style="font-weight:600;color:#33475b;margin-bottom:10px;">传统连续 KV Cache</div>
+<div style="display:flex;align-items:flex-end;gap:4px;height:96px;background:#e8eef4;border-radius:6px;padding:6px;">
+<div style="width:34px;height:88px;background:#9fb6cc;border-radius:3px;"></div>
+<div style="width:22px;height:52px;background:#9fb6cc;border-radius:3px;"></div>
+<div style="width:40px;height:88px;background:#9fb6cc;border-radius:3px;"></div>
+<div style="width:16px;height:30px;background:#9fb6cc;border-radius:3px;"></div>
+<div style="width:30px;height:70px;background:#9fb6cc;border-radius:3px;"></div>
+<div style="width:12px;height:20px;background:#9fb6cc;border-radius:3px;"></div>
+<div style="width:36px;height:88px;background:#9fb6cc;border-radius:3px;"></div>
+</div>
+<div style="margin-top:8px;font-size:13px;color:#5a6b7b;">整块连续占用，块大小不一，块间与块内留下无法利用的空隙（内存碎片）。</div>
+</div>
+<div style="flex:1 1 260px;min-width:240px;background:#f4f7fa;border:1px solid #d6e0ea;border-radius:8px;padding:12px;">
+<div style="font-weight:600;color:#33475b;margin-bottom:10px;">PagedAttention 分页</div>
+<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;background:#e8eef4;border-radius:6px;padding:6px;">
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+<div style="height:20px;background:#7fa8c9;border-radius:3px;"></div>
+</div>
+<div style="margin-top:8px;font-size:13px;color:#5a6b7b;">等宽小块按需分配，块内无浪费，块间无碎片。</div>
+</div>
+</div>
 <h3>DeepSeek 的缓存偏移</h3>
 <p>MLA 架构把缓存压缩存到 SSD（缓存偏移）。前缀必须完全匹配才命中。</p>
 `},
@@ -449,6 +543,31 @@ c6_sdd:{tag:"SDD",title:"20. SDD 理念与五步流程",html:`
 <li><strong>Implement（实现）：</strong> AI 按任务逐个实现，每完成一个任务就提交，保证可回滚。</li>
 <li><strong>Converge（收敛）：</strong> 用验收标准、测试和“规格—代码一致性检查”核对偏差，迭代修正直到一致。</li>
 </ul>
+<div class="sdd-flow">
+<style>
+.sdd-flow{--sdd-line:#c7d6e5;--sdd-bg:#eef4fa;--sdd-bg2:#e2ecf6;--sdd-ink:#2c4a68;--sdd-accent:#4a7fb5;margin:18px 0;padding:16px;background:var(--sdd-bg);border:1px solid var(--sdd-line);border-radius:10px;font-size:13px;line-height:1.4;color:var(--sdd-ink)}
+.sdd-flow .sdd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.sdd-flow .sdd-card{position:relative;background:#fff;border:1px solid var(--sdd-line);border-radius:8px;padding:10px 12px;box-shadow:0 1px 2px rgba(44,74,104,.06)}
+.sdd-flow .sdd-card .sdd-idx{display:inline-block;min-width:18px;height:18px;line-height:18px;text-align:center;border-radius:9px;background:var(--sdd-accent);color:#fff;font-size:11px;font-weight:700;margin-right:6px}
+.sdd-flow .sdd-card .sdd-name{font-weight:700;color:var(--sdd-ink)}
+.sdd-flow .sdd-card .sdd-cn{display:block;margin-top:4px;color:#5b7893;font-size:12px}
+.sdd-flow .sdd-card.sdd-last{background:var(--sdd-bg2);border-color:var(--sdd-accent)}
+.sdd-flow .sdd-loop{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px dashed var(--sdd-line);color:#5b7893;font-size:12px}
+.sdd-flow .sdd-loop .sdd-arrow{color:var(--sdd-accent);font-weight:700}
+.sdd-flow .sdd-loop .sdd-back{color:var(--sdd-accent);font-weight:700}
+@media (max-width:640px){.sdd-flow .sdd-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+<div class="sdd-grid">
+<div class="sdd-card"><span class="sdd-idx">1</span><span class="sdd-name">Constitution</span><span class="sdd-cn">立宪</span></div>
+<div class="sdd-card"><span class="sdd-idx">2</span><span class="sdd-name">Specify</span><span class="sdd-cn">规格</span></div>
+<div class="sdd-card"><span class="sdd-idx">3</span><span class="sdd-name">Clarify</span><span class="sdd-cn">澄清</span></div>
+<div class="sdd-card"><span class="sdd-idx">4</span><span class="sdd-name">Plan</span><span class="sdd-cn">计划</span></div>
+<div class="sdd-card"><span class="sdd-idx">5</span><span class="sdd-name">Tasks</span><span class="sdd-cn">任务</span></div>
+<div class="sdd-card"><span class="sdd-idx">6</span><span class="sdd-name">Implement</span><span class="sdd-cn">实现</span></div>
+<div class="sdd-card sdd-last"><span class="sdd-idx">7</span><span class="sdd-name">Converge</span><span class="sdd-cn">收敛</span></div>
+</div>
+<div class="sdd-loop"><span>Constitution</span><span class="sdd-arrow">→</span><span>Specify</span><span class="sdd-arrow">→</span><span>Clarify</span><span class="sdd-arrow">→</span><span>Plan</span><span class="sdd-arrow">→</span><span>Tasks</span><span class="sdd-arrow">→</span><span>Implement</span><span class="sdd-arrow">→</span><span>Converge</span><span class="sdd-back">↺ 回到 Constitution 迭代</span></div>
+</div>
 <p class="plain-text">七步看着像瀑布，其实一圈只花十几分钟：立宪=公司规章，Specify=下单，Clarify=客服回访确认细节，Plan=施工图纸，Tasks=工序清单，Implement=开工，Converge=验收整改。</p>
 <h3>分档：什么时候用多重的方法</h3>
 <div class="tbl"><table>
