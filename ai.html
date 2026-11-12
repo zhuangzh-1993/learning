@@ -140,9 +140,11 @@
       <div class="group-title">第 6 章：Harness 与工程生态</div>
       <button class="nav" data-id="c6_harness">18. Harness 五大模块</button>
       <button class="nav" data-id="c6_spec">19. AGENTS / SKILL / DESIGN</button>
-      <button class="nav" data-id="c6_sdd">20. SDD 规格驱动开发</button>
-        <button class="nav" data-id="c6_eco">21. 工程生态与落地</button>
-      <button class="nav" data-id="c6_2026">22. 2026.11 模型与工具实测</button>
+      <button class="nav" data-id="c6_sdd">20. SDD 理念与五步流程</button>
+      <button class="nav" data-id="c6_sdd_tools">21. SDD 主流工具与工作模式</button>
+      <button class="nav" data-id="c6_sdd_std">22. SDD 标准、写法与坑</button>
+      <button class="nav" data-id="c6_eco">23. 工程生态与落地</button>
+      <button class="nav" data-id="c6_2026">24. 2026.11 模型与工具实测</button>
     </div>
     <div class="group c6"><div class="group-title">附录</div><button class="nav" data-id="glossary">📖 核心术语表</button></div>
     <div class="group c-exam"><div class="group-title">考试中心</div><button class="nav" data-id="exam">🎯 终极通关测验</button></div>
@@ -426,21 +428,157 @@ c6_spec:{tag:"Harness",title:"19. AGENTS / SKILL / DESIGN",html:`
 <h3>实践要点</h3>
 <p>三层文件都应短小、可执行、带例子；写得越模糊，AI 自由发挥的空间越大。规范冲突时以更具体的一层为准，AGENTS.md 中可声明加载顺序。规范文件本身要随项目演进定期修订，过时的约束比没有约束更糟。</p>
 `},
-c6_sdd:{tag:"SDD",title:"20. SDD 规格驱动开发",html:`
-<h3>核心理念</h3>
-<p>先写结构化规格，再让 AI 编码。规格是唯一的真相来源（Single Source of Truth）：人审规格的成本远低于人审代码，而 AI 按规格实现，偏差可以被逐条核对。</p>
-<h3>五步流程</h3>
+c6_sdd:{tag:"SDD",title:"20. SDD 理念与五步流程",html:`
+<h3>为什么 AI 时代反而要回头写文档</h3>
+<p>直接对 AI 说一句“帮我做个 XX”（俗称 <strong>Vibe Coding</strong>）写小脚本很爽，但需求一大就暴露四个老毛病：做出来的不是你要的（需求漂移）、改一处坏三处（返工）、没有验收标准（“看起来能跑”就算完了）、上下文一长模型就忘掉前面的约定。</p>
+<p><strong>SDD（Spec-Driven Development，规格驱动开发）</strong>的解法：先把“做什么、不做什么、怎么算做完”写成结构化规格，让规格成为唯一真相来源（Single Source of Truth），AI 只在规格的约束下生成代码，人只对规格负责。</p>
+<h3>三个关键转变</h3>
 <ul>
-<li><strong>Specify（规格）：</strong> 用自然语言或结构化文档写清需求、边界、验收标准，写“做什么”而不是“怎么做”。</li>
-<li><strong>Plan（计划）：</strong> 让 AI 把规格翻译成技术方案：模块划分、数据结构、依赖关系，人审方案再放行。</li>
-<li><strong>Tasks（任务）：</strong> 拆成可独立验证的小任务，每个任务带明确的完成判据，避免一次性生成大块代码。</li>
-<li><strong>Implement（实现）：</strong> AI 按任务逐个实现，每个任务完成即提交，保证可回滚。</li>
-<li><strong>Converge（收敛）：</strong> 用验收标准与测试核对实现与规格的偏差，迭代修正直到一致。</li>
+<li><strong>审查点上移：</strong> 人审规格的成本远低于人审代码。10 行规格里的错误，比 1000 行代码里的错误便宜两个数量级——这是 SDD 全部性价比的来源。</li>
+<li><strong>文档从“一次性”变“活文档”：</strong> 规格不是写完就扔的 PPT。它是每次生成的输入，也是每次验收的判据。代码和规格不一致时，要么改代码，要么改规格，不能装看不见。</li>
+<li><strong>从“提示词”变“契约”：</strong> 提示词是一段话，规格是可逐条核对的条款。一条好规格的标准是：它能对应上一条测试，或对应上一次明确的人工检查动作。</li>
 </ul>
-<h3>与传统开发的关系</h3>
-<p>TDD 把正确性锚定在测试上，SDD 把正确性锚定在规格上；两者可以叠加：规格定义“做对的事”，测试定义“事做对了”。在 AI 生成代码的时代，审查点上移到规格层，是控制质量最划算的位置。</p>
+<p class="plain-text">大白话：Vibe Coding 是“口头交代一句，你去办吧”，办砸了只能重办；SDD 是先写一张任务单——做成什么样、哪些不许动、谁来签字验收——AI 照着单子干活，人只在单子上把关，不用逐行读代码。相当于把“许愿”变成“下单”。</p>
+<h3>标准流程：从立宪到收敛</h3>
+<ul>
+<li><strong>Constitution（立宪）：</strong> 定项目级不可协商的原则：技术栈、代码规范、测试要求、安全红线、“改前先有测试”。后面所有规格都必须在宪法之下，冲突时宪法优先。</li>
+<li><strong>Specify（规格）：</strong> 写清目标、非目标、用户故事与验收标准。只写“做什么”，不写“怎么实现”。</li>
+<li><strong>Clarify（澄清）：</strong> 让 AI 反过来就模糊点提问（异常怎么处理？权限归谁？性能要求？并发多大？），把答案补进规格，而不是让 AI 自己猜。</li>
+<li><strong>Plan（计划）：</strong> 把规格翻译成技术方案：模块划分、数据结构、接口契约、依赖与迁移策略。人审方案后再放行。</li>
+<li><strong>Tasks（任务）：</strong> 拆成可独立验证的小任务，每个带明确完成判据，避免一次性生成大块代码。</li>
+<li><strong>Implement（实现）：</strong> AI 按任务逐个实现，每完成一个任务就提交，保证可回滚。</li>
+<li><strong>Converge（收敛）：</strong> 用验收标准、测试和“规格—代码一致性检查”核对偏差，迭代修正直到一致。</li>
+</ul>
+<p class="plain-text">七步看着像瀑布，其实一圈只花十几分钟：立宪=公司规章，Specify=下单，Clarify=客服回访确认细节，Plan=施工图纸，Tasks=工序清单，Implement=开工，Converge=验收整改。</p>
+<h3>分档：什么时候用多重的方法</h3>
+<div class="tbl"><table>
+<tr><th>档位</th><th>做法</th><th>适用场景</th></tr>
+<tr><td><strong>纯 Vibe</strong></td><td>一句话提示，边跑边改</td><td>一次性脚本、原型验证、玩具项目</td></tr>
+<tr><td><strong>轻规格</strong></td><td>常驻规则文件 + 先出方案再动手（Plan Mode）</td><td>单人、改动小、需求方就是你自己</td></tr>
+<tr><td><strong>标准 SDD</strong></td><td>规格三件套 + 任务清单 + 每阶段人工审查</td><td>多人协作、跨模块功能、要长期维护的代码</td></tr>
+<tr><td><strong>重规格</strong></td><td>宪法 + 多角色 + 需求追溯 + 审计留痕</td><td>强合规行业、大版本重构、生成代码直接进生产</td></tr>
+</table></div>
+<p class="plain-text">一句话判断：这个改动三个月后还有人接手吗？没有 → Vibe；有 → 至少要写轻规格；有并且错了要背锅 → 上 SDD。</p>
+<h3>与传统开发方法的关系</h3>
+<p>TDD 把正确性锚定在测试上，BDD 锚定在行为示例上，SDD 锚定在规格上。三者不冲突、可叠加：<strong>规格定义“做对的事”，测试定义“事做对了”</strong>，AI 负责中间的体力活。SDD 也不是新发明——需求规格说明书（SRS）、接口契约、设计评审这些软件工程老实践被 AI 重新变成了刚需，只是这次“读文档并照着执行”的对象从应届生换成了模型。</p>
+<div class="note exam"><div class="note-t">💡 考点</div>
+SDD 四要素：<strong>目标（做什么）、非目标（不做什么）、约束（技术栈/合规/性能）、验收标准（怎么算完成）</strong>。规格是活的真相来源：代码与规格冲突时，二者必须有一个被改掉，最危险的是留着错的规格继续生成。</div>
 `},
-c6_eco:{tag:"生态",title:"21. 工程生态与落地",html:`
+c6_sdd_tools:{tag:"SDD",title:"21. SDD 主流工具与工作模式",html:`
+<h3>先分清五种工作模式</h3>
+<p>各家 SDD 工具的差别不在于“能不能写规格”，而在于三件事：<strong>规格长什么样、人工审查卡在哪一步、存量项目（棕地）怎么办</strong>。搞清楚这三点，工具名字就没那么重要了。</p>
+<div class="tbl"><table>
+<tr><th>模式</th><th>规格形态</th><th>推进与审查</th><th>最擅长</th></tr>
+<tr><td><strong>① 三件套瀑布</strong></td><td>requirements / design / tasks 三份文档</td><td>逐份确认才写码，tasks 一条条执行打勾</td><td>从零做新功能，逼你把需求写成可验证条款</td></tr>
+<tr><td><strong>② 宪法 + 阶段门</strong></td><td>原则文件 + 每个特性一个 specs 目录</td><td>命令式阶段推进，每阶段人工放行，可回头跑一致性检查</td><td>团队统一流程、强制留痕</td></tr>
+<tr><td><strong>③ 变更提案流</strong></td><td>一次变更 = 提案 + 任务 + 规格增量（delta）</td><td>审提案 → 实现 → 归档并回写到规格基线</td><td>已有系统的渐进改造（棕地首选）</td></tr>
+<tr><td><strong>④ 多角色敏捷</strong></td><td>分析报告 → PRD → 架构 → 故事卡，多份接力</td><td>以 Epic/Story 为最小单元，角色之间互相评审</td><td>需求本身还没想清楚的中大型项目</td></tr>
+<tr><td><strong>⑤ 常驻规范 + 契约先行</strong></td><td>规则文件 + 接口契约（OpenAPI / Protobuf / JSON Schema）</td><td>规则每次会话自动生效，由契约反向生成前后端骨架与测试</td><td>已有规范的仓库、前后端并行开发</td></tr>
+</table></div>
+<h3>主流工具一览</h3>
+<div class="tbl"><table>
+<tr><th>工具</th><th>模式</th><th>关键产物 / 用法</th><th>适用与代价</th></tr>
+<tr><td><strong>Spec Kit</strong><br>（GitHub 开源）</td><td>② 宪法+阶段门</td><td>CLI 初始化后，用一组 <em>/speckit.*</em> 命令串起全流程：constitution → specify → clarify → plan → tasks → analyze → checklist → implement；产物落在 memory 与 specs 目录。可对接 Copilot、Claude Code、Gemini、Cursor、Codex 等多种 Agent</td><td>想把团队流程标准化、要留痕时首选。代价：命令多，小需求会觉得重</td></tr>
+<tr><td><strong>Kiro</strong><br>（AWS 的 Agent IDE）</td><td>① 三件套</td><td>显式分 Vibe 模式与 Spec 模式；Spec 模式生成 requirements.md（验收标准用 EARS 句式）、design.md、tasks.md；另有 steering 文件常驻产品/技术/结构规范，和“钩子”在文件变更时跑小检查</td><td>适合“先文档后代码”的新功能，需求梳理最省心。代价：绑定其 IDE</td></tr>
+<tr><td><strong>OpenSpec</strong></td><td>③ 变更提案</td><td>一个变更一个目录：提案、任务清单、设计说明、规格增量；实现完成再归档，把增量合并回“当前规格”基线。纯 Markdown，不挑 Agent</td><td>棕地改造最轻的入口，规格库跟着系统长。代价：需要自律维护基线</td></tr>
+<tr><td><strong>BMAD-METHOD</strong></td><td>④ 多角色</td><td>给分析师、产品经理、架构师、Scrum Master、开发、QA 各配一份角色提示词，产出项目简报 → PRD → 架构 → 故事 → 实现与评审；支持按规模裁剪角色，也能多角色同场讨论</td><td>需求模糊、要做需求发现时价值最大。代价：文档量大、学习曲线陡</td></tr>
+<tr><td><strong>cc-sdd</strong></td><td>② 的轻量版</td><td>装在 Claude Code / Cursor 里的 SDD 套件：宪法文件 + 绿地/棕地两条流程 + “规格—实现一致性审查”命令</td><td>个人或小团队想上正规流程但不想换工具。代价：生态较小</td></tr>
+<tr><td><strong>Tessl</strong></td><td>⑤ 极端形态</td><td>主张“规格即源码”：规格是唯一主资产，代码是可丢弃、可重新生成的构建产物，并带上下文分发机制</td><td>方向最激进，适合 API/组件类绿地项目验证。代价：商用生态尚在早期</td></tr>
+<tr><td><strong>Agent 自带的轻规格</strong><br>（CLAUDE.md / AGENTS.md / .cursor/rules + Plan Mode）</td><td>⑤</td><td>常驻规则文件写约定，动手前先让模型出一个可审批的执行方案，批准后再改码</td><td>覆盖 90% 的日常小改动，成本最低。代价：不留“需求—实现”追溯</td></tr>
+<tr><td><strong>Memory Bank 式文档库</strong><br>（Roo Code 等）</td><td>⑤ 变体</td><td>一组常驻上下文：项目简介、当前进度、系统模式、技术上下文；开工先读库，收工前更新库</td><td>长期单人/小团队维护同一仓库，解决“每次重讲一遍背景”。代价：靠人定期更新</td></tr>
+</table></div>
+<p class="plain-text">大白话选型：<strong>新项目、要把需求一次讲清</strong> → Kiro 式三件套或 Spec Kit；<strong>已经有一堆老代码要改</strong> → OpenSpec 式变更提案（别一上来就想给全系统补规格）；<strong>连需求是什么都还没定</strong> → BMAD 式多角色帮你把需求挖出来；<strong>只是日常改点东西</strong> → 常驻规则 + 先出方案再动手，不用装工具；<strong>前后端要并行、接口是关键</strong> → 契约先行，先把接口定义锁死再生成代码。</p>
+<h3>拆开看，所有工具的套路是同一个</h3>
+<ul>
+<li>一份<strong>不可协商的原则</strong>（宪法/steering/rules），保证每次生成风格一致。</li>
+<li>一份<strong>可验证的需求</strong>（目标 + 非目标 + 验收标准），把“好”定义清楚。</li>
+<li>一份<strong>技术方案</strong>（架构、数据、接口），是人审“怎么做”的抓手。</li>
+<li>一份<strong>小步任务清单</strong>，让每次生成体量落在人能审完的范围内。</li>
+<li>一道<strong>一致性检查</strong>（analyze/alignment/checklist），专门抓规格和代码互相撒谎。</li>
+</ul>
+<p>所以换工具的收益远小于把这几份东西写好的收益。看清这五点，任何新出的 SDD 工具你十分钟就能上手。</p>
+<div class="note tip"><div class="note-t">✅ 最小可用 SDD（不装任何工具）</div>
+一个 spec 文件（目标 / 非目标 / 约束 / 验收标准）+ 一个 tasks 文件（每条任务带完成判据）+ 每条验收标准对应一条测试。这套东西 20 分钟能搭起来，能拿到完整流程 80% 的收益。</div>
+`},
+c6_sdd_std:{tag:"SDD",title:"22. SDD 标准、规格写法与坑",html:`
+<h3>规格写作：这些标准比 AI 老得多</h3>
+<p>SDD 看起来是新东西，但它“怎么写规格”的部分全是软件工程几十年攒下的标准。捡最实用的几个：</p>
+<ul>
+<li><strong>EARS（Easy Approach to Requirements Syntax）：</strong> 一套受约束的自然语言句式，专治需求含糊。五种模板：
+<ul>
+<li>普遍型：<em>系统应当 &lt;行为&gt;</em></li>
+<li>事件驱动：<em>当 &lt;触发&gt; 时，系统应当 &lt;行为&gt;</em></li>
+<li>状态驱动：<em>在 &lt;状态&gt; 期间，系统应当 &lt;行为&gt;</em></li>
+<li>非期望行为：<em>若 &lt;异常条件&gt;，系统应当 &lt;行为&gt;</em></li>
+<li>可选特性：<em>若启用 &lt;特性&gt;，系统应当 &lt;行为&gt;</em></li>
+</ul>
+例子：“当用户连续 5 次输错密码时，系统应当锁定该账户 15 分钟并通知本人。”——有触发、有数值、有结果，能直接变成一条测试。</li>
+<li><strong>程度关键词（源自 RFC 2119）：</strong> 必须 / 应当 / 可以（MUST / SHOULD / MAY）三档语气写死，禁止“尽量”“最好”“合理地”这类词——模型不会猜你的客气话。</li>
+<li><strong>Gherkin / BDD（Given-When-Then）：</strong> 把验收标准写成可执行示例，天然可以变成自动化测试，是 EARS 的补充而非替代。</li>
+<li><strong>需求质量标准（ISO/IEC/IEEE 29148，前身 IEEE 830）：</strong> 一条好需求的六判据：必要性、无歧义、可实现、可验证、可追溯、一致。SDD 里“可验证 + 可追溯”权重最高。</li>
+<li><strong>架构描述（ISO/IEC/IEEE 42010 + arc42 模板 + C4 模型）：</strong> C4 把系统分四层讲：上下文 → 容器 → 组件 → 代码。给 AI 一张 C4 图 + 一段容器说明，通常比贴一万行代码更高效地传递“系统长什么样”。</li>
+<li><strong>ADR（架构决策记录）：</strong> 一页纸写“背景—备选方案—决定—后果”。AI 时代价值暴涨：没有它，模型会不断提议推翻已经定死的技术选型，把同类决策重做一遍。</li>
+</ul>
+<p class="plain-text">大白话：EARS 就是“填空式说人话”。别说“系统要处理好异常情况”（怎么算好？谁来判定？），要说“当上传文件超过 20MB 时，系统应当拒绝并提示用户压缩后重试”。一句话里有触发、有数字、有动作，模型才执行得准，测试才写得出。</p>
+<h3>接口与数据契约的标准</h3>
+<p>接口是最该被“规格化”的部分，因为它有现成的机器可校验标准，AI 照着契约生成代码和测试，出错能立刻暴露：</p>
+<ul>
+<li><strong>OpenAPI：</strong> REST 接口的结构化描述（路径、参数、状态码、schema），一份契约可同时生成服务端骨架、客户端代码和 mock 服务。</li>
+<li><strong>AsyncAPI：</strong> 消息/事件类接口（Kafka、MQTT 等）的对应标准。</li>
+<li><strong>JSON Schema：</strong> 校验数据结构的事实标准，也是“结构化输出（JSON 模式）”的护栏。</li>
+<li><strong>Protobuf / GraphQL SDL：</strong> 跨语言服务与查询层的契约定义，天然带强类型约束。</li>
+<li><strong>Mermaid / PlantUML：</strong> 用文本画图，能进版本库、能被 AI 读写，适合放进规格里表达流程和状态机。</li>
+</ul>
+<p>契约先行的好处：前后端可以并行开发，接口变更必须改契约，模型不可能“悄悄改掉一个字段”导致线上事故。</p>
+<h3>AI 编码生态自己的新标准</h3>
+<ul>
+<li><strong>AGENTS.md：</strong> 仓库级常驻说明的行业约定，写技术栈、目录、规范、禁止事项，多家工具通吃。</li>
+<li><strong>MCP：</strong> 上下文与工具接入的开放协议，让规格里声明的外部数据源和工具可被不同 Agent 复用。</li>
+<li><strong>SKILL.md：</strong> 任务级按需加载的操作手册，规格之外的“怎么做”细节放这里，不占常驻上下文。</li>
+<li><strong>llms.txt：</strong> 面向模型的站点内容索引约定，帮你把“该喂给模型哪些文档”标准化。</li>
+</ul>
+<h3>一份能直接开工的规格：八块内容</h3>
+<div class="tbl"><table>
+<tr><th>板块</th><th>写什么</th><th>不合格的样子</th></tr>
+<tr><td><strong>目标</strong></td><td>这次要解决的真实问题，一句话</td><td>“提升系统性能”（无对象、无程度）</td></tr>
+<tr><td><strong>非目标</strong></td><td>明确这次不做什么</td><td>缺失，于是 AI 顺手加三个没人要的功能</td></tr>
+<tr><td><strong>用户故事 + 验收</strong></td><td>角色/动作/收益 + EARS 句式条款</td><td>“要好用、界面美观”</td></tr>
+<tr><td><strong>约束</strong></td><td>技术栈、性能、合规、成本、兼容版本</td><td>写了一堆实现方案（把 How 当 What）</td></tr>
+<tr><td><strong>数据模型</strong></td><td>关键实体、字段、生命周期与所有权</td><td>只说“存一下用户数据”</td></tr>
+<tr><td><strong>接口契约</strong></td><td>OpenAPI/JSON Schema 或函数签名与错误码</td><td>靠口头约定字段名</td></tr>
+<tr><td><strong>边界与异常</strong></td><td>空值、超时、并发、权限、部分失败的预期行为</td><td>只写正常流程（AI 只会补它见过的常见情况）</td></tr>
+<tr><td><strong>完成定义（DoD）</strong></td><td>哪些测试必须绿、哪些文档必须更新、谁签字</td><td>“能跑起来就算”</td></tr>
+</table></div>
+<h3>写规格的六条硬规矩</h3>
+<ul>
+<li><strong>每条可验证：</strong> 写不出对应测试或检查动作的条款，等于没写，删掉。</li>
+<li><strong>一条只说一件事：</strong> 避免“并且/或者”串联多个主语，复合条款是歧义的温床。</li>
+<li><strong>What 与 How 分层：</strong> 需求层锁结果，设计层谈方案；设计允许 AI 反驳并提更好方案。</li>
+<li><strong>编号可追溯：</strong> 规格条目 ↔ 任务 ↔ 测试 三者能对上号，改动留 diff 和理由，这样回归时知道该重跑什么。</li>
+<li><strong>控制体量：</strong> 单个特性的规格控制在一页内；背景放常驻文件，细节放按需文档。把提示词加长十倍不叫 SDD，叫写长文。</li>
+<li><strong>写“错误的表现”：</strong> 明确列出反例（不允许硬编码密钥、不允许同步阻塞调用），比只写正面要求有效得多。</li>
+</ul>
+<h3>七个必踩的坑（反模式）</h3>
+<ul>
+<li><strong>规格漂移（Spec Drift）：</strong> 代码改了、规格没改。下一次生成就按旧规格把改动覆盖回去。<em>对策：</em> 把“改码必须同时改规格”写进宪法，并用一致性检查命令定期对照。</li>
+<li><strong>规格表演（Spec Theater）：</strong> 写了没人审、没人更新，规格成了装饰品。比没规格更危险——AI 会忠实地执行一份错的规格。<em>对策：</em> 规格条目数设上限，宁可少而准。</li>
+<li><strong>把 How 写进 What：</strong> 在规格里锁死某个库和某个算法，模型没法优化，改一处要连改三份文档。<em>对策：</em> 技术选型进 ADR，需求层只写结果。</li>
+<li><strong>巨型规格：</strong> 一口气写二十页再动手，投入过大且落地即过时。<em>对策：</em> 一次变更一份规格，小步归档。</li>
+<li><strong>让 AI 自己验收自己：</strong> “我检查过了，符合规格”不算数。<em>对策：</em> 验收人必须是提需求的人或指定 owner，核对依据是验收条款而不是模型自述。</li>
+<li><strong>无人认领的并发修改：</strong> 多人/多 Agent 同时改同一份规格，冲突最后由代码吞掉。<em>对策：</em> 规格有唯一 owner，变更走提案与评审。</li>
+<li><strong>成本上移却没人审：</strong> 审查点从代码移到规格，但团队还是只审代码，等于规格白写。<em>对策：</em> 明确“规格未过审不进入实现”，把它做成流程门。</li>
+</ul>
+<h3>落地路线：四步走</h3>
+<ol>
+<li><strong>先立宪：</strong> 一份常驻规则文件，写死技术栈、目录约定、测试要求和禁止事项；只写这些就够开始。</li>
+<li><strong>挑一个试点：</strong> 选中等规模的新功能（别挑最急的，也别挑最琐碎的），完整走一遍流程，并把每一步耗时记下来。</li>
+<li><strong>固化模板：</strong> 把 spec / design / tasks 三份模板和 EARS 句式、DoD 清单沉淀到仓库；再加一条流程约束——没有规格的改动不进主干。</li>
+<li><strong>规模化与度量：</strong> 接上任务跟踪与可观测性，看三个指标：返工率、首次验收通过率、需求变更吸收成本。据此再决定要不要引入更重的工具，而不是反过来。</li>
+</ol>
+<div class="note exam"><div class="note-t">💡 考点</div>
+“规格是唯一真相来源”的含义不是“文档最重要”，而是<strong>冲突必须被消解</strong>：代码与规格不一致时，要么改代码、要么改规格，不允许两者并存。EARS 解决“需求可验证”，契约标准（OpenAPI/JSON Schema）解决“接口可校验”，AGENTS.md/MCP/SKILL.md 解决“上下文可复用”，三者合起来才是完整的 SDD 工具箱。</div>
+`},
+c6_eco:{tag:"生态",title:"23. 工程生态与落地",html:`
 <h3>多模态与长上下文</h3>
 <p>VLM（视觉语言模型）把图像编码为 token 序列与文本统一建模；长上下文窗口虽扩大到百万级，但“有效上下文”通常远小于标称值，中间信息容易被忽略（lost in the middle），关键信息应放在首尾。</p>
 <h3>训练与推理工程</h3>
@@ -461,7 +599,7 @@ c6_eco:{tag:"生态",title:"21. 工程生态与落地",html:`
 </ul>
 <p>本章节为补充超纲考点新增，覆盖题库中此前无大纲对应的工程与生态类题目。</p>
 `},
-c6_2026:{tag:"2026.11",title:"22. 2026年11月 模型与工具实测",html:`
+c6_2026:{tag:"2026.11",title:"24. 2026年11月 模型与工具实测",html:`
 <h3>模型前三</h3>
 <p>Gemini 4 Carbon, Claude Opus 5.5, GPT-6 Astra。三者差距已缩小到个位数百分点，选型更多看生态与价格而非跑分：Gemini 长上下文与多模态占优，Claude 在代码任务与指令遵循上口碑最好，GPT 生态插件与工具链最全。</p>
 <h3>Harness 实测</h3>
@@ -518,10 +656,10 @@ glossary:{tag:"附录",title:"📖 核心术语表",html:`
 <tr><td><strong>PagedAttention</strong></td><td>—</td><td>借鉴操作系统分页机制管理 KV Cache 显存的推理加速技术，vLLM 的核心</td></tr>
 <tr><td><strong>AGENTS.md</strong></td><td>—</td><td>项目级常驻说明文件，写技术栈、目录与规范，每次会话自动加载</td></tr>
 <tr><td><strong>SKILL.md</strong></td><td>—</td><td>按需加载的技能说明文件，教会模型某项具体能力</td></tr>
-<tr><td><strong>SDD</strong></td><td>Spec-Driven Development</td><td>规格驱动开发，先写规格文档再由模型生成代码</td></tr>
+<tr><td><strong>SDD / Spec-Driven Development</strong></td><td>规格驱动开发</td><td>先写目标/非目标/约束/验收标准，再由模型实现，规格是唯一真相来源</td></tr>
 <tr><td><strong>VLM</strong></td><td>Vision-Language Model</td><td>多模态大模型，图像转视觉 Token 接入语言模型</td></tr>
 <tr><td><strong>Temperature / Logits</strong></td><td>—</td><td>Logits 是未归一化得分，Temperature 缩放后经 Softmax 控制随机性</td></tr>
-<tr><td><strong>Repetition / Presence / Frequency Penalty</strong></td><td>—</td><td>三类重复惩罚：乘法缩放、出现即减固定值、按次数比例惩罚，治复读机</td></tr>
+<tr><td><strong>Repetition Penalty / Presence Penalty / Frequency Penalty</strong></td><td>—</td><td>三类重复惩罚：乘法缩放、出现即减固定值、按次数比例惩罚，治复读机</td></tr>
 <tr><td><strong>Prefill / Decode</strong></td><td>—</td><td>推理两阶段：一次性并行处理输入的预填充，与逐 Token 生成的解码</td></tr>
 <tr><td><strong>FP16 / BF16 / FP32 / INT8 / FP8</strong></td><td>—</td><td>数值精度格式，位数越低显存越省、速度越快，精度损失需权衡</td></tr>
 <tr><td><strong>Hallucination</strong></td><td>—</td><td>幻觉，模型一本正经地编造不存在的事实，RAG 可缓解</td></tr>
@@ -529,15 +667,36 @@ glossary:{tag:"附录",title:"📖 核心术语表",html:`
 <tr><td><strong>TDD</strong></td><td>Test-Driven Development</td><td>测试驱动开发，先写测试再实现，AI 编码时代是验收的锚点</td></tr>
 <tr><td><strong>Plan / Execute / Reflexion</strong></td><td>—</td><td>Agent 执行循环的三种模式：先规划、直接执行、执行后反思修正</td></tr>
 </table></div>
+<h3>AI 编码方法与规格标准</h3>
+<div class="tbl"><table>
+<tr><th>术语</th><th>全称</th><th>一句话解释</th></tr>
+<tr><td><strong>Vibe Coding</strong></td><td>—</td><td>凭感觉给一句提示让 AI 改代码，小改动快，大需求容易返工</td></tr>
+<tr><td><strong>BDD</strong></td><td>Behaviour-Driven Development</td><td>行为驱动开发，用 Given-When-Then 示例定义“什么算做对”</td></tr>
+<tr><td><strong>EARS</strong></td><td>Easy Approach to Requirements Syntax</td><td>受约束的需求句式（当…时，系统应当…），让每条需求都能验证</td></tr>
+<tr><td><strong>Gherkin</strong></td><td>—</td><td>Given-When-Then 的文本格式，可直接接进自动化测试</td></tr>
+<tr><td><strong>DoD</strong></td><td>Definition of Done</td><td>完成定义：测试必须绿、文档必须更新、谁签字才算做完</td></tr>
+<tr><td><strong>ADR</strong></td><td>Architecture Decision Record</td><td>架构决策记录，一页纸写背景/选项/决定/后果，防止 AI 反复推翻选型</td></tr>
+<tr><td><strong>arc42 / C4</strong></td><td>—</td><td>架构文档模板与分层图（上下文→容器→组件→代码），高效告诉 AI 系统长什么样</td></tr>
+<tr><td><strong>OpenAPI / AsyncAPI</strong></td><td>—</td><td>REST 与消息接口的契约标准，可据此生成服务端、客户端与 mock</td></tr>
+<tr><td><strong>JSON Schema</strong></td><td>—</td><td>数据结构校验标准，也是结构化输出（JSON 模式）的护栏</td></tr>
+<tr><td><strong>Protobuf</strong></td><td>Protocol Buffers</td><td>跨语言接口与消息的强类型契约定义</td></tr>
+<tr><td><strong>Spec Drift</strong></td><td>—</td><td>规格漂移：代码改了规格没改，下次生成又把改动覆盖回去</td></tr>
+<tr><td><strong>Spec Kit</strong></td><td>GitHub Spec Kit</td><td>“宪法 + 阶段门”式 SDD 工具流，一组命令串起 specify→plan→tasks→implement</td></tr>
+<tr><td><strong>Kiro</strong></td><td>AWS Kiro</td><td>Agent IDE，Spec 模式产出 requirements/design/tasks 三件套（Vibe 与 Spec 双模式）</td></tr>
+<tr><td><strong>OpenSpec</strong></td><td>—</td><td>变更提案式规格管理：提案 + 规格增量 + 归档，适合存量系统改造</td></tr>
+<tr><td><strong>BMAD</strong></td><td>BMAD-METHOD</td><td>多角色敏捷框架，分析师/PM/架构师/QA 各出一份文档，以 Story 为最小单元</td></tr>
+<tr><td><strong>Tessl</strong></td><td>—</td><td>“规格即源码”路线：规格是唯一主资产，代码是可重生成的产物</td></tr>
+<tr><td><strong>Memory Bank</strong></td><td>—</td><td>一组常驻上下文文档，开工先读库、收工前更新库，省掉每次重讲背景</td></tr>
+</table></div>
 `},
 exam:{tag:"考试中心",title:"",html:`<div id="exam-container"></div>`}
 };
 
-// ======= 题库（共110题，考试取前60题） =======
+// ======= 题库（全库都是抽题池，每次考试随机抽 EXAM_COUNT 题） =======
 const QUIZ_BANK = [
-  { q: "关于大模型的预训练（Pre-training），以下说法正确的有？", o: ["A. 模型在此阶段学会了语法和常识", "B. 核心任务是 Next-Token Prediction（文字接龙）", "C. 预训练出来的模型能完美听从人类指令", "D. 模型此时已具备拒绝有害指令的安全对齐能力", "E. 消耗了模型训练周期中 99% 的算力"], a: [0,1,4], e: "C、D错误。预训练产出的是基座模型，不懂对话格式，需经过 SFT 和人类对齐才能听懂指令并拒绝有害请求。" },
+  { q: "关于大模型的预训练（Pre-training），以下说法正确的有？", o: ["A. 模型在此阶段学会了语法和常识", "B. 核心任务是 Next-Token Prediction（文字接龙）", "C. 预训练出来的模型能完美听从人类指令", "D. 模型此时已具备拒绝有害指令的安全对齐能力", "E. 消耗了整个训练周期中的绝大部分算力（通常九成以上）"], a: [0,1,4], e: "C、D错误。预训练产出的是基座模型，不懂对话格式，需经过 SFT 和人类对齐才能听懂指令并拒绝有害请求。" },
   { q: "BPE（字节对编码）分词算法的核心原理包括？", o: ["A. 必须依赖外部词典库进行实时查询", "B. 能够完全理解语言的语法结构", "C. 从单个字符开始构建词表", "D. 寻找文本中出现频率最高的相邻字符对并合并", "E. 生僻词会被拆分成多个 Token"], a: [2,3,4], e: "A、B错误。BPE是纯粹的统计学频率算法，不理解语义，也不需要外部词典实时查询。" },
-  { q: "由于 Byte-level BPE 的存在，关于中文与英文的 Token 消耗，正确的有？", o: ["A. 同一个汉字在不同语境下可能被拆成多个字节", "B. 表达同样意思的句子，中文消耗的 Token 数通常比英文多", "C. 这导致中文的 API 调用成本往往高于英文", "D. 中文的 Unicode 编码比英文 ASCII 码更短", "E. BPE 对中文和英文的处理逻辑完全一样，只是字典不同"], a: [0,1,2], e: "D错误，Unicode更长；E错误，BPE是基于字节频率合并，中英文字节分布不同导致切分逻辑表现有差异。" },
+  { q: "由于 Byte-level BPE 的存在，关于中文与英文的 Token 消耗，正确的有？", o: ["A. 同一个汉字在不同语境下可能被切成不同数量的 Token", "B. 表达同样意思的句子，中文消耗的 Token 数通常比英文多", "C. 这导致中文的 API 调用成本往往高于英文", "D. 中文的 Unicode 编码比英文 ASCII 码更短", "E. BPE 对中文和英文的处理逻辑完全一样，只是字典不同"], a: [0,1,2], e: "D错误，Unicode更长；E错误，BPE是基于字节频率合并，中英文字节分布不同导致切分逻辑表现有差异。" },
   { q: "关于 SFT（监督微调），下列描述正确的有？", o: ["A. SFT 阶段通常不需要计算损失函数", "B. 注入海量的新世界知识主要靠 SFT", "C. 使用人工标注的高质量问答对", "D. 主要教模型“对话的格式和流程”", "E. 激活了预训练阶段模型已经学到的能力"], a: [2,3,4], e: "A、B错误。注入新知识应使用 RAG；SFT 依然需要计算交叉熵损失进行反向传播。" },
   { q: "关于人类对齐中的 RLHF 与 DPO，说法正确的有？", o: ["A. RLHF 流程中包含了奖励模型（裁判）和价值网络（评论家）", "B. DPO 完全不需要强化学习的 Rollout 过程", "C. DPO 在数学上将奖励模型内化进了大模型本身", "D. RLHF 通常比 DPO 更稳定，不易崩溃", "E. DPO 只能用于图像生成模型"], a: [0,1,2], e: "D错误，RLHF极易崩溃；E错误，DPO用于LLM。" },
   { q: "关于 LoRA 和 QLoRA，说法正确的有？", o: ["A. LoRA 会完全覆盖并破坏原有模型的通用知识", "B. LoRA 冻结了基座模型，只训练旁路矩阵", "C. QLoRA 先将基座模型量化压缩到 4-bit 存显存", "D. QLoRA 让单张消费级显卡微调大模型成为可能", "E. LoRA 训练后的参数规模通常只有原来的 1% 左右"], a: [1,2,3,4], e: "A错误。LoRA冻结了原模型，保留了通用知识。" },
@@ -557,7 +716,7 @@ const QUIZ_BANK = [
   { q: "关于 RAG（检索增强生成）链路，正确的有？", o: ["A. 改变了模型底层参数", "B. 通过外挂知识库缓解幻觉", "C. 切块（Chunking）太大容易导致检索不准，太小容易丢失上下文", "D. Rerank（重排）可以用小模型对初步召回的片段进行精细打分", "E. 纯向量检索足以应对所有场景"], a: [1,2,3], e: "A错误，RAG不改变底层参数；E错误，需要BM25混合检索。" },
   { q: "Agent（智能体）的常见规划模式包括？", o: ["A. ReAct（边想边做，不断试错）", "B. Plan-and-Execute（先出计划，再按步执行）", "C. Reflexion（执行后自我反思并打回重做）", "D. 必须包含一个物理机器人实体", "E. 工具调用 (Tools)"], a: [0,1,2,4], e: "D错误。Agent 可以是纯软件的。" },
   { q: "关于 MCP (Model Context Protocol)，正确的有？", o: ["A. 被称为 AI 界的 USB-C", "B. 解决了工具如何被发现和复用的标准问题", "C. 彻底替代了 Function Calling", "D. 架构包含 Host, Client, Server", "E. 由 OpenAI 独家垄断且闭源"], a: [0,1,3], e: "C错误，两者是上下游；E错误，是开源的。" },
-  { q: "大模型无法做对复杂的数学题，原因是？", o: ["A. 本质是文字接龙的概率模型", "B. 缺少严密的符号运算执行逻辑", "C. 它不懂数学逻辑，只在猜哪个数字组合最像答案", "D. 因为模型没有安装本地计算软件", "E. 因为显卡的算力不够"], a: [0,1,2], e: "D、E错误。" },
+  { q: "大模型无法做对复杂的数学题，原因是？", o: ["A. 本质是文字接龙的概率模型", "B. 缺少严密的符号运算执行逻辑", "C. 推理过程不保证逐步精确，数字是按概率拼出来的", "D. 因为模型没有安装本地计算软件", "E. 因为显卡的算力不够"], a: [0,1,2], e: "注意不是“不懂数学原理”——原理它讲得清，错在没有确定性的符号运算过程，长数字容易被概率拼错。D、E错误。" },
   { q: "关于“复杂度墙”，企业落地的启示是？", o: ["A. 100 步任务，每步 99% 正确，整体成功率会暴跌", "B. 这是一个物理定律，无法通过工程手段缓解", "C. 长周期任务必须拆解为可验证的短步骤", "D. 高风险动作必须有人工兜底", "E. 只要把模型参数加到万亿就能解决"], a: [0,2,3], e: "B、E错误。" },
   { q: "关于 KV Cache 和 PagedAttention，正确的有？", o: ["A. 缓存了历史 Token 的 K 和 V 向量", "B. 避免了生成新 Token 时重算整段历史", "C. PagedAttention 引入了类似操作系统的虚拟内存分页技术", "D. PagedAttention 大幅减少了显存碎片，提升了吞吐量", "E. PagedAttention 主要用于加速模型的预训练过程"], a: [0,1,2,3], e: "E错误。这是推理阶段的优化。" },
   { q: "DeepSeek 的“缓存偏移 (Cache Offset)”技术如何实现？", o: ["A. 采用 MLA 架构压缩 KV Cache 体积", "B. 把压缩后的缓存下沉到 SSD 等低成本存储", "C. 只要语义相似就能命中缓存", "D. 请求前缀必须完全匹配才能命中", "E. 缓存数据在显存中只能保留 1 分钟"], a: [0,1,3], e: "C、E错误。" },
@@ -566,12 +725,12 @@ const QUIZ_BANK = [
   { q: "评估企业 AI 项目的 ROI，应该关注哪些指标？", o: ["A. 人效提升（人均产出）", "B. 交付周期缩短", "C. 模型每天调用了几万次", "D. 模型生成的文本总字数", "E. 获客成本降低/转化率提升"], a: [0,1,4], e: "C、D错误，系统指标不等于商业 ROI。" },
   { q: "Harness（智能体执行框架）的核心模块包括？", o: ["A. 大模型的预训练权重参数", "B. 执行循环 (Loop)", "C. 工具集 (Tools)", "D. 记忆管理与权限控制", "E. 可观测性 (Observability)"], a: [1,2,3,4], e: "A错误。Harness 是模型外层的框架。" },
   { q: "关于权限控制，为什么“不能只靠提示词”？", o: ["A. 模型会被恶意提示词注入/越狱", "B. 模型会在长上下文中产生幻觉或犯错", "C. 提示词中不能使用任何否定词", "D. 必须在 Harness 的代码层拦截高危动作（如转账）", "E. 提示词的字数有严格的限制"], a: [0,1,3], e: "C、E错误。" },
-  { q: "关于 AGENTS.md，正确的有？", o: ["A. 仓库级常驻上下文，每次会话完整加载", "B. 仅在模型需要生成图片时才加载", "C. 回答“在这里怎么工作”", "D. 由 OpenAI、Google 等联合推动，捐给 Linux 基金会", "E. 内容应该包含极致的业务细节和代码实现"], a: [0,2,3], e: "B、E错误。" },
+  { q: "关于 AGENTS.md，正确的有？", o: ["A. 仓库级常驻上下文，每次会话完整加载", "B. 仅在模型需要生成图片时才加载", "C. 回答“在这里怎么工作”", "D. 由 OpenAI 主导制定，后捐给 Linux 基金会旗下的 Agentic AI Foundation", "E. 内容应该包含极致的业务细节和代码实现"], a: [0,2,3], e: "B、E错误。Google、Microsoft、AWS 等是支持方，规范由 OpenAI 起草并捐赠以避免单一厂商控制。" },
   { q: "关于 SKILL.md，正确的有？", o: ["A. 任务级可复用工作流", "B. 按需加载，节省上下文预算", "C. 采用“渐进式披露”机制", "D. 启动时会一次性把所有脚本和资源读入内存", "E. 由 Google Labs 主导发布"], a: [0,1,2], e: "D、E错误。" },
   { q: "SDD（规格驱动开发）的核心要素包含？", o: ["A. 目标 (做什么)", "B. 非目标 (不做什么)", "C. 约束 (技术栈、合规)", "D. 验收标准 (怎么算完成)", "E. 预算审批流程"], a: [0,1,2,3], e: "E错误。预算审批不属于 SDD。" },
   { q: "根据 2026年11月 FrontierHarness Eval 数据，结论正确的有？", o: ["A. 同一模型，换不同 Harness 通过率相差极大", "B. 云上算账应认准 effective_cost_per_pass（每次通过成本）", "C. Claude Code 和 DSH Creator 通过率相同，但成本相差 5.6 倍", "D. Exo Harness 虽然通过率低，但每次通过成本极低", "E. 通过率最高的 Harness 必然也是成本最低的"], a: [0,1,2,3], e: "E错误。" },
-  { q: "2026年11月 Artificial Analysis 排名前三的模型有？", o: ["A. Gemini 4 Carbon", "B. Claude Opus 5.5 Max", "C. LLaMA 2 70B", "D. GPT-6 Astra Max", "E. DeepSeek V4.1 Flash"], a: [0,1,3], e: "E排第17；C是2023年老模型。" },
-  { q: "Transformer 相比 RNN（循环神经网络）的核心优势包括？", o: ["A. 支持并行计算，训练速度快", "B. 通过自注意力机制，能更好地捕捉长距离依赖", "C. 彻底解决了梯度消失问题", "D. 不需要位置编码就能理解语序", "E. 参数量一定比 RNN 小"], a: [0,1,2], e: "D、E错误。" },
+  { q: "2026年11月 Artificial Analysis 排名前三的模型有？", o: ["A. Gemini 4 Carbon", "B. Claude Opus 5.5", "C. LLaMA 2 70B", "D. GPT-6 Astra", "E. DeepSeek V4.1 Flash"], a: [0,1,3], e: "与第 24 章正文一致。E排第17；C是2023年老模型。" },
+  { q: "Transformer 相比 RNN（循环神经网络）的核心优势包括？", o: ["A. 支持并行计算，训练速度快", "B. 通过自注意力机制，能更好地捕捉长距离依赖", "C. 彻底解决了梯度消失问题", "D. 不需要位置编码就能理解语序", "E. 参数量一定比 RNN 小"], a: [0,1], e: "C错在“彻底”：残差连接只是缓解梯度消失，深层网络仍需 LayerNorm、Warmup 等手段配合（与本库“残差连接缓解梯度消失”口径一致）；D、E错误。" },
   { q: "关于 FlashAttention 技术，正确的有？", o: ["A. 是一种加速注意力计算的算法", "B. 在数学计算结果上与原版 Attention 完全等价", "C. 通过分块计算减少 HBM（显存）的读写次数", "D. 减少了 KV Cache 的存储体积", "E. 会改变模型的最终输出结果"], a: [0,1,2], e: "D、E错误。" },
   { q: "以下哪些属于“参数高效微调（PEFT）”技术？", o: ["A. LoRA (Low-Rank Adaptation)", "B. Prefix Tuning", "C. P-Tuning", "D. Adapter Tuning", "E. 从零开始预训练 (Pre-training)"], a: [0,1,2,3], e: "E错误。" },
   { q: "大模型在生成长篇文本时出现“复读机”现象，原因可能是？", o: ["A. 陷入了局部最优的概率循环", "B. 解码时 Temperature 设置过低", "C. 缺乏 repetition_penalty (重复惩罚)", "D. 向量数据库崩溃", "E. 显卡显存溢出导致"], a: [0,1,2], e: "D、E错误。" },
@@ -579,7 +738,7 @@ const QUIZ_BANK = [
   { q: "关于大模型的“对齐税 (Alignment Tax)”，正确的有？", o: ["A. 为了安全，模型可能变得过度拒答", "B. 对齐后，模型在某些专业基准测试上可能得分下降", "C. 是指调用 API 时需要缴纳的税费", "D. 可以通过 DPO 完全消除", "E. 是人类强加价值观导致的副作用"], a: [0,1,4], e: "C、D错误。" },
   { q: "关于多模态大模型 (VLM)，正确的有？", o: ["A. 能够同时理解文本和图像", "B. 通常通过将图像转化为视觉 Token 接入语言模型", "C. 适合用于财务报表截图识别、UI 代码生成", "D. 可以直接用于生成高清视频", "E. 无法理解图像中的空间关系"], a: [0,1,2], e: "D错误，那是Sora的活。" },
   { q: "企业在构建专属 Agent 时，为什么必须引入可观测性 (Observability)？", o: ["A. 追踪 Agent 幻觉导致的错误决策链条", "B. 为了提升模型的预训练速度", "C. 统计每个工具调用的耗时和成本", "D. 满足合规审计要求", "E. 防止 Agent 掉入死循环"], a: [0,2,3,4], e: "B错误。" },
-  { q: "关于“长上下文 (Long Context)”窗口，正确的有？", o: ["A. 128K 意味着可以一次性输入十几万字", "B. 模型在长上下文中间部分容易出现“注意力丢失”", "C. 长上下文会显著增加显存消耗 (KV Cache)", "D. 只要有长上下文，就不需要 RAG 了", "E. 长上下文需要极高的算力成本"], a: [0,1,2,4], e: "D错误。" },
+  { q: "关于“长上下文 (Long Context)”窗口，正确的有？", o: ["A. 128K 约等于一次性输入数万到十万字量级的中文", "B. 模型在长上下文中间部分容易出现“注意力丢失”", "C. 长上下文会显著增加显存消耗 (KV Cache)", "D. 只要有长上下文，就不需要 RAG 了", "E. 长上下文需要极高的算力成本"], a: [0,1,2,4], e: "D错误。汉字常被切成 1~2 个 token，所以 128K token 折合中文是数万到十万字量级，不是“十几万字”。" },
   { q: "下列关于 Hugging Face 的说法，正确的有？", o: ["A. 是全球最大的开源模型和数据集托管平台", "B. 提供了 Transformers 等核心开源代码库", "C. 它是 OpenAI 旗下的子公司", "D. 企业可以从中下载模型进行私有化部署", "E. 只有付费用户才能下载模型"], a: [0,1,3], e: "C、E错误。" },
   { q: "为什么很多企业选择“开源模型 + 私有化部署”而不是直接用公有云 API？", o: ["A. 数据不出内网，满足极高的安全合规要求", "B. 长期高频调用下，边际成本更低", "C. 可以进行深度的底层微调", "D. 彻底不用担心模型幻觉", "E. 不需要任何 GPU 硬件成本"], a: [0,1,2], e: "D、E错误。" },
   { q: "关于 System Prompt（系统提示词），正确的有？", o: ["A. 用于设定模型的角色、边界和输出格式", "B. 它的优先级高于用户输入的提示词", "C. 对用户是不可见的", "D. 可以完全杜绝所有的提示词注入攻击", "E. 长度没有上限"], a: [0,1,2], e: "D错误。" },
@@ -629,7 +788,7 @@ QUIZ_BANK.push(
   { q: "大模型训练中学习率调度（LR Schedule）的作用，正确的有？", o: ["A. Warmup 阶段从小学习率逐步上升，稳定早期训练", "B. Cosine 衰减让学习率随训练平滑下降", "C. 学习率越大训练一定越快越好", "D. 学习率直接影响训练能否收敛"], a: [0,1,3], e: "C错误：学习率过大导致发散或震荡，并非越大越好。" },  { q: "企业部署大模型时，评估单卡吞吐的合理指标包括？", o: ["A. tokens/s（每秒生成 token 数）", "B. 并发用户数下的 P99 首字延迟", "C. 请求成功率", "D. 模型文件大小"], a: [0,1,2], e: "D错误：模型文件大小只是显存占用的参考，不代表吞吐与服务质量。" },
   { q: "下列属于大模型常见幻觉类型的有？", o: ["A. 事实性幻觉（与客观事实不符）", "B. 忠实性幻觉（与给定资料不符）", "C. 引用幻觉（编造不存在的出处）", "D. 语法错误"], a: [0,1,2], e: "D是语言能力问题，现代大模型极少犯，不属于幻觉分类。" },
   { q: "关于大模型的微调数据质量，正确的有？", o: ["A. 数据质量比数量更重要", "B. 含错误标签的数据会直接教坏模型", "C. 数据分布应与目标场景一致", "D. 数据越多效果一定单调上升"], a: [0,1,2], e: "D错误：低质数据的堆积会稀释信号甚至引入退化，规模不是充分条件。" },
-  { q: "关于 KV Cache 与 GQA（分组查询注意力），正确的有？", o: ["A. GQA 让多个 Query 头共享一组 K、V 头", "B. GQA 显著降低推理时的 KV Cache 显存", "C. GQA 提升的是训练阶段的梯度稳定性", "D. MHA 是每个 Query 头都有独立 K、V 头的特例"], a: [0,1], e: "C错误：GQA 的动机是推理显存与带宽，不是训练稳定性；D说反了，MHA 是全量头，GQA 才是共享的中间形态。" },
+  { q: "关于 KV Cache 与 GQA（分组查询注意力），正确的有？", o: ["A. GQA 让多个 Query 头共享一组 K、V 头", "B. GQA 显著降低推理时的 KV Cache 显存", "C. GQA 提升的是训练阶段的梯度稳定性", "D. MHA 是每组只有一个 K、V 头的特例（group_size=1）"], a: [0,1,3], e: "C错误：GQA 的动机是推理阶段的显存与带宽，不是训练稳定性。A、B、D 正确：MHA 是每个 Query 头配独立 K、V 头（GQA 的 group_size=1 特例），MQA 则全部 Query 头共享一组，GQA 是两者之间的中间形态。" },
   { q: "使用大模型生成代码时，合理的工程实践包括？", o: ["A. 生成的代码必须经人工审查与测试", "B. 用单元测试验证生成代码的行为", "C. 对生成代码做静态检查与安全扫描", "D. 生产环境直接部署未经审查的生成代码"], a: [0,1,2], e: "D错误：生成代码可能有逻辑与安全缺陷，审查与测试不可省略。" },
   { q: "大模型在企业落地时，成本优化的可行手段包括？", o: ["A. 对高频重复请求做缓存", "B. 按任务难度分级选用不同规模的模型", "C. 精简提示词，减少输入 token", "D. 所有请求一律使用最大模型并拉满思考预算"], a: [0,1,2], e: "D错误：与成本优化目标相反，应按需分配算力。" }
 );
@@ -649,14 +808,15 @@ QUIZ_BANK.push(  { q: "关于 Self-Attention 中 softmax 的作用，正确的�
   { q: "关于 Embedding 向量的归一化，正确的有？", o: ["A. 归一化后向量长度为 1", "B. 归一化后内积等价于余弦相似度", "C. 归一化会改变向量方向", "D. 所有相似度计算都必须归一化"], a: [0,1], e: "C错误：归一化只缩放长度不改方向；D夸大，内积等方式在未归一化时也有使用场景。" },
   { q: "大模型项目的安全评测（红队测试）应覆盖的面包括？", o: ["A. 提示词注入与越狱尝试", "B. 敏感信息泄露场景", "C. 工具调用被诱导执行危险操作", "D. 模型推理速度是否够快"], a: [0,1,2], e: "D是性能评测范畴，不属于安全红队关注面。" }
 );
-// 考试固定取前 100 题，其余题保留在题库中备用
-QUIZ_BANK.length = 60; // 60 题作为抽题池，每次考试随机抽取 50 题
+// 全库即抽题池：以后往 QUIZ_BANK 里加题就能被抽到，无需再动这里的截断逻辑
+const EXAM_COUNT = 50; // 每次考试从整库随机抽 50 题，满分 100 分
 let EXAM_QS = pickExamQuestions(); // 进入页面前先抽好本卷 50 题，避免首开显示 0 题
 function pickExamQuestions() {
   const pool = QUIZ_BANK.slice();
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
-  return pool.slice(0, 50);
+  return pool.slice(0, Math.min(EXAM_COUNT, pool.length));
 }
+function pointsPerQuestion() { return Math.round(100 / EXAM_QS.length); } // 题量变化时分值自动对齐满分
 function gradeMessage(score) {
   let pool;
   if (score >= 90) pool = ['哇！接近满分啦！你简直是行走的题库小仙女！🌟', '太强了！这份成绩单可以直接裱起来啦！🎀', '学霸少女就是你！骄傲地转个圈吧～💫'];
@@ -688,7 +848,7 @@ function render(id,btn){
 }
 
 function renderExamUI() {
-  let html = `<div class="exam-header"><h1 class="exam-title">🎯 终极通关测验</h1><p class="exam-desc">本卷共 ${EXAM_QS.length} 道高密度多选题（每题 2 分，满分 100 分；每题均为 A-E 五个选项，含 1~5 个正确项）。必须全选对才得分。交卷前无法查看答案。</p></div><div id="quiz-list">`;
+  let html = `<div class="exam-header"><h1 class="exam-title">🎯 终极通关测验</h1><p class="exam-desc">本卷 ${EXAM_QS.length} 题，由 ${QUIZ_BANK.length} 题全库随机抽取（每题 ${pointsPerQuestion()} 分，满分 100 分；选项 4~5 个，含 1~5 个正确项，个别题为单选）。必须全选对才得分。交卷前无法查看答案。</p></div><div id="quiz-list">`;
   EXAM_QS.forEach((q, qIdx) => {
     html += `<div class="q-card" id="q-card-${qIdx}"><div class="q-title"><span>Q${qIdx+1}.</span> ${q.q}</div><div class="opt-list">`;
     q.o.forEach((opt, oIdx) => {
@@ -773,7 +933,7 @@ const np = document.getElementById('nick-panel'); if (np) np.style.display = 'no
     });
     document.getElementById('stat-total').textContent = `${correctCount} / ${EXAM_QS.length}`;
     document.getElementById('stat-wrong').textContent = wrongCount;
-    const scorePct = correctCount * 2;
+    const scorePct = correctCount * pointsPerQuestion();
     document.getElementById('stat-score').textContent = `${scorePct}%`;
     if(scorePct >= 80) document.getElementById('stat-score').style.color = 'var(--g)';
     else if(scorePct >= 60) document.getElementById('stat-score').style.color = 'var(--o)';
@@ -814,10 +974,10 @@ rb.addEventListener('click', () => { userAnswers = {}; EXAM_QS = pickExamQuestio
 document.getElementById('panel-actions').appendChild(rb);
 const wrongList = [];
 EXAM_QS.forEach((q, qIdx) => {
-  const u = (userAnswers[qIdx] || []).slice().sort();
-  const r = q.a.slice().sort();
+  const u = (userAnswers[qIdx] || []).slice().sort((x, y) => x - y);
+  const r = q.a.slice().sort((x, y) => x - y);
   const ok = u.length === r.length && u.every((v, i) => v === r[i]);
-  if (!ok) wrongList.push({ n: qIdx + 1, q: q.q, your: (userAnswers[qIdx] || []).map(x => String.fromCharCode(65 + x)).join(', ') || '未作答', right: q.a.map(x => String.fromCharCode(65 + x)).join(', '), exp: q.e });
+  if (!ok) wrongList.push({ n: qIdx + 1, q: q.q, opts: q.o, picked: u, right: r, exp: q.e, your: u.map(x => String.fromCharCode(65 + x)).join(', ') || '未作答', rightText: r.map(x => String.fromCharCode(65 + x)).join(', ') });
 });
 const oldExportBtn = document.getElementById('btn-export-wrong');
 if (oldExportBtn) oldExportBtn.remove();
@@ -828,11 +988,21 @@ exportBtn.style.flex = '1';
 exportBtn.textContent = '导出错题';
 exportBtn.addEventListener('click', () => {
   if (!wrongList.length) { alert('全部答对，没有错题可导出！'); return; }
-  const lines = wrongList.map(w => `${w.n}. ${w.q}
+  const lines = wrongList.map(w => {
+    const optLines = w.opts.map((opt, i) => {
+      const isRight = w.right.includes(i), isPicked = w.picked.includes(i);
+      const mark = isRight && isPicked ? '【✔ 正确项 · 你已选中】' : isRight ? '【✔ 正确项 · 你漏选】' : isPicked ? '【✘ 干扰项 · 你误选】' : '';
+      return '  ' + opt + mark;
+    }).join(String.fromCharCode(10));
+    return `${w.n}. ${w.q}
+${optLines}
 你的答案：${w.your}
-正确答案：${w.right}
-解析：${w.exp}`);
-  const text = `错题导出（共 ${wrongList.length} 题）
+正确答案：${w.rightText}
+解析：${w.exp}`;
+  });
+  const text = `错题本（共 ${wrongList.length} 题 · 导出时间 ${new Date().toLocaleString('zh-CN')}）
+图例：✔ 正确项=本题应选的选项；✘ 干扰项=不该选但你选了；无标记的选项=不该选，你也确实没选
+复习建议：先只看题干和选项，自己重新判断一遍，再核对下方的答案与解析。
 
 ` + lines.join(String.fromCharCode(10)+String.fromCharCode(10)+'————————'+String.fromCharCode(10)+String.fromCharCode(10));
   const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
@@ -848,7 +1018,7 @@ window.scrollTo({ top: document.getElementById('score-panel').offsetTop - 40, be
 }
 
 side.addEventListener('click',e=>{const btn=e.target.closest('.nav');if(btn)render(btn.dataset.id,btn)});
-var TERM_MAP={'Frequency Penalty':'c2_1','Presence Penalty':'c2_1','Repetition Penalty':'c2_1','Reflexion':'c3_3','Execute':'c3_3','Plan':'c3_3','Chinchilla':'c1_1','BM25':'c3_1','BF16':'c6_eco','FP32':'c6_eco','FP8':'c6_eco','PPO':'c1_2','Tokenizer':'c1_1','Token':'c1_1','Decoder-Only':'c2_2b','Encoder-Only':'c2_2b','Self-Attention':'c2_2','Transformer':'c2_2','LayerNorm':'c2_2b','RMSNorm':'c2_2b','SwiGLU':'c2_2b','Pre-Norm':'c2_2b','Post-Norm':'c2_2b','Scaling Laws':'c1_1','PEFT':'c1_3','MLA':'c5_1','Prefill':'c5_1','Decode':'c2_2b','FP16':'c6_eco','INT8':'c6_eco','Hallucination':'c4_1','Chunking':'c3_1','Rerank':'c3_1','RRF':'c3_1','TDD':'c6_sdd','Temperature':'c2_1','Logits':'c2_1','KV Cache':'c5_1','FlashAttention':'c2_2','PagedAttention':'c5_1','QLoRA':'c1_3','RLHF':'c1_2','RLVR':'c2_4','LoRA':'c1_3','MaaS':'c5_maas','RoPE':'c2_2','SDD':'c6_sdd','BPE':'c1_1','CoT':'c2_4','CoD':'c2_4','DPO':'c1_2','FFN':'c2_2b','GQA':'c2_2','LLM':'c0','MCP':'c3_2','MoE':'c2_3','PRM':'c2_4','RAG':'c3_1','ReAct':'c3_2','SFT':'c1_2','VLM':'c0'};
+var TERM_MAP={'Frequency Penalty':'c2_1','Presence Penalty':'c2_1','Repetition Penalty':'c2_1','Reflexion':'c3_3','Execute':'c3_3','Plan':'c3_3','Chinchilla':'c1_1','BM25':'c3_1','BF16':'c6_eco','FP32':'c6_eco','FP8':'c6_eco','PPO':'c1_2','Tokenizer':'c1_1','Token':'c1_1','Decoder-Only':'c2_2b','Encoder-Only':'c2_2b','Self-Attention':'c2_2','Transformer':'c2_2','LayerNorm':'c2_2b','RMSNorm':'c2_2b','SwiGLU':'c2_2b','Pre-Norm':'c2_2b','Post-Norm':'c2_2b','Scaling Laws':'c1_1','PEFT':'c1_3','MLA':'c5_1','Prefill':'c5_1','Decode':'c2_2b','FP16':'c6_eco','INT8':'c6_eco','Hallucination':'c4_1','Chunking':'c3_1','Rerank':'c3_1','RRF':'c3_1','TDD':'c6_sdd','BDD':'c6_sdd_std','Temperature':'c2_1','Logits':'c2_1','KV Cache':'c5_1','FlashAttention':'c2_2','PagedAttention':'c5_1','QLoRA':'c1_3','RLHF':'c1_2','RLVR':'c2_4','LoRA':'c1_3','MaaS':'c5_maas','RoPE':'c2_2','SDD':'c6_sdd','Spec-Driven Development':'c6_sdd','Vibe Coding':'c6_sdd','Spec Kit':'c6_sdd_tools','Kiro':'c6_sdd_tools','OpenSpec':'c6_sdd_tools','BMAD':'c6_sdd_tools','Tessl':'c6_sdd_tools','Memory Bank':'c6_sdd_tools','EARS':'c6_sdd_std','Gherkin':'c6_sdd_std','DoD':'c6_sdd_std','ADR':'c6_sdd_std','arc42':'c6_sdd_std','C4':'c6_sdd_std','OpenAPI':'c6_sdd_std','AsyncAPI':'c6_sdd_std','JSON Schema':'c6_sdd_std','Protobuf':'c6_sdd_std','Spec Drift':'c6_sdd_std','BPE':'c1_1','CoT':'c2_4','CoD':'c2_4','DPO':'c1_2','FFN':'c2_2b','GQA':'c2_2','LLM':'c0','MCP':'c3_2','MoE':'c2_3','PRM':'c2_4','RAG':'c3_1','ReAct':'c3_2','SFT':'c1_2','VLM':'c0'};
 var TERM_LIST=Object.keys(TERM_MAP);
 var TERM_RE=new RegExp('(^|[^A-Za-z])('+TERM_LIST.join('|')+')(?![A-Za-z])','g');
 function linkTerms(){
