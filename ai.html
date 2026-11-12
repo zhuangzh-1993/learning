@@ -869,7 +869,7 @@ function linkTerms(){
       a.style.color='var(--b)';
       a.style.textDecoration='underline dotted';
       a.style.cursor='pointer';
-      a.addEventListener('click',(function(term){return function(){render('glossary',side.querySelector('[data-id="glossary"]'));setTimeout(function(){var rows=document.querySelectorAll('#article .tbl tr');for(var i=0;i<rows.length;i++){var c=rows[i].cells&&rows[i].cells[0];if(c&&c.textContent.indexOf(term)>=0){rows[i].scrollIntoView({behavior:'smooth',block:'center'});rows[i].style.background='#fef9c3';break;}}},60)}})(m[2]));
+      a.addEventListener('click',(function(term){return function(){render('glossary',side.querySelector('[data-id="glossary"]'));setTimeout(function(){var rows=document.querySelectorAll('#article .tbl tr');for(var i=0;i<rows.length;i++){var c=rows[i].cells&&rows[i].cells[0];if(c&&c.textContent.split('/').some(function(s){return s.trim().toLowerCase()===term.toLowerCase()})){rows[i].scrollIntoView({behavior:'smooth',block:'center'});rows[i].style.background='#fef9c3';break;}}},60)}})(m[2]));
       frag.appendChild(a);
       last=m.index+m[1].length+m[2].length;
     }
