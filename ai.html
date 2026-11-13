@@ -117,6 +117,7 @@
   .layer{padding:11px 16px;border-radius:8px;font-size:13px;font-weight:700;border:1px solid;line-height:1.5}
   .l1{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}.l2{background:#f5f3ff;border-color:#ddd6fe;color:#5b21b6}
   .l3{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}.l4{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+  .l5{background:#fff1f2;border-color:#fecdd3;color:#9f1239}
   .pixgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:340px}
   .pixgrid.c4{grid-template-columns:repeat(4,1fr)}.pixgrid.c6{grid-template-columns:repeat(6,1fr)}
   .pix{aspect-ratio:1;border-radius:4px}
@@ -298,7 +299,7 @@ c1_3:{tag:"如何长大",title:"4. 企业调优与 LoRA/QLoRA",html:`
 <p><strong>QLoRA：</strong> 更极端的省钱大法。先把基座模型<strong>量化（压缩）到 4-bit</strong> 存在显存里，计算时临时反量化回 16-bit，同时外挂 LoRA 训练。这让单张 24GB 甚至 12GB 的消费级显卡都能微调 70B 的大模型。</p>
 <p class="plain-text">大白话：LoRA 是不拆原模型的脑子，在旁边外挂一小块可训练的"补丁"，只练补丁；QLoRA 更狠，先把原模型压缩打包塞进小显存，要用时再临时解压，所以一张家用级显卡也能调教 70B 的大模型。</p>
 <div class="fig"><div class="fig-t">图：同样叫「微调」，显存里要摆的东西完全不同（相对量级示意）</div><div class="layers"><div class="layer l1">全参微调：权重 + 全部梯度 + 每个参数的优化器状态（Adam 两份）+ 激活 → 常驻量是权重的好几倍，还要防灾难性遗忘</div><div class="layer l2">LoRA：冻结权重（只要前向）+ 每层旁挂两个小矩阵 + 只给旁路算梯度和状态 → 训练态显存断崖式下降</div><div class="layer l3">QLoRA：把冻结权重压成 4-bit 存着（用时临时反量化回 16-bit 算）+ 分页优化器 + 只训旁路 → 消费级单卡也能碰大模型</div></div><div class="grid2"><div class="card"><h4>省在哪</h4><p>省的不是「模型变小」，而是<strong>要更新和要留状态的那部分变小</strong>。冻结的主体只负责前向。</p></div><div class="card"><h4>代价在哪</h4><p>旁路容量有限：调教行为与风格在行，注入大量新知识不在行；反量化还有时间开销。</p></div></div><div class="fig-n">按正文口径：QLoRA 让单张 24GB 甚至 12GB 的卡也能微调 70B 级模型——前提是你接受它学的是「怎么做」而不是「知道什么」</div></div>
-<h3>rank 与 alpha：两个能手算的数</h3>
+<h3>LoRA 的 rank 与 alpha：两个能手算的数</h3><p><strong>LoRA rank</strong> 决定旁路矩阵的容量，<strong>LoRA alpha</strong> 与 rank 的比值决定旁路的说话分贝，两个数要分开调：只改一个等于同时动了容量与步长。</p>
 <p>LoRA 把一个投影矩阵 W（d_out×d_in）拆成 B·A，参数量是 <strong>rank × (d_in + d_out)</strong>。取 d_model=4096、只给每层的 Q 与 V 挂旁路、rank=16：<code>2 × 16 × 4096 × 32 层 ≈ 840 万</code>，相对 7B（70 亿）约 <strong>0.12%</strong>。换成 rank=64 就是四倍，约 3400 万，仍然不到 0.5%。<strong>alpha</strong> 是另一个旋钮：实际写入的是 <code>h = (alpha / rank)·B·A·x</code>，所以 alpha/rank 这个比值决定旁路的说话分贝——常配 alpha=2×rank（比值 2）或直接等于 rank（比值 1）；改 rank 不改 alpha，等于同时改了容量和步长，两个变量要分开看。初始化时 B 取 0，保证刚挂上时旁路输出为零、模型行为与基座完全一致，之后从「什么都不改」开始学。</p>
 <p class="plain-text">大白话：rank 是这条旁路能记住多少件事（本子有几页），alpha/rank 是它说话的声音有多大。写 840 万这个数字的好处是你能自查：一层两个矩阵、每个矩阵 16 行 4096 列、乘 32 层、再乘 2——算出 840 万而不是 8400 万，说明你确实理解了这个式子，而不是在背结论。</p>
 `},
@@ -1622,11 +1623,11 @@ glossary:{tag:"附录",title:"📖 核心术语表",html:`
 <tr><td><strong>Transformer</strong></td><td>—</td><td>基于自注意力的架构，现代大模型的基础结构</td></tr>
 <tr><td><strong>Self-Attention</strong></td><td>Self-Attention（Q/K/V）</td><td>让每个词去句中其他词按需取信息并更新自己，Q/K/V 分别是查询、键、值</td></tr>
 <tr><td><strong>LayerNorm</strong></td><td>Layer Normalization</td><td>层归一化，稳定训练；现代模型多用 RMSNorm，按 Pre-Norm 放置</td></tr>
-<tr><td><strong>Pre-Norm / Post-Norm</strong></td><td>—</td><td>归一化层相对残差分支的位置，Pre-Norm 更易训练，是当前主流</td></tr>
-<tr><td><strong>Encoder-Only / Decoder-Only</strong></td><td>—</td><td>BERT 是双向编码器（理解类），GPT 是单向解码器（生成类），T5/BART 兼两者</td></tr>
+<tr><td>Pre-Norm</td><td>另称：Post-Norm</td><td>归一化层相对残差分支的位置，Pre-Norm 更易训练，是当前主流</td></tr>
+<tr><td>Encoder-Only</td><td>另称：Decoder-Only</td><td>BERT 是双向编码器（理解类），GPT 是单向解码器（生成类），T5/BART 兼两者</td></tr>
 <tr><td><strong>PPO</strong></td><td>Proximal Policy Optimization</td><td>近端策略优化，RLHF 时代常用的强化学习算法</td></tr>
-<tr><td><strong>Token / Tokenizer</strong></td><td>—</td><td>词元与分词器，模型处理文本的最小单位，计费与上下文长度都以它计</td></tr>
-<tr><td><strong>Scaling Laws / Chinchilla</strong></td><td>—</td><td>算力、数据、参数间的幂律规律；Chinchilla 指出参数与数据应等比扩张</td></tr>
+<tr><td>Token</td><td>另称：Tokenizer</td><td>词元与分词器，模型处理文本的最小单位，计费与上下文长度都以它计</td></tr>
+<tr><td>Scaling Laws</td><td>另称：Chinchilla</td><td>算力、数据、参数间的幂律规律；Chinchilla 指出参数与数据应等比扩张</td></tr>
 </table></div>
 <h3>架构与组件</h3>
 <div class="tbl"><table>
@@ -1636,7 +1637,7 @@ glossary:{tag:"附录",title:"📖 核心术语表",html:`
 <tr><td><strong>RMSNorm</strong></td><td>Root Mean Square Normalization</td><td>层归一化的简化版，现代大模型标配</td></tr>
 <tr><td><strong>SwiGLU</strong></td><td>Swish-Gated Linear Unit</td><td>带门控的激活函数，FFN 中的主流选择</td></tr>
 <tr><td><strong>MoE</strong></td><td>Mixture of Experts</td><td>混合专家，Router 只激活部分专家，省算力不省显存</td></tr>
-<tr><td><strong>MLA / GQA</strong></td><td>Multi-head Latent Attention / Grouped-Query Attention</td><td>压缩 KV Cache 的注意力变体</td></tr>
+<tr><td>MLA</td><td>Multi-head Latent Attention / Grouped-Query Attention；另称：GQA</td><td>压缩 KV Cache 的注意力变体</td></tr>
 <tr><td><strong>FlashAttention</strong></td><td>—</td><td>分块计算注意力的加速算法，结果完全等价</td></tr>
 </table></div>
 <h3>推理与应用</h3>
@@ -1653,16 +1654,16 @@ glossary:{tag:"附录",title:"📖 核心术语表",html:`
 <tr><td><strong>PagedAttention</strong></td><td>—</td><td>借鉴操作系统分页机制管理 KV Cache 显存的推理加速技术，vLLM 的核心</td></tr>
 <tr><td><strong>AGENTS.md</strong></td><td>—</td><td>项目级常驻说明文件，写技术栈、目录与规范，每次会话自动加载</td></tr>
 <tr><td><strong>SKILL.md</strong></td><td>—</td><td>按需加载的技能说明文件，教会模型某项具体能力</td></tr>
-<tr><td><strong>SDD / Spec-Driven Development</strong></td><td>规格驱动开发</td><td>先写目标/非目标/约束/验收标准，再由模型实现，规格是唯一真相来源</td></tr>
+<tr><td>SDD</td><td>规格驱动开发；另称：Spec-Driven Development</td><td>先写目标/非目标/约束/验收标准，再由模型实现，规格是唯一真相来源</td></tr>
 <tr><td><strong>VLM</strong></td><td>Vision-Language Model</td><td>多模态大模型，图像转视觉 Token 接入语言模型</td></tr>
-<tr><td><strong>Temperature / Logits</strong></td><td>—</td><td>Logits 是未归一化得分，Temperature 缩放后经 Softmax 控制随机性</td></tr>
-<tr><td><strong>Repetition Penalty / Presence Penalty / Frequency Penalty</strong></td><td>—</td><td>三类重复惩罚：乘法缩放、出现即减固定值、按次数比例惩罚，治复读机</td></tr>
-<tr><td><strong>Prefill / Decode</strong></td><td>—</td><td>推理两阶段：一次性并行处理输入的预填充，与逐 Token 生成的解码</td></tr>
-<tr><td><strong>FP16 / BF16 / FP32 / INT8 / FP8</strong></td><td>—</td><td>数值精度格式，位数越低显存越省、速度越快，精度损失需权衡</td></tr>
+<tr><td>Temperature</td><td>另称：Logits</td><td>Logits 是未归一化得分，Temperature 缩放后经 Softmax 控制随机性</td></tr>
+<tr><td>Repetition Penalty</td><td>另称：Presence Penalty、Frequency Penalty</td><td>三类重复惩罚：乘法缩放、出现即减固定值、按次数比例惩罚，治复读机</td></tr>
+<tr><td>Prefill</td><td>另称：Decode</td><td>推理两阶段：一次性并行处理输入的预填充，与逐 Token 生成的解码</td></tr>
+<tr><td>FP16</td><td>另称：BF16、FP32、INT8、FP8</td><td>数值精度格式，位数越低显存越省、速度越快，精度损失需权衡</td></tr>
 <tr><td><strong>Hallucination</strong></td><td>—</td><td>幻觉，模型一本正经地编造不存在的事实，RAG 可缓解</td></tr>
-<tr><td><strong>Chunking / Rerank / RRF</strong></td><td>—</td><td>RAG 流水线三环节：文档切块、用精排模型重排、倒数排名融合多路检索</td></tr>
+<tr><td>Chunking</td><td>另称：Rerank、RRF</td><td>RAG 流水线三环节：文档切块、用精排模型重排、倒数排名融合多路检索</td></tr>
 <tr><td><strong>TDD</strong></td><td>Test-Driven Development</td><td>测试驱动开发，先写测试再实现，AI 编码时代是验收的锚点</td></tr>
-<tr><td><strong>Plan / Execute / Reflexion</strong></td><td>—</td><td>Agent 执行循环的三种模式：先规划、直接执行、执行后反思修正</td></tr>
+<tr><td>Plan</td><td>另称：Execute、Reflexion</td><td>Agent 执行循环的三种模式：先规划、直接执行、执行后反思修正</td></tr>
 </table></div>
 <h3>AI 编码方法与规格标准</h3>
 <div class="tbl"><table>
@@ -1673,8 +1674,8 @@ glossary:{tag:"附录",title:"📖 核心术语表",html:`
 <tr><td><strong>Gherkin</strong></td><td>—</td><td>Given-When-Then 的文本格式，可直接接进自动化测试</td></tr>
 <tr><td><strong>DoD</strong></td><td>Definition of Done</td><td>完成定义：测试必须绿、文档必须更新、谁签字才算做完</td></tr>
 <tr><td><strong>ADR</strong></td><td>Architecture Decision Record</td><td>架构决策记录，一页纸写背景/选项/决定/后果，防止 AI 反复推翻选型</td></tr>
-<tr><td><strong>arc42 / C4</strong></td><td>—</td><td>架构文档模板与分层图（上下文→容器→组件→代码），高效告诉 AI 系统长什么样</td></tr>
-<tr><td><strong>OpenAPI / AsyncAPI</strong></td><td>—</td><td>REST 与消息接口的契约标准，可据此生成服务端、客户端与 mock</td></tr>
+<tr><td>arc42</td><td>另称：C4</td><td>架构文档模板与分层图（上下文→容器→组件→代码），高效告诉 AI 系统长什么样</td></tr>
+<tr><td>OpenAPI</td><td>另称：AsyncAPI</td><td>REST 与消息接口的契约标准，可据此生成服务端、客户端与 mock</td></tr>
 <tr><td><strong>JSON Schema</strong></td><td>—</td><td>数据结构校验标准，也是结构化输出（JSON 模式）的护栏</td></tr>
 <tr><td><strong>Protobuf</strong></td><td>Protocol Buffers</td><td>跨语言接口与消息的强类型契约定义</td></tr>
 <tr><td><strong>Spec Drift</strong></td><td>—</td><td>规格漂移：代码改了规格没改，下次生成又把改动覆盖回去</td></tr>
@@ -3095,7 +3096,7 @@ window.scrollTo({ top: document.getElementById('score-panel').offsetTop - 40, be
 }
 
 side.addEventListener('click',e=>{const btn=e.target.closest('.nav');if(btn)render(btn.dataset.id,btn)});
-var TERM_MAP={'Frequency Penalty':'c2_1','Presence Penalty':'c2_1','Repetition Penalty':'c2_1','Reflexion':'c3_3','Execute':'c3_3','Plan':'c3_3','Chinchilla':'c1_1','BM25':'c3_1','BF16':'c6_eco','FP32':'c6_eco','FP8':'c6_eco','PPO':'c1_2','Tokenizer':'c1_1','Token':'c1_1','Decoder-Only':'c2_2b','Encoder-Only':'c2_2b','Self-Attention':'c2_2','Transformer':'c2_2','LayerNorm':'c2_2b','RMSNorm':'c2_2b','SwiGLU':'c2_2b','Pre-Norm':'c2_2b','Post-Norm':'c2_2b','Scaling Laws':'c1_1','PEFT':'c1_3','MLA':'c5_1','Prefill':'c5_1','Decode':'c2_2b','FP16':'c6_eco','INT8':'c6_eco','Hallucination':'c4_1','Chunking':'c3_1','Rerank':'c3_1','RRF':'c3_1','TDD':'c6_sdd','BDD':'c6_sdd_std','Temperature':'c2_1','Logits':'c2_1','KV Cache':'c5_1','FlashAttention':'c2_2','PagedAttention':'c5_1','QLoRA':'c1_3','RLHF':'c1_2','RLVR':'c2_4','LoRA':'c1_3','MaaS':'c5_maas','RoPE':'c2_2','SDD':'c6_sdd','Spec-Driven Development':'c6_sdd','Vibe Coding':'c6_sdd','Spec Kit':'c6_sdd_tools','Kiro':'c6_sdd_tools','OpenSpec':'c6_sdd_tools','BMAD':'c6_sdd_tools','Tessl':'c6_sdd_tools','Memory Bank':'c6_sdd_tools','EARS':'c6_sdd_std','Gherkin':'c6_sdd_std','DoD':'c6_sdd_std','ADR':'c6_sdd_std','arc42':'c6_sdd_std','C4':'c6_sdd_std','OpenAPI':'c6_sdd_std','AsyncAPI':'c6_sdd_std','JSON Schema':'c6_sdd_std','Protobuf':'c6_sdd_std','Spec Drift':'c6_sdd_std','BPE':'c1_1','CoT':'c2_4','CoD':'c2_4','DPO':'c1_2','FFN':'c2_2b','GQA':'c2_2','LLM':'c0','MCP':'c3_2','MoE':'c2_3','PRM':'c2_4','RAG':'c3_1','ReAct':'c3_2','SFT':'c1_2','VLM':'c7_vlm','ViT':'c7_vlm','patch':'c7_vlm','projector':'c7_vlm','CLIP':'c7_vlm','OCR':'c7_vlm','grounding':'c7_vlm','CFG':'c7_diff','DiT':'c7_diff','U-Net':'c7_diff','VAE':'c7_diff','RVQ':'c7_omni','声码器':'c7_omni','全模态':'c7_omni','RTF':'c7_omni','VAD':'c7_omni','Few-shot':'c9_fewshot','Zero-shot':'c9_fewshot','In-Context Learning':'c9_fewshot','Recency Bias':'c9_fewshot','Majority Label Bias':'c9_fewshot','Function Calling':'c9_struct','Constrained Decoding':'c9_struct','Structured Output':'c9_struct','Prompt Caching':'c9_longctx','lost in the middle':'c9_longctx','Causal Mask':'c2_2c','MQA':'c2_2c','Position Interpolation':'c2_2c','Capacity Factor':'c2_3b','All-to-All':'c2_3b','Expert Parallelism':'c2_3b','Shared Expert':'c2_3b','GraphRAG':'c3_1b','HyDE':'c3_1b','Agentic RAG':'c3_1b','MRR':'c3_1b','nDCG':'c3_1b','LLM-as-Judge':'c8_judge','Direct Scoring':'c8_judge','Pairwise Comparison':'c8_judge','Position Bias':'c8_judge','Kappa':'c8_judge','pass@k':'c8_metrics','maj@k':'c8_bench','ROUGE':'c8_metrics','BLEU':'c8_metrics','AUC':'c8_metrics','Goodhart':'c8_bench','Canary String':'c8_bench','Data Contamination':'c8_bench','held-out':'c8_bench','SWE-bench':'c8_bench','Shadow Set':'c8_golden','McNemar':'c8_golden','提示词注入':'c10_inject','越狱':'c10_inject','红队':'c10_supply','Guardrails':'c10_guardrail','最小权限':'c10_guardrail','机器遗忘':'c10_privacy','DLP':'c10_privacy','后门攻击':'c10_supply','供应链':'c10_supply','TTFT':'c11_latency','TPOT':'c11_latency','continuous batching':'c11_sched','chunked prefill':'c11_sched','前缀缓存':'c11_sched','PD 分离':'c11_sched','投机解码':'c11_sched','Little 定律':'c11_capacity','SLO':'c11_capacity','P99':'c11_latency','数据配比':'c12_corpus','合成数据':'c12_corpus','课程学习':'c12_corpus','退火':'c12_corpus','许可证':'c12_corpus','MinHash':'c12_dedup','LSH':'c12_dedup','私有数据闭环':'c12_flywheel','金标题':'c12_flywheel','编辑距离':'c12_flywheel','知识债':'c13_roles','DORA':'c13_metrics','缺陷逃逸率':'c13_metrics','返工率':'c13_metrics','首次验收通过率':'c13_metrics','上下文工程':'c13_skills','d_model':'c2_2b','d_ff':'c2_2b','one-hot':'c2_2b','argmax':'c2_2b','HNSW':'c3_1b','IVF':'c3_1b','LoRA rank':'c1_3','LoRA alpha':'c1_3','rollout':'c6_eco','warmup':'c6_eco','kernel':'c6_eco','MFU':'c6_eco','hidden size':'c6_eco','compute-optimal':'c1_1','reward hacking':'c1_2','ensemble':'c8_judge','stop':'c9_struct'};
+var TERM_MAP={'Spec-Driven Development':'c6_sdd','Position Interpolation':'c2_2c','Constrained Decoding':'c9_struct','In-Context Learning':'c9_fewshot','Majority Label Bias':'c9_fewshot','Pairwise Comparison':'c8_judge','continuous batching':'c11_sched','Repetition Penalty':'c2_1','lost in the middle':'c9_longctx','Expert Parallelism':'c2_3b','Data Contamination':'c8_bench','Frequency Penalty':'c2_1','Structured Output':'c9_struct','Presence Penalty':'c2_1','Function Calling':'c9_struct','Capacity Factor':'c2_3b','chunked prefill':'c11_sched','compute-optimal':'c1_1','Self-Attention':'c2_2','FlashAttention':'c2_2','PagedAttention':'c5_1','Prompt Caching':'c9_longctx','Direct Scoring':'c8_judge','reward hacking':'c1_2','Hallucination':'c4_1','Shared Expert':'c2_3b','Position Bias':'c8_judge','Canary String':'c8_bench','Decoder-Only':'c2_2b','Encoder-Only':'c2_2b','Scaling Laws':'c1_1','Recency Bias':'c9_fewshot','LLM-as-Judge':'c8_judge','Transformer':'c2_2','Temperature':'c2_1','Vibe Coding':'c6_sdd','Memory Bank':'c6_sdd_tools','JSON Schema':'c6_sdd_std','Causal Mask':'c2_2c','Agentic RAG':'c3_1b','hidden size':'c6_eco','Chinchilla':'c1_1','Spec Drift':'c6_sdd_std','All-to-All':'c2_3b','Shadow Set':'c8_golden','Guardrails':'c10_guardrail','LoRA alpha':'c1_3','Reflexion':'c3_3','Tokenizer':'c1_1','LayerNorm':'c2_2b','Post-Norm':'c2_2b','projector':'c7_vlm','grounding':'c7_vlm','Zero-shot':'c9_fewshot','SWE-bench':'c8_bench','Little 定律':'c11_capacity','LoRA rank':'c1_3','Pre-Norm':'c2_2b','Chunking':'c3_1','KV Cache':'c5_1','Spec Kit':'c6_sdd_tools','OpenSpec':'c6_sdd_tools','AsyncAPI':'c6_sdd_std','Protobuf':'c6_sdd_std','Few-shot':'c9_fewshot','GraphRAG':'c3_1b','Goodhart':'c8_bench','held-out':'c8_bench','ensemble':'c8_judge','Execute':'c3_3','RMSNorm':'c2_2b','Prefill':'c5_1','Gherkin':'c6_sdd_std','OpenAPI':'c6_sdd_std','McNemar':'c8_golden','MinHash':'c12_dedup','首次验收通过率':'c13_metrics','d_model':'c2_2b','one-hot':'c2_2b','rollout':'c6_eco','SwiGLU':'c2_2b','Decode':'c2_2b','Rerank':'c3_1','Logits':'c2_1','pass@k':'c8_metrics','私有数据闭环':'c12_flywheel','argmax':'c2_2b','warmup':'c6_eco','kernel':'c6_eco','Token':'c1_1','QLoRA':'c1_3','Tessl':'c6_sdd_tools','arc42':'c6_sdd_std','ReAct':'c3_2','patch':'c7_vlm','U-Net':'c7_diff','Kappa':'c8_judge','maj@k':'c8_bench','ROUGE':'c8_metrics','提示词注入':'c10_inject','PD 分离':'c11_sched','缺陷逃逸率':'c13_metrics','上下文工程':'c13_skills','Plan':'c3_3','BM25':'c3_1','BF16':'c6_eco','FP32':'c6_eco','PEFT':'c1_3','FP16':'c6_eco','INT8':'c6_eco','RLHF':'c1_2','RLVR':'c2_4','LoRA':'c1_3','MaaS':'c5_maas','RoPE':'c2_2','Kiro':'c6_sdd_tools','BMAD':'c6_sdd_tools','EARS':'c6_sdd_std','CLIP':'c7_vlm','HyDE':'c3_1b','nDCG':'c3_1b','BLEU':'c8_metrics','最小权限':'c10_guardrail','机器遗忘':'c10_privacy','后门攻击':'c10_supply','TTFT':'c11_latency','TPOT':'c11_latency','前缀缓存':'c11_sched','投机解码':'c11_sched','数据配比':'c12_corpus','合成数据':'c12_corpus','课程学习':'c12_corpus','编辑距离':'c12_flywheel','DORA':'c13_metrics','d_ff':'c2_2b','HNSW':'c3_1b','stop':'c9_struct','FP8':'c6_eco','PPO':'c1_2','MLA':'c5_1','RRF':'c3_1','TDD':'c6_sdd','BDD':'c6_sdd_std','SDD':'c6_sdd','DoD':'c6_sdd_std','ADR':'c6_sdd_std','BPE':'c1_1','CoT':'c2_4','CoD':'c2_4','DPO':'c1_2','FFN':'c2_2b','GQA':'c2_2','LLM':'c0','MCP':'c3_2','MoE':'c2_3','PRM':'c2_4','RAG':'c3_1','SFT':'c1_2','VLM':'c7_vlm','ViT':'c7_vlm','OCR':'c7_vlm','CFG':'c7_diff','DiT':'c7_diff','VAE':'c7_diff','RVQ':'c7_omni','声码器':'c7_omni','全模态':'c7_omni','RTF':'c7_omni','VAD':'c7_omni','MQA':'c2_2c','MRR':'c3_1b','AUC':'c8_metrics','DLP':'c10_privacy','供应链':'c10_supply','SLO':'c11_capacity','P99':'c11_latency','许可证':'c12_corpus','LSH':'c12_dedup','金标题':'c12_flywheel','知识债':'c13_roles','返工率':'c13_metrics','IVF':'c3_1b','MFU':'c6_eco','C4':'c6_sdd_std','越狱':'c10_inject','红队':'c10_supply','退火':'c12_corpus','AGENTS.md':'c6_spec','SKILL.md':'c6_spec'};
 var TERM_LIST=Object.keys(TERM_MAP);
 var TERM_RE=new RegExp('(^|[^A-Za-z])('+TERM_LIST.join('|')+')(?![A-Za-z])','g');
 function linkTerms(){
