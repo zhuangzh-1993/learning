@@ -46,7 +46,13 @@ def build_d():
     out = ['const D = {']
     for sid, tag, title, html in sections:
         fig = figs.F.get(sid, '')
-        html = fig + html if fig else html
+        if fig:
+            for marker in ('<p>阿禾', '<p class="plain-text">'):
+                if marker in html:
+                    html = html.replace(marker, fig + marker, 1)
+                    break
+            else:
+                html = html + fig
         if sid in review.R:
             label, question, lines = review.R[sid]
             html = html + (
