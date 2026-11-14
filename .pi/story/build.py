@@ -8,7 +8,7 @@ import json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import nav as NAVMOD, figs, acts_a, acts_b, acts_c, acts_d, acts_e
+import nav as NAVMOD, figs, review, acts_a, acts_b, acts_c, acts_d, acts_e
 
 TARGET = os.path.normpath(os.path.join(HERE, '..', '..', 'ai.html'))
 COLORS = ["c1", "c2", "c3", "c4", "c5", "c6"]
@@ -47,6 +47,15 @@ def build_d():
     for sid, tag, title, html in sections:
         fig = figs.F.get(sid, '')
         html = fig + html if fig else html
+        if sid in review.R:
+            label, question, lines = review.R[sid]
+            html = html + (
+                f'<div class="note check"><div class="note-t">📌 {label}复盘 · '
+                f'回答的是「{question}」</div><ul>'
+                f'<li><strong>一笔账：</strong>{lines[0]}</li>'
+                f'<li><strong>三个坑：</strong>{lines[1]}</li>'
+                f'<li><strong>带走一句：</strong>{lines[2]}</li></ul></div>'
+            )
         assert '`' not in html and '${' not in html, f"backtick/'${{' in {sid}"
         out.append(f'{sid}:{{tag:{json.dumps(tag, ensure_ascii=False)},'
                    f'title:{json.dumps(title, ensure_ascii=False)},html:`{html}`}},')
