@@ -15,16 +15,24 @@ COLORS = ["c1", "c2", "c3", "c4", "c5", "c6"]
 
 
 def build_nav():
+    import re
     lines = ['  <aside class="side" id="side">']
+    counter = [0]
+
+    def item(sid, txt, cls="nav"):
+        counter[0] += 1
+        txt = re.sub(r"^\d+\.\s*", "", txt)
+        return f'<button class="{cls}" data-id="{sid}">{counter[0]}. {txt}</button>'
+
     lines.append('    <div class="group c0"><div class="group-title">开篇</div>'
-                 '<button class="nav on" data-id="intro">1. 任务简报：给一辆车装上会说话的地图</button></div>')
+                 + item("intro", "任务简报：给一辆车装上会说话的地图", "nav on") + '</div>')
     for i, (label, short, _prefix, items) in enumerate(NAVMOD.ACTS[1:]):
         lines.append(f'    <div class="group {COLORS[i % 6]}"><div class="group-title">{label} · {short}</div>')
         for sid, txt in items:
-            lines.append(f'      <button class="nav" data-id="{sid}">{txt}</button>')
+            lines.append("      " + item(sid, txt))
         lines.append('    </div>')
     lines.append('    <div class="group c6"><div class="group-title">尾声</div>'
-                 '<button class="nav" data-id="final">62. 尾声：五个问题的答案</button></div>')
+                 + item("final", "尾声：五个问题的答案") + '</div>')
     lines.append('    <div class="group c-exam"><div class="group-title">考试中心</div>'
                  '<button class="nav" data-id="exam">🎯 通关测验（1000 题库随机抽题）</button></div>')
     lines.append('  </aside>')
