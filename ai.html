@@ -16,11 +16,6 @@
   .brand{font-size:17px;font-weight:900;color:var(--title);display:flex;align-items:center;gap:10px;letter-spacing:-.5px}
   .brand span{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--b),var(--p));display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
   .badge{font-size:12px;font-weight:700;color:var(--r);background:#fff1f2;padding:4px 12px;border-radius:20px;border:1px solid #fecdd3}
-  .lite-btn{font-size:12px;font-weight:800;color:#0f766e;background:#f0fdfa;border:1px solid #99f6e4;padding:6px 12px;border-radius:20px;cursor:pointer;font-family:inherit;white-space:nowrap}
-  .lite-btn:hover{background:#ccfbf1}
-  body.lite .body:not(.glossary) .tbl,body.lite .fig,body.lite .code,body.lite .note.exam,body.lite .note.fun,body.lite .note.check{display:none}
-  body.lite .article{padding:36px 48px}
-  @media(max-width:768px){body.lite .article{padding:24px 16px}}
   @media(max-width:768px){.badge{display:none}.brand{font-size:15px}.brand span{width:24px;height:24px;font-size:12px}.topbar{padding:0 12px}}
   .app{display:flex;height:calc(100vh - 60px);position:relative}
   .overlay{display:none;position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(15,23,42,.4);z-index:90;opacity:0;transition:opacity .3s}
@@ -171,7 +166,7 @@
     <button class="menu-btn" id="menuBtn">☰</button>
     <div class="brand"><span>路航</span> 一支不会 AI 的队伍</div>
   </div>
-  <div style="display:flex;gap:8px;align-items:center"><button id="liteBtn" class="lite-btn">🌿 极简模式</button><div class="badge">十五幕 · 六十节 · 全悬停白话</div></div>
+  <div style="display:flex;gap:8px;align-items:center"><div class="badge">十五幕 · 全悬停白话</div></div>
 </header>
 
 <div class="overlay" id="overlay"></div>
@@ -378,7 +373,7 @@ m1_4:{tag:"第 1 幕 · 开口",title:"中文比英文贵",html:`
 <p>老陈在小白板上写了三个数：<strong>输入 2000、输出 40、单价 1:3</strong>。然后圈出第一个数：「我们花的钱，九成花在『重复告诉它我们是谁』上。」</p>
 <p>这是全书第一个账本。后来所有的成本优化，本质上都在削这三个数里的某一个。</p>
 <p class="plain-text">本节只讲到这里：贵不贵先看两个数——你送进去多少字，一个字算几份钱。至于分词器内部怎么合并，那是论文的事，不是你的账。</p>
-`},
+<div class="note check"><div class="note-t">📌 第一幕 · 开口复盘 · 回答的是「模型在做什么」</div><ul><li><strong>一笔账：</strong>一句用户的话折成 140 个 token，系统提示 1800 个——真正的开销在「重复介绍自己」</li><li><strong>三个坑：</strong>中文按字节切、把模型当查表用、让它自由写散文</li><li><strong>带走一句：</strong>模型擅长说人话，不擅长说事实</li></ul></div>`},
 m2_1:{tag:"第 2 幕 · 它凭什么知道",title:"停车场只有十二个桩",html:`
 <p>灰度第三天，投诉来了：助手说「该停车场有 200 个充电桩」，实际 12 个。</p>
 <p>更麻烦的是它说得非常具体——「地下二层、快充、24 小时开放」。老周把录音听了三遍，指关节在桌上敲了两下，说：「它不是编，它是在把见过的句式往上套。」</p>
@@ -415,7 +410,7 @@ m2_5:{tag:"第 2 幕 · 它凭什么知道",title:"检索的三条岔路",html:`
 <p>索引那层也有取舍。最常见的两种做法，一种建图（快，但吃内存），一种先分桶再搜（省内存，但可能漏）。本质上都是拿一点精度换速度，跟地图瓦片按需加载一个道理。</p>
 <p>最后是评测：召回率低，是「该找的没找到」；精确率低，是「找来一堆没用的」。这两个数不能混着调，前者改切块和召回，后者改重排。</p>
 <p class="plain-text">本节只讲到这里：检索不是一种算法，是一组取舍。先判断你的问题需要「相似」「精确」还是「关系」，再选路子。</p>
-`},
+<div class="note check"><div class="note-t">📌 第二幕 · 它凭什么知道复盘 · 回答的是「① 它凭什么知道」</div><ul><li><strong>一笔账：</strong>12 万条工单折成 40 万 token，塞不进去，也买不起</li><li><strong>三个坑：</strong>按字数硬切块、只靠向量一路、数据本身是脏的</li><li><strong>带走一句：</strong>先修数据，再修模型</li></ul></div>`},
 m3_1:{tag:"第 3 幕 · 真的改路线",title:"加个途经点",html:`<div class="fig"><div class="fig-t">图：Agent 的循环，和必须同时装上的四道刹车</div><div class="flow"><div class="box b">想一步</div><div class="box c">调工具</div><div class="box p">看结果</div><div class="box o">再想一步</div><div class="box r">⛔ 轮数 / 预算 / 去重 / 无新信息即停</div></div><div class="fig-n">没有出口的循环不叫智能，叫卡死。刹车要在设计的第一天就装上，不能等出了事故再补</div></div>
 
 <p>车厂提新需求：用户说「顺便去趟加油站」，助手要能直接改路线，而不是回一句「请手动操作」。</p>
@@ -452,7 +447,7 @@ m3_5:{tag:"第 3 幕 · 真的改路线",title:"两个助手一起办，反而�
 <p>更要命的是没人拍板。两个助手给出不同建议，第三个开始和稀泥。</p>
 <p>老陈在复盘里写：多智能体不是「人多好办事」，是「活能不能切开」。切得开只有三个前提——子任务之间接口窄、能并行、失败了能局部重试。切不开的活，多一个助手只是多一轮传话，而且每一轮都要付一遍 token。</p>
 <p class="plain-text">本节只讲到这里：先把一个 agent 做对，再考虑拆成三个。拆分的收益在并行，成本在交接——交接写不清楚，人多一定更慢。</p>
-`},
+<div class="note check"><div class="note-t">📌 第三幕 · 真的改路线复盘 · 回答的是「② 它凭什么能做」</div><ul><li><strong>一笔账：</strong>一次重复调用让导航卡了 11 秒；三个助手让成本翻三倍、慢四秒</li><li><strong>三个坑：</strong>没有出口的循环、重复执行、越权动作、断网半途</li><li><strong>带走一句：</strong>能动手的系统，第一件要设计的是刹车</li></ul></div>`},
 m4_1:{tag:"第 4 幕 · 播错一句",title:"测试场里的右前方",html:`
 <p>测试场，车速 60，路口。模型播报：「右前方有停车场。」实际那条路是右转专用道。测试员一脚刹车，后车差点追尾。</p>
 <p>查日志：模型把「右转」和「右前方」混了。因为训练语料里这两个词经常一起出现，它接得太顺了。</p>
@@ -486,7 +481,7 @@ m4_4:{tag:"第 4 幕 · 播错一句",title:"黄金集的雏形",html:`
 <p>许砚把别头发的铅笔抽下来，在纸巾上写了个 300：「这叫黄金集。你们第一个真正值钱的资产不是模型，是这 300 条。」</p>
 <p>理由很硬：模型三个月换一代，供应商随时改价格，只有这份「我们知道什么算对」的清单，是你自己的。</p>
 <p class="plain-text">本节只讲到这里：评测集不是越大越好，是越「疼」越好——每一条都应该来自一次真实的失败。</p>
-`},
+<div class="note check"><div class="note-t">📌 第四幕 · 播错一句复盘 · 回答的是「④ 错了谁先发现」</div><ul><li><strong>一笔账：</strong>生成一条播报 2 秒，确认它没错 3 分钟</li><li><strong>三个坑：</strong>把概率当 bug、验证靠人眼、评测集拍脑袋</li><li><strong>带走一句：</strong>先建黄金集，再谈换模型</li></ul></div>`},
 m5_1:{tag:"第 5 幕 · 串数据",title:"A 的车主习惯推给了 B",html:`<div class="fig"><div class="fig-t">图：记忆分三层，隔离键决定串不串号</div><div class="layers"><div class="layer l1">会话层：这一趟的对话与路线 → 熄火即清</div><div class="layer l3">个人层：偏好、常去地点 → 按人隔离</div><div class="layer l5">账户层：订单、保养、权益 → 按合同授权</div></div><div class="fig-n">同一辆车里坐着两个人，每一层「记住」都要先问一句：这是谁的</div></div>
 
 <p>一位车主投诉：车机推荐了「您常去的幼儿园」，但他没有孩子。</p>
@@ -519,7 +514,7 @@ m5_4:{tag:"第 5 幕 · 串数据",title:"出网就失控",html:`
 <p>最后他们做了三件事：所有出网请求过一层自建网关，字段级脱敏；关键客户走私有化部署；把每个第三方组件的许可证和数据条款做成一张表。</p>
 <p>老陈把那张表折起来塞进冲锋衣口袋：「以前我们只关心它答得对不对，现在得关心它把话带去了哪里。」</p>
 <p class="plain-text">本节只讲到这里：数据出域是一次性的决定，代价是长期的。做之前先把「谁看得见」写清楚。</p>
-`},
+<div class="note check"><div class="note-t">📌 第五幕 · 串数据复盘 · 回答的是「⑤ 出事谁签字」</div><ul><li><strong>一笔账：</strong>一次串号等于一次隐私事故，外加一次行车风险</li><li><strong>三个坑：</strong>按车存记忆、路牌里能藏指令、只防输入不防输出、第三方 SDK 说不清</li><li><strong>带走一句：</strong>护栏的强制力放在输出侧</li></ul></div>`},
 m6_1:{tag:"第 6 幕 · 国庆",title:"账单第一次破百万",html:`
 <p>国庆七天，高速服务区。语音调用量涨了十一倍。</p>
 <p>10 月 8 日早上，财务把账单发过来：单月 137 万。上个月是 9 万。</p>
@@ -548,7 +543,7 @@ m6_4:{tag:"第 6 幕 · 国庆",title:"降级预案",html:`
 <p>小唐那句「车上才算数」第一次被全组接受。老周在验收单上签完字，顺手把茶杯推到老陈面前。</p>
 <p>老陈在复盘里写：降级不是失败，是设计的一部分。没有降级预案的功能，等于没有上线。</p>
 <p class="plain-text">本节只讲到这里：任何依赖外部服务的功能，都要能回答「它挂了，用户看到什么」。</p>
-`},
+<div class="note check"><div class="note-t">📌 第六幕 · 国庆复盘 · 回答的是「③ 多少钱、多少秒」</div><ul><li><strong>一笔账：</strong>单月 137 万、首字 4.2 秒；缓存之后 48 万、1.3 秒</li><li><strong>三个坑：</strong>只压成本不管延迟、把上下文当硬盘、没有降级预案</li><li><strong>带走一句：</strong>成本、延迟、容量是同一本账的三个科目</li></ul></div>`},
 m7_1:{tag:"第 7 幕 · 单台四块钱",title:"四块乘二十万台",html:`<div class="fig"><div class="fig-t">图：客户付一次，你付一年</div><div class="bars"><div class="bar-item"><div class="bar-h good" style="height:18%"></div><span>授权费<br>30 元 · 一次性</span></div><div class="bar-item"><div class="bar-h bad" style="height:100%"></div><span>AI 成本<br>4 元 × 12 个月</span></div></div><div class="fig-n">这个乘法做完，产品形态、定价方式、团队结构基本都定了。它不是财务问题，是产品问题</div></div>
 
 <p>新势力那家车厂问了一个问题：「这个功能，你们收多少钱？」</p>
@@ -582,7 +577,7 @@ m7_4:{tag:"第 7 幕 · 单台四块钱",title:"按台卖还是按次卖",html:`
 <p>于是定价从「按台授权」改成「基础授权 + 用量包」：超出部分按次计费。</p>
 <p>晓雯在客户会上解释这个改动时，把计算器转向对方，对方居然松了口气——因为客户怕的从来不是花钱，是花得没底。</p>
 <p class="plain-text">本节只讲到这里：AI 产品的定价必须和成本结构对齐。按台卖固定价、成本却随用量涨，是给未来埋雷。</p>
-`},
+<div class="note check"><div class="note-t">📌 第七幕 · 单台四块钱复盘 · 回答的是「③ 多少钱、多少秒」</div><ul><li><strong>一笔账：</strong>每台每月 4 块 × 12 个月，对比每台一次性 30 块的授权费</li><li><strong>三个坑：</strong>按台卖固定价、把私有化当附加题、拿通用能力去盲测专用场景</li><li><strong>带走一句：</strong>定价必须和成本结构对齐，否则是给未来埋雷</li></ul></div>`},
 m8_1:{tag:"第 8 幕 · 只有一张卡",title:"地库里没网",html:`
 <p>地下三层，没有信号。车主说「打开空调」，车机回：「网络连接失败。」</p>
 <p>这条投诉被转发到了车厂董事长那里。</p>
@@ -615,7 +610,7 @@ m8_4:{tag:"第 8 幕 · 只有一张卡",title:"端侧的延迟预算",html:`
 <p>砍的办法不是「换个更快的模型」，是把「想明白」拆开：先出第一个字（简单指令走规则），复杂问题先说「我想一下」再补。</p>
 <p>小唐拿铅笔在餐巾纸上画了个瀑布图：「这跟渲染一样——先出低清帧，再逐级加载细节。」</p>
 <p class="plain-text">本节只讲到这里：延迟不是一个数字，是一笔预算。先拆开，再决定在哪一段省。</p>
-`},
+<div class="note check"><div class="note-t">📌 第八幕 · 只有一张卡复盘 · 回答的是「③ 多少钱、多少秒」</div><ul><li><strong>一笔账：</strong>3B 模型从 6GB 压到 2GB，快 2.4 倍，黄金集从 71 掉到 68</li><li><strong>三个坑：</strong>只减参数不减显存、把 MoE 当省内存、延迟只看一个总数</li><li><strong>带走一句：</strong>压缩是拿精度换空间，先知道哪三分能掉</li></ul></div>`},
 m9_1:{tag:"第 9 幕 · 说话不像这辆车",title:"德系要冷淡",html:`
 <p>德系车厂的评审意见只有一行：「播报太热情了，不像我们。」</p>
 <p>新势力的意见正好相反：「太生硬了，像个机器人。」</p>
@@ -662,7 +657,7 @@ m9_5:{tag:"第 9 幕 · 说话不像这辆车",title:"怎么教它说人话",htm
 <p>许砚在白板上画了三个台阶：「预训练让它见过世界，SFT 让它会照着答，偏好对齐让它知道哪种答法更讨人喜欢。第三个台阶最贵，也最容易让车变得没个性。」</p>
 <p>老周只问了一句：「谁来判断哪种答法更受欢迎？我们吗？」</p>
 <p class="plain-text">本节只讲到这里：SFT 教格式，偏好对齐教取舍，可验证奖励只在有标准答案时才有效。三件事花的钱和能改的东西完全不同，别混着谈。</p>
-`},
+<div class="note check"><div class="note-t">📌 第九幕 · 说话不像这辆车复盘 · 回答的是「① 它凭什么知道」</div><ul><li><strong>一笔账：</strong>微调后黄金集掉 9 分，其中 7 分掉在「多条件理解」上</li><li><strong>三个坑：</strong>用微调灌知识、训得太狠又太多次、数据没有授权链</li><li><strong>带走一句：</strong>微调教口吻，检索给事实，代码管动作</li></ul></div>`},
 m10_1:{tag:"第 10 幕 · 看懂世界",title:"客户只会拍照",html:`
 <p>用户反馈问题的姿势越来越统一：拍一张照。</p>
 <p>晓雯把用户的截图一张张翻过去：「这个是入口吗」「这块屏怎么黑了」「这个故障灯什么意思」。</p>
@@ -691,7 +686,7 @@ m10_4:{tag:"第 10 幕 · 看懂世界",title:"生成图片与语音",html:`
 <p>效果不错，但成本吓人：一张图几十秒、几毛钱，而且风格不受控。最后他们改成「固定模板 + 少量参数」，插画只做 12 款。</p>
 <p>语音那边反而成了主力：TTS 让播报不再是播音腔，还能按车型换音色。但延迟是硬约束——合成一个字要几十毫秒，一句话就可能超预算。</p>
 <p class="plain-text">本节只讲到这里：生成类能力很酷，但在工程里通常只有一个位置——固定模板做不了的那一格。</p>
-`},
+<div class="note check"><div class="note-t">📌 第十幕 · 看懂世界复盘 · 回答的是「① 它凭什么知道」</div><ul><li><strong>一笔账：</strong>一张图约 1000 token，是同一句话的二十多倍</li><li><strong>三个坑：</strong>让大模型读精确数字、忽略帧率、把生成能力当主力</li><li><strong>带走一句：</strong>大模型解释世界，小模型测量世界</li></ul></div>`},
 m11_1:{tag:"第 11 幕 · 帮我想想",title:"周末去哪儿",html:`
 <p>车厂想要一个「出行规划」：用户说「周末带孩子出去玩，别太远，中午要有地方吃饭，最好能充电」。</p>
 <p>这一次，模型不能直接答。它得先拆：几个条件、哪些可查、哪些要问、路线怎么排。</p>
@@ -724,7 +719,7 @@ m11_4:{tag:"第 11 幕 · 帮我想想",title:"什么任务别用它",html:`
 </ul>
 <p>「我们花了一年才想明白，」他把清单贴到白板上，退后两步看，「AI 不是用来替换所有东西的，是用来补上『说不清』的那一块。」</p>
 <p class="plain-text">本节只讲到这里：判断标准只有一条——这件事有没有唯一正确答案？有，就别用模型。</p>
-`},
+<div class="note check"><div class="note-t">📌 第十一幕 · 帮我想想复盘 · 回答的是「③ 多少钱、多少秒」</div><ul><li><strong>一笔账：</strong>让它想 10 秒，准确率 58 升到 81，成本翻三倍</li><li><strong>三个坑：</strong>所有请求都让它想、没有超时上限、在有唯一答案的任务上用它</li><li><strong>带走一句：</strong>用钱买准确率，买多少取决于错一次值多少钱</li></ul></div>`},
 m12_1:{tag:"第 12 幕 · 卡在哪",title:"降本降不动了",html:`<div class="fig"><div class="fig-t">图：优化到第三轮，边际收益开始塌</div><div class="bars"><div class="bar-item"><div class="bar-h bad" style="height:100%"></div><span>优化前<br>137 万</span></div><div class="bar-item"><div class="bar-h new" style="height:30%"></div><span>缓存 + 分流<br>41 万</span></div><div class="bar-item"><div class="bar-h old" style="height:26%"></div><span>再压 40%<br>得动硬件</span></div></div><div class="fig-n">软件优化的收益是有天花板的。到了某个点，瓶颈从算法变成硬件</div></div>
 
 <p>第二年是降本年。老板给的指标：推理成本再降 40%。</p>
@@ -770,7 +765,7 @@ m12_6:{tag:"第 12 幕 · 卡在哪",title:"容量四步",html:`
 <p><strong>第四步，定降级梯度：</strong>过载时先关哪个功能、再关哪个。没有这张表，出事时只能靠现场发挥。</p>
 <p>网关在这一层干四件事：限流、重试、熔断、审计。重试要带幂等键，否则一次抖动会变成两次下单。运维那边看两个数：错误预算和 P99，而不是平均值——平均值会把最慢的那批用户藏起来。</p>
 <p class="plain-text">本节只讲到这里：容量不是「买多少机器」，是「先量、再算、找瓶颈、定降级」。四步缺一步，数字就是编的。</p>
-`},
+<div class="note check"><div class="note-t">📌 第十二幕 · 卡在哪复盘 · 回答的是「③ 多少钱、多少秒」</div><ul><li><strong>一笔账：</strong>软件优化到底后，再降 40% 要动硬件；训一次基座约 260 万，还要乘 1.5 的失败系数</li><li><strong>三个坑：</strong>只做软件优化、忽略显存带宽、为了省钱搬机房</li><li><strong>带走一句：</strong>瓶颈会从算法搬到硬件，再搬到迁不迁得动</li></ul></div>`},
 m13_1:{tag:"第 13 幕 · 它记得我",title:"你上周不是说过",html:`
 <p>车主抱怨：「我上周就跟它说过我不走高速，今天它又给我排高速。」</p>
 <p>这是体验问题，也是信任问题——记不住的东西，用第二次就不想用了。</p>
@@ -801,7 +796,7 @@ m13_4:{tag:"第 13 幕 · 它记得我",title:"记忆与隐私",html:`
 <p>他们还发现一个漏洞：记忆里存了「常去某医院」，这条信息的敏感度远高于一条路线。老周把这一条圈出来，画了个红框。</p>
 <p>最后他们把所有记忆字段分了级：普通偏好、位置习惯、敏感场所、健康相关。后两类默认不存，存了也要本地加密、单独开关。</p>
 <p class="plain-text">本节只讲到这里：记忆是一个隐私产品，不是一个技术功能。先想清楚「用户愿不愿意让你记」，再想怎么记。</p>
-`},
+<div class="note check"><div class="note-t">📌 第十三幕 · 它记得我复盘 · 回答的是「① 它凭什么知道」</div><ul><li><strong>一笔账：</strong>上下文从 6000 token 压到 1800，答案反而更准</li><li><strong>三个坑：</strong>什么都记、按车存、敏感字段不设开关</li><li><strong>带走一句：</strong>记忆是隐私产品，不是技术功能</li></ul></div>`},
 m14_1:{tag:"第 14 幕 · 我们自己写代码",title:"三个人干五个人的活",html:`<div class="fig"><div class="fig-t">图：写代码变便宜之后，最先涨的是技术债</div><div class="flow"><div class="box b">补全、生成测试</div><div class="box c">顺手多写 11 个工具函数</div><div class="box o">没人说得清哪个在用</div><div class="box r">债便宜，就会有人多借</div></div><div class="fig-n">所以流程要先立起来，再谈提速。否则提的是手速，欠的是本金</div></div>
 
 <p>项目中期，人力不够。老陈试着让组里用 AI 写代码。</p>
@@ -842,7 +837,7 @@ m14_5:{tag:"第 14 幕 · 我们自己写代码",title:"三层指令，一套工
 <p>工具链的差别也在这三层上：有的只能补全当前文件，有的能读全仓库、能跑测试、能提 PR。差别不在模型多聪明，在「它看得见多少上下文、能不能自己验证」。</p>
 <p>小赵在笔记本上又贴了一张贴纸，这次写的是：「看不全仓库的助手，只能当输入法用。」</p>
 <p class="plain-text">本节只讲到这里：给 AI 用的文档和给新人用的文档是同一份。写不清楚，人和模型都会跑偏，只是模型跑偏得更快。</p>
-`},
+<div class="note check"><div class="note-t">📌 第十四幕 · 我们自己写代码复盘 · 回答的是「④ 错了谁先发现」</div><ul><li><strong>一笔账：</strong>三周冒出 11 个风格各异的工具函数，没人说得清哪个在用</li><li><strong>三个坑：</strong>一次改太多文件、跳过测试、把它当成不会犯错的人</li><li><strong>带走一句：</strong>写代码变便宜之后，想清楚成了唯一的瓶颈</li></ul></div>`},
 m15_1:{tag:"第 15 幕 · 谁签字",title:"三家车厂三个分支",html:`<div class="fig"><div class="fig-t">图：一套能力，三套配置，三份考卷</div><div class="layers"><div class="layer l1">底层能力：模型、检索、工具、护栏（一套）</div><div class="layer l3">客户配置：口吻、播报规范、权限（三套）</div><div class="layer l5">验收标准：德系零误报 / 新势力别太死板（三份）</div></div><div class="fig-n">差异抽成配置与评测标准，代码就不分叉；分叉的代码会拖死三家客户</div></div>
 
 <p>第三年，代码库里有三个分支，每个车厂一套。同一个播报 bug，要修三遍；同一份提示词，改一处漏两处。</p>
@@ -899,7 +894,7 @@ m15_7:{tag:"第 15 幕 · 谁签字",title:"该招什么人了",html:`
 <p>面试也改了。不问「什么是 RAG」，给一个场景问判据：「这个需求你会用检索还是微调？为什么？错的时候怎么发现？」——背过定义的人在这里会停住。</p>
 <p>度量同样有四种作弊姿势：只看成本，就把功能砍到没人用；只看延迟，就把模型换成小号；只看质量，账单会炸；只看留存，会做出一堆讨好用户的废话。四类指标必须一起看，而且要能归因到具体改动。</p>
 <p class="plain-text">本节只讲到这里：招人看判据，度量看组合。只优化一个数字，那个数字一定会变好看，产品不会。</p>
-`},
+<div class="note check"><div class="note-t">📌 第十五幕 · 谁签字复盘 · 回答的是「⑤ 出事谁签字」</div><ul><li><strong>一笔账：</strong>三家车厂三份考卷；一次事故 40 分钟没人认领</li><li><strong>三个坑：</strong>代码按客户分叉、自己出题自己考、责任没有字段</li><li><strong>带走一句：</strong>能上线的不是最聪明的模型，是能被验证、能被回滚的那一个</li></ul></div>`},
 final:{tag:"尾声",title:"尾声：五个问题的答案",html:`
 <p>三年后，路航的 AI 功能装进了 60 万台车。老陈在一次行业分享上，把开篇那张图又放了一遍。</p>
 <div class="fig"><div class="fig-t">图：六十节讲完，五个问题各自有了答案</div><div class="layers">
@@ -2462,17 +2457,6 @@ function annotateTerms(){
 var _render=render;
 render=function(id,btn){_render(id,btn);if(id!=='exam'){annotateTerms();}};
 render('intro',side.querySelector('.nav'));
-(function(){
-  var b=document.getElementById('liteBtn');
-  if(!b)return;
-  function apply(on){document.body.classList.toggle('lite',on);b.textContent=on?'📚 完整模式':'🌿 极简模式';}
-  try{apply(localStorage.getItem('lite')==='1')}catch(e){}
-  b.addEventListener('click',function(){
-    var on=!document.body.classList.contains('lite');
-    apply(on);
-    try{localStorage.setItem('lite',on?'1':'0')}catch(e){}
-  });
-})();
 </script>
 <script>
 (function () {
