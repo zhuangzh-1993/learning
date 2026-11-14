@@ -38,6 +38,19 @@
   .main{flex:1;overflow-y:auto;padding:40px;scroll-behavior:smooth;position:relative}
   .article{max-width:900px;margin:0 auto;background:var(--panel);border-radius:16px;box-shadow:var(--shadow);padding:50px 60px;border:1px solid var(--border);animation:fade .4s ease-out}
   @keyframes fade{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+  .gate{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:300;display:none;overflow-y:auto;padding:48px 16px}
+  .gate.show{display:block}
+  .gate-box{max-width:620px;margin:0 auto;background:#fff;border-radius:14px;padding:26px 28px;box-shadow:0 24px 60px rgba(15,23,42,.3)}
+  .gate-title{font-size:19px;font-weight:900;color:var(--title);margin-bottom:6px}
+  .gate-desc{font-size:13.5px;color:var(--muted);line-height:1.7;margin-bottom:18px}
+  .gate-q{margin-bottom:16px}
+  .gate-q p{font-size:15px;font-weight:700;color:var(--title);margin-bottom:8px;line-height:1.6}
+  .gate-opts{display:flex;gap:10px;flex-wrap:wrap}
+  .gate-opt{flex:1 1 220px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;background:#f8fafc;color:var(--text);font-size:14px;font-family:inherit;text-align:left;cursor:pointer}
+  .gate-opt:hover{background:#f1f5f9}
+  .gate-opt.sel{border-color:#93c5fd;background:#eff6ff;color:#1e40af;font-weight:700}
+  .gate-opt.bad{border-color:#fca5a5;background:#fef2f2;color:#991b1b}
+  .gate-actions{display:flex;gap:12px;align-items:center;margin-top:22px}
   @media(max-width:768px){.menu-btn{display:block}.side{position:fixed;top:60px;left:0;bottom:0;transform:translateX(-100%);border-right:none;box-shadow:2px 0 10px rgba(0,0,0,.1)}.side.open{transform:translateX(0)}.main{padding:16px 12px}.article{padding:28px 20px;border-radius:12px}.h1{font-size:24px;margin-bottom:24px}.body p{font-size:15px;margin-bottom:14px}.body li{font-size:15px}.plain-text{font-size:14px;padding:12px}.note{padding:14px 16px;font-size:14px}.tbl{-webkit-overflow-scrolling:touch}}
   .tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:1px;padding:4px 12px;border-radius:6px;margin-bottom:16px;background:#f1f5f9;color:var(--b)}
   .h1{font-size:30px;font-weight:900;color:var(--title);margin-bottom:32px;line-height:1.3;letter-spacing:-.8px}
@@ -601,7 +614,7 @@ m7_4:{tag:"第 7 幕 · 单台四块钱",title:"按台卖还是按次卖",html:`
 <p>财务总监问了一个更狠的问题：「如果用户天天用，我们是不是就亏死了？」</p>
 <p>他们算了一笔账：日活 30% 的车，每台每天用 4 次，每次成本 0.03 元，一台车一个月 4 块。如果日活涨到 70%，就是 9 块。</p>
 <p>于是定价从「按台授权」改成「基础授权 + 用量包」：超出部分按次计费。</p>
-<p>晓雯在客户会上解释这个改动时，把计算器转向对方，对方居然松了口气——因为客户怕的从来不是花钱，是花得没底。</p>
+<p>晓雯在客户会上解释这个改动时，把计算器转向对方——她的登机箱还立在会议室门口，箱子上贴的标签又多了两张。对方居然松了口气：客户怕的从来不是花钱，是花得没底。</p>
 <p class="plain-text">本节只讲到这里：AI 产品的定价必须和成本结构对齐。按台卖固定价、成本却随用量涨，是给未来埋雷。 判据：用量方差越大，越该按次；稳定得像水电，才适合按台。</p>
 <div class="note check"><div class="note-t">📌 第七幕 · 单台四块钱复盘 · 回答的是「③ 多少钱、多少秒」</div><ul><li><strong>一笔账：</strong>每台每月 4 块 × 12 个月，对比每台一次性 30 块的授权费</li><li><strong>三个坑：</strong>按台卖固定价、把私有化当附加题、拿通用能力去盲测专用场景</li><li><strong>带走一句：</strong>定价必须和成本结构对齐，否则是给未来埋雷</li></ul></div>`},
 m8_1:{tag:"第 8 幕 · 只有一张卡",title:"地库里没网",html:`
@@ -951,6 +964,7 @@ final:{tag:"尾声",title:"尾声：五个问题的答案",html:`
 <div class="note tip"><div class="note-t">🧭 读完做什么</div><ol><li>去考试中心做一轮，看错题落在哪一问上。</li><li>回到那一问对应的三到四幕，重读「本节只讲到这里」。</li><li>拿你手头真实的一个 AI 需求，用五问过一遍，写成一页纸。</li></ol></div>
 <p class="plain-text">本节只讲到这里：故事的结尾不是「他们成功了」，是「他们终于知道自己该怕什么」。这大概是 AI 通识唯一能给人的东西。</p>
 `},
+exam:{tag:"考试中心",title:"",html:`<div id="exam-container"></div>`},
 };
 
 // ======= 题库（全库都是抽题池，每次考试随机抽 EXAM_COUNT 题） =======
@@ -2063,8 +2077,84 @@ function renderExamUI() {
     });
     html += `</div><div class="ans-box" id="ans-${qIdx}"><div class="ans-title">正确答案与解析</div><div class="ans-text" id="ans-text-${qIdx}"></div><div class="ans-exp">解析：${q.e}</div></div></div>`;
   });
-  html += `</div><div class="score-panel" id="score-panel" style="display:none"><div class="stats"><div class="stat-item"><span class="stat-val" id="stat-total">0 / ${EXAM_QS.length}</span><span class="stat-label">正确题数</span></div><div class="stat-item"><span class="stat-val" id="stat-wrong" style="color:var(--r)">0</span><span class="stat-label">错题数</span></div><div class="stat-item"><span class="stat-val" id="stat-score" style="color:var(--g)">0%</span><span class="stat-label">正确率</span></div></div></div><div style="position:sticky;bottom:20px;z-index:10"><div class="score-panel" id="nick-panel" style="display:none;flex-direction:column;gap:12px;align-items:stretch;text-align:left"><div style="font-size:15px;font-weight:bold;line-height:1.6">💗 甜蜜对诗 · 请对出下句</div><div style="font-size:17px;font-weight:800;line-height:1.8;padding:12px 16px;background:#eff6ff;border-radius:8px"><span id="poem-q" style="color:var(--b)"></span></div><div style="display:flex;gap:12px;align-items:center"><input id="poem-a" placeholder="请写下句" style="border:2px solid var(--b);border-radius:8px;padding:12px 14px;font-size:15px;flex:1"><span style="font-size:12px;color:#64748b;white-space:nowrap">答对即可交卷</span></div></div></div><div style="position:sticky;bottom:20px;z-index:10"><div id="btn-submit-wrap" style="display:flex;justify-content:flex-end"><button class="btn-submit" id="btn-submit">交卷并核算成绩</button></div></div>`;
+  html += `</div><div class="score-panel" id="score-panel" style="display:none"><div class="stats"><div class="stat-item"><span class="stat-val" id="stat-total">0 / ${EXAM_QS.length}</span><span class="stat-label">正确题数</span></div><div class="stat-item"><span class="stat-val" id="stat-wrong" style="color:var(--r)">0</span><span class="stat-label">错题数</span></div><div class="stat-item"><span class="stat-val" id="stat-score" style="color:var(--g)">0%</span><span class="stat-label">正确率</span></div></div></div><div style="position:sticky;bottom:20px;z-index:10"><div id="btn-submit-wrap" style="display:flex;justify-content:flex-end"><button class="btn-submit" id="btn-submit">交卷并核算成绩</button></div></div>`;
   return html;
+}
+
+const GATE_QS = [
+  { q: '「不接受大概没问题，只问证据在哪」是谁的规矩？', o: ['老陈', '老周'], a: 1 },
+  { q: '老陈在纸上写下第一个结论之前，习惯做什么？', o: ['把纸对折三次', '把纸撕掉重写'], a: 0 },
+  { q: '小唐的背包里常备哪两样东西？', o: ['荧光笔和线圈本', '螺丝刀和 OBD 线'], a: 1 },
+  { q: '阿禾听不懂的时候，会怎么做？', o: ['先记下来，回头再查', '当场举手，从不装懂'], a: 1 },
+  { q: '许砚用什么把头发别起来？', o: ['一支铅笔', '一个发夹'], a: 0 },
+  { q: '晓雯脚边永远立着什么？', o: ['一个 1:18 的车模', '一只贴满车厂标签的登机箱'], a: 1 },
+  { q: '小赵的笔记本上贴满了什么？', o: ['开源项目的贴纸', '车厂的验收单'], a: 0 }
+];
+
+function openGate() {
+  var old = document.getElementById('gate');
+  if (old) old.remove();
+
+  var q = GATE_QS[Math.floor(Math.random() * GATE_QS.length)];
+  window._gateQ = q;
+
+  var wrap = document.createElement('div');
+  wrap.id = 'gate'; wrap.className = 'gate show';
+
+  var box = document.createElement('div');
+  box.className = 'gate-box';
+  box.innerHTML = '<div class="gate-title">交卷之前，先认认人</div>'
+    + '<div class="gate-desc">七个角色里随机抽一道，答对就能交卷。答错了可以再想想，或者换一道。</div>';
+
+  var body = document.createElement('div');
+  body.className = 'gate-q';
+  var p = document.createElement('p');
+  p.textContent = q.q;
+  body.appendChild(p);
+
+  var opts = document.createElement('div');
+  opts.className = 'gate-opts';
+  q.o.forEach(function (t, oi) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'gate-opt'; b.textContent = t;
+    b.addEventListener('click', function () {
+      opts.querySelectorAll('.gate-opt').forEach(function (x) { x.classList.remove('sel', 'bad'); });
+      b.classList.add('sel');
+      window._gatePick = oi;
+    });
+    opts.appendChild(b);
+  });
+  body.appendChild(opts);
+  box.appendChild(body);
+
+  var act = document.createElement('div');
+  act.className = 'gate-actions';
+
+  var ok = document.createElement('button');
+  ok.className = 'btn-submit'; ok.textContent = '确认，交卷';
+  var reroll = document.createElement('button');
+  reroll.className = 'gate-opt'; reroll.style.flex = '0 0 auto'; reroll.textContent = '换一道';
+  var cancel = document.createElement('button');
+  cancel.className = 'gate-opt'; cancel.style.flex = '0 0 auto'; cancel.textContent = '先回去看看';
+
+  ok.addEventListener('click', function () {
+    if (window._gatePick === undefined) { alert('先选一个。'); return; }
+    if (window._gatePick !== q.a) {
+      opts.querySelectorAll('.gate-opt')[window._gatePick].classList.add('bad');
+      alert('这个不对，再想想——人物的习惯都写在开篇那七张卡片里。');
+      return;
+    }
+    window._gatePassed = true;
+    wrap.remove();
+    document.getElementById('btn-submit').click();
+  });
+  reroll.addEventListener('click', function () { window._gatePick = undefined; openGate(); });
+  cancel.addEventListener('click', function () { wrap.remove(); });
+
+  act.appendChild(ok); act.appendChild(reroll); act.appendChild(cancel);
+  box.appendChild(act);
+  wrap.appendChild(box);
+  document.body.appendChild(wrap);
 }
 
 function bindExamEvents() {
@@ -2080,43 +2170,8 @@ function bindExamEvents() {
     });
   });
   submitBtn.addEventListener('click', () => {
-    const nickPanel = document.getElementById('nick-panel');
-const POEMS = [
-  ['在天愿作比翼鸟', '在地愿为连理枝'], ['身无彩凤双飞翼', '心有灵犀一点通'],
-  ['两情若是久长时', '又岂在朝朝暮暮'], ['衣带渐宽终不悔', '为伊消得人憔悴'],
-  ['曾经沧海难为水', '除却巫山不是云'], ['愿得一心人', '白头不相离'],
-  ['结发为夫妻', '恩爱两不疑'], ['执手相看泪眼', '竟无语凝噎'],
-  ['山有木兮木有枝', '心悦君兮君不知'], ['只愿君心似我心', '定不负相思意'],
-  ['玲珑骰子安红豆', '入骨相思知不知'], ['春蚕到死丝方尽', '蜡炬成灰泪始干'],
-  ['在天愿为比翼鸟', '在地愿为连理枝'], ['一日不见兮', '思之如狂'],
-  ['青青子衿', '悠悠我心'], ['死生契阔', '与子成说'],
-  ['琴瑟在御', '莫不静好'], ['投我以木桃', '报之以琼瑶'],
-  ['月上柳梢头', '人约黄昏后'], ['众里寻他千百度', '蓦然回首那人却在灯火阑珊处'],
-  ['此情可待成追忆', '只是当时已惘然'], ['相见时难别亦难', '东风无力百花残'],
-  ['直道相思了无益', '未妨惆怅是清狂'], ['多情却被无情恼', '今夜还留取'],
-  ['换我心', '为你心'], ['一寸相思一寸灰', '心如烟'],
-  ['落花人独立', '微雨燕双飞'], ['金风玉露一相逢', '便胜却人间无数'],
-  ['平生不会相思', '才会相思'], ['十一年前梦一场', '相思彻']
-];
-const normPoem = s => (s || '').replace(/[^0-9A-Za-z一-龥]/g, '');
-if (!window._poemAsked || !document.getElementById('poem-q').textContent) {
-  window._poemAsked = true;
-  const pair = POEMS[Math.floor(Math.random() * POEMS.length)];
-  window._poemA = pair[1];
-  document.getElementById('poem-q').textContent = pair[0] + '，______';
-  const bw = document.getElementById('btn-submit-wrap');
-  if (bw) bw.style.display = 'none';
-  const np = document.getElementById('nick-panel');
-  if (np) np.style.display = 'flex';
-  const pa = document.getElementById('poem-a');
-  pa.focus();
-  pa.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submitBtn.click(); } });
-  return;
-}
-const poemAns = normPoem(document.getElementById('poem-a')?.value);
-if (!poemAns || poemAns !== normPoem(window._poemA)) { alert('差一点点哦～再想想这句经典诗词的下句，sweet heart 相信你可以的！'); document.getElementById('poem-a').focus(); return; }
+    if (!window._gatePassed) { openGate(); return; }
     submitBtn.disabled = true; submitBtn.textContent = '已交卷'; submitBtn.style.display = 'none';
-const np = document.getElementById('nick-panel'); if (np) np.style.display = 'none';
     let correctCount = 0, wrongCount = 0;
     EXAM_QS.forEach((q, qIdx) => {
       const userAns = (userAnswers[qIdx] || []).sort();
@@ -2176,7 +2231,7 @@ rb.style.flex = '1';
 rb.style.background = 'var(--o)';
 rb.style.color = '#fff';
 rb.textContent = '刷新题目';
-rb.addEventListener('click', () => { userAnswers = {}; EXAM_QS = pickExamQuestions(); article.innerHTML = renderExamUI(); bindExamEvents(); });
+rb.addEventListener('click', () => { userAnswers = {}; window._gatePassed = false; EXAM_QS = pickExamQuestions(); article.innerHTML = renderExamUI(); bindExamEvents(); });
 document.getElementById('panel-actions').appendChild(rb);
 const wrongList = [];
 EXAM_QS.forEach((q, qIdx) => {
