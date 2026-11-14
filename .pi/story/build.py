@@ -65,6 +65,7 @@ def build_d():
         assert '`' not in html and '${' not in html, f"backtick/'${{' in {sid}"
         out.append(f'{sid}:{{tag:{json.dumps(tag, ensure_ascii=False)},'
                    f'title:{json.dumps(title, ensure_ascii=False)},html:`{html}`}},')
+    out.append('exam:{tag:"考试中心",title:"",html:`<div id="exam-container"></div>`},')
     out.append('};')
     return "\n".join(out) + "\n\n"
 
