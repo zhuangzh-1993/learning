@@ -8,7 +8,7 @@ import json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import nav as NAVMOD, figs, review, acts_a, acts_b, acts_c, acts_d, acts_e
+import nav as NAVMOD, figs, review, acts_a, acts_b, acts_c, acts_d, acts_e, map as MAPMOD
 
 TARGET = os.path.normpath(os.path.join(HERE, '..', '..', 'ai.html'))
 COLORS = ["c1", "c2", "c3", "c4", "c5", "c6"]
@@ -33,6 +33,8 @@ def build_nav():
         lines.append('    </div>')
     lines.append('    <div class="group c6"><div class="group-title">尾声</div>'
                  + item("final", "尾声：五个问题的答案") + '</div>')
+    lines.append('    <div class="group c3"><div class="group-title">知识地图</div>'
+                 + item("map", "🗺️ AI 知识体系") + '</div>')
     lines.append('    <div class="group c-exam"><div class="group-title">考试中心</div>'
                  '<button class="nav" data-id="exam">🎯 通关测验（500 题库随机抽题）</button></div>')
     lines.append('  </aside>')
@@ -65,6 +67,7 @@ def build_d():
         assert '`' not in html and '${' not in html, f"backtick/'${{' in {sid}"
         out.append(f'{sid}:{{tag:{json.dumps(tag, ensure_ascii=False)},'
                    f'title:{json.dumps(title, ensure_ascii=False)},html:`{html}`}},')
+    out.append('map:{tag:"知识地图",title:"AI 通识知识体系",html:`' + MAPMOD.render() + '`},')
     out.append('exam:{tag:"考试中心",title:"",html:`<div id="exam-container"></div>`},')
     out.append('};')
     return "\n".join(out) + "\n\n"
