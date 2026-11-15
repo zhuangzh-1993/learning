@@ -59,8 +59,13 @@
     #btn-submit-wrap{justify-content:stretch!important}
     #btn-submit{width:100%;padding:13px 20px}
     #quiz-list{padding-bottom:92px}
-    .score-panel{flex-wrap:wrap;gap:14px}
-    .score-panel .stats{flex-wrap:wrap;gap:16px}
+    .score-panel{position:static;bottom:auto;margin:0 0 18px;padding:16px;flex-wrap:wrap;gap:12px;box-shadow:0 4px 16px rgba(15,23,42,.06)}
+    .score-panel .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;width:100%}
+    .score-panel .stat-val{font-size:21px}
+    .score-panel .stat-label{font-size:11px}
+    #panel-actions{flex-direction:column;gap:8px;width:100%}
+    #panel-actions .btn-submit{width:100%;flex:none!important}
+    #encourage-msg{font-size:13.5px;padding:9px 12px;line-height:1.7}
   }
   @media(max-width:768px){.rm-sub-pc{display:none}.rm-sub-mb{display:inline}}
   @media(max-width:768px){.menu-btn{display:block}.side{position:fixed;top:60px;left:0;bottom:0;transform:translateX(-100%);border-right:none;box-shadow:2px 0 10px rgba(0,0,0,.1)}.side.open{transform:translateX(0)}.main{padding:16px 12px}.article{padding:28px 20px;border-radius:12px}.h1{font-size:24px;margin-bottom:24px}.body p{font-size:15px;margin-bottom:14px}.body li{font-size:15px}.plain-text{font-size:14px;padding:12px}.note{padding:14px 16px;font-size:14px}.tbl{-webkit-overflow-scrolling:touch}}
@@ -286,6 +291,15 @@
     .tbl table.tbl-stack td:empty{display:none}
   }
   @media(max-width:768px){.rm-sub-pc{display:none}.rm-sub-mb{display:inline}}
+  @media(max-width:768px){
+    .score-panel{position:static!important;bottom:auto!important;margin:0 0 18px!important;padding:16px!important;gap:12px!important;box-shadow:0 4px 16px rgba(15,23,42,.06)!important}
+    .score-panel .stats{display:grid!important;grid-template-columns:1fr 1fr;gap:10px 18px;width:100%}
+    .score-panel .stat-val{font-size:21px!important}
+    .score-panel .stat-label{font-size:11px!important}
+    #panel-actions{flex-direction:column!important;gap:8px!important;width:100%}
+    #panel-actions .btn-submit{width:100%!important;flex:none!important}
+    #encourage-msg{font-size:13.5px!important;padding:9px 12px!important;line-height:1.7!important}
+  }
 </style>
 </head>
 <body>
@@ -1851,6 +1865,10 @@ EXAM_QS.forEach((q, qIdx) => {
 });
 const oldExportBtn = document.getElementById('btn-export-wrong');
 if (oldExportBtn) oldExportBtn.remove();
+if (window.innerWidth <= 768) {
+  const quizList = document.getElementById('quiz-list');
+  if (quizList && panel.parentNode) panel.parentNode.insertBefore(panel, quizList);
+}
 const exportBtn = document.createElement('button');
 exportBtn.id = 'btn-export-wrong';
 exportBtn.className = 'btn-submit';
@@ -1883,7 +1901,7 @@ ${optLines}
   URL.revokeObjectURL(a.href);
 });
 document.getElementById('panel-actions').appendChild(exportBtn);
-window.scrollTo({ top: document.getElementById('score-panel').offsetTop - 40, behavior: 'smooth' });
+if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 }
 
