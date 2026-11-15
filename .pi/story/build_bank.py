@@ -10,7 +10,7 @@ import json, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 TARGET = os.path.normpath(os.path.join(HERE, '..', '..', 'ai.html'))
 DATA = os.path.join(HERE, 'bank.json')
-EXAM_COUNT = 30
+EXAM_COUNT = 10
 
 
 def emit(it):
