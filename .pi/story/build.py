@@ -34,7 +34,7 @@ def build_nav():
     lines.append('    <div class="group c6"><div class="group-title">尾声</div>'
                  + item("final", "尾声：五个问题的答案") + '</div>')
     lines.append('    <div class="group c-exam"><div class="group-title">考试中心</div>'
-                 '<button class="nav" data-id="exam">🎯 通关测验（1000 题库随机抽题）</button></div>')
+                 '<button class="nav" data-id="exam">🎯 通关测验（500 题库随机抽题）</button></div>')
     lines.append('  </aside>')
     return "\n".join(lines)
 
