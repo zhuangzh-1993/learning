@@ -16,7 +16,9 @@
   .brand{font-size:17px;font-weight:900;color:var(--title);display:flex;align-items:center;gap:10px;letter-spacing:-.5px}
   .brand span{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--b),var(--p));display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
   .badge{font-size:12px;font-weight:700;color:var(--r);background:#fff1f2;padding:4px 12px;border-radius:20px;border:1px solid #fecdd3}
-  @media(max-width:768px){.badge{display:none}.brand{font-size:15px}.brand span{width:24px;height:24px;font-size:12px}.topbar{padding:0 12px}}
+  .exam-shortcut{display:none;background:#fff1f2;border:1px solid #fecdd3;color:#be123c;font:inherit;font-size:12px;font-weight:800;padding:7px 11px;border-radius:8px;cursor:pointer;white-space:nowrap}
+  .exam-shortcut:hover{background:#ffe4e6}
+  @media(max-width:768px){.exam-shortcut{display:inline-flex;align-items:center}.badge{display:none}.brand{font-size:15px}.brand span{width:24px;height:24px;font-size:12px}.topbar{padding:0 12px}}
   .app{display:flex;height:calc(100vh - 60px);position:relative}
   @supports (height:100dvh){html,body{height:100dvh}.app{height:calc(100dvh - 60px)}}
   .overlay{display:none;position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(15,23,42,.4);z-index:90;opacity:0;transition:opacity .3s}
@@ -270,7 +272,7 @@
     .rm-list-concept:active{background:#eff6ff;color:#1d4ed8}
     .rm-panel{position:fixed;inset:0;width:auto;max-height:none;height:100dvh;border-radius:0;z-index:400;box-shadow:none;overflow:auto;overscroll-behavior:contain;padding:calc(20px + env(safe-area-inset-top)) 20px calc(28px + env(safe-area-inset-bottom))}
     .rm-close{position:fixed;top:calc(10px + env(safe-area-inset-top));right:12px;width:34px;height:34px;font-size:20px;z-index:410}
-  .rm-canvas{height:470px}.rm-node{font-size:10.5px;padding:5px 8px}.rm-domain{font-size:11.5px;padding:6px 9px;max-width:88px}.rm-topic{font-size:10.5px;max-width:82px}.rm-concept{font-size:10px;max-width:78px}.rm-root{width:112px;height:112px;font-size:15px}.rm-sub{font-size:12.5px}.rm-panel h3{font-size:17px}.rm-f-v{font-size:13px}}
+  .rm-canvas{height:auto;overflow:visible}.rm-node{font-size:10.5px;padding:5px 8px}.rm-domain{font-size:11.5px;padding:6px 9px;max-width:88px}.rm-topic{font-size:10.5px;max-width:82px}.rm-concept{font-size:10px;max-width:78px}.rm-root{width:112px;height:112px;font-size:15px}.rm-sub{font-size:12.5px}.rm-panel h3{font-size:17px}.rm-f-v{font-size:13px}}
   @media(max-width:768px){.rm-canvas.rm-dots .rm-concept{width:13px;height:13px;min-width:13px;max-width:13px}.rm-canvas.rm-dots .rm-topic{width:16px;height:16px;min-width:16px;max-width:16px}}
 
   @media(max-width:768px){
@@ -293,7 +295,7 @@
     <button class="menu-btn" id="menuBtn">☰</button>
     <div class="brand"><span>路航</span> 一支不会 AI 的队伍</div>
   </div>
-  <div style="display:flex;gap:8px;align-items:center"><div class="badge">十五幕 · 全悬停白话</div></div>
+  <div style="display:flex;gap:8px;align-items:center"><button class="exam-shortcut" id="examShortcut" type="button">🎯 考试</button><div class="badge">十五幕 · 全悬停白话</div></div>
 </header>
 
 <div class="overlay" id="overlay"></div>
@@ -1886,6 +1888,8 @@ window.scrollTo({ top: document.getElementById('score-panel').offsetTop - 40, be
 }
 
 side.addEventListener('click',e=>{const btn=e.target.closest('.nav');if(btn)render(btn.dataset.id,btn)});
+const examShortcut=document.getElementById('examShortcut');
+if(examShortcut)examShortcut.addEventListener('click',()=>{const b=side.querySelector('.nav[data-id="exam"]');render('exam',b);if(side.classList.contains('open'))toggleMenu();});
 
 // ===== AI 知识地图（径向） =====
 var rmTip = null;
