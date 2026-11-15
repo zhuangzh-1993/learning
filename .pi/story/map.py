@@ -403,7 +403,7 @@ def render():
         '<div class="rm-body"><div class="rm-canvas" id="rm-canvas">'
         '<div class="rm-stage" id="rm-stage"><svg class="rm-links" id="rm-links" viewBox="0 0 900 760" preserveAspectRatio="xMidYMid meet"></svg>'
         '<div class="rm-nodes" id="rm-nodes"></div></div>'
-        '<div class="rm-hint">滚轮缩放 · 拖拽平移 · 点节点看解释 · ＋/－ 整棵子树</div></div>'
-        '<aside class="rm-panel" id="rm-panel" aria-live="polite"><div class="rm-empty">点一个节点，这里用五个问题把它讲清楚。</div></aside>'
-        '</div><div id="rm-data" hidden>' + data + '</div></div>'
+        '<div class="rm-hint">滚轮缩放 · 拖拽平移 · 点节点看解释 · ＋/－ 整棵子树</div>'
+        '<aside class="rm-panel" id="rm-panel" aria-live="polite"><button type="button" class="rm-close" aria-label="关闭">×</button><div class="rm-empty">点一个节点，这里用五个问题把它讲清楚。</div></aside>'
+        '</div></div><div id="rm-data" hidden>' + data + '</div></div>'
     )
