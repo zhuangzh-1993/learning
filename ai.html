@@ -41,6 +41,9 @@
   .main{flex:1;overflow-y:auto;padding:40px;scroll-behavior:smooth;position:relative}
   .article{max-width:900px;margin:0 auto;background:var(--panel);border-radius:16px;box-shadow:var(--shadow);padding:50px 60px;border:1px solid var(--border);animation:fade .4s ease-out}
   @keyframes fade{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+  .exam-resume{margin:0 0 18px;padding:10px 14px;font-size:13.5px;color:#1d4ed8;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;line-height:1.7}
+  .exam-resume button{margin-left:8px;font:inherit;font-size:12.5px;font-weight:700;color:#1d4ed8;background:#fff;border:1px solid #bfdbfe;border-radius:6px;padding:3px 8px;cursor:pointer}
+  .exam-resume button:hover{background:#dbeafe}
   .gate{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:300;display:none;overflow-y:auto;padding:48px 16px}
   .gate.show{display:block}
   .gate-box{max-width:620px;margin:0 auto;background:#fff;border-radius:14px;padding:26px 28px;box-shadow:0 24px 60px rgba(15,23,42,.3)}
@@ -1627,6 +1630,35 @@ function pointsPerQuestion() { return POINTS_PER_QUESTION; }
 
 function scoreOf(correct) { return correct * POINTS_PER_QUESTION; }
 
+function saveExamState(){
+  if (!EXAM_QS) return;
+  const answers = {};
+  let picked = 0;
+  EXAM_QS.forEach((q, i) => {
+    const a = (userAnswers[i] || []).slice();
+    if (a.length) { answers[i] = a; picked += a.length; }
+  });
+  if (!picked) { clearExamState(); return; }
+  const data = { v: 1, ids: EXAM_QS.map(q => QUIZ_BANK.indexOf(q)), qs: EXAM_QS.map(q => q.q), answers: answers, ts: Date.now() };
+  try { sessionStorage.setItem(EXAM_STATE_KEY, JSON.stringify(data)); } catch (e) {}
+}
+function loadExamState(){
+  try {
+    const raw = sessionStorage.getItem(EXAM_STATE_KEY);
+    if (!raw) return null;
+    const d = JSON.parse(raw);
+    if (!d || d.v !== 1 || !Array.isArray(d.ids) || !Array.isArray(d.qs)) return null;
+    const qs = [];
+    for (let i = 0; i < d.ids.length; i++) {
+      const q = QUIZ_BANK[d.ids[i]];
+      if (!q || q.q !== d.qs[i]) return null;
+      qs.push(q);
+    }
+    return qs.length ? { qs: qs, answers: d.answers || {} } : null;
+  } catch (e) { return null; }
+}
+function clearExamState(){ try { sessionStorage.removeItem(EXAM_STATE_KEY); } catch (e) {} }
+
 function gradeMessage(score) {
   if (score >= 90) return '这一幕一幕算是读进去了。错的那几道，回去看一眼每节末尾那句「本节只讲到这里」。';
   if (score >= 80) return '不错。把错题按五问归一下类，比再从头读一遍快得多。';
@@ -1677,8 +1709,17 @@ function render(id,btn){
 }
 
 function renderExamUI() {
-  if (!EXAM_QS) EXAM_QS = pickExamQuestions();
-  let html = `<div class="exam-header"><h1 class="exam-title">🎯 终极通关测验</h1><p class="exam-desc">本卷 ${EXAM_QS.length} 题，由 ${QUIZ_BANK.length} 题全库随机抽取（每题 ${pointsPerQuestion()} 分，满分 100 分；选项 4~5 个，含 1~5 个正确项，个别题为单选）。必须全选对才得分。交卷前无法查看答案。</p></div><div id="quiz-list">`;
+  let resumed = false;
+  if (!EXAM_QS) {
+    const saved = loadExamState();
+    if (saved) { EXAM_QS = saved.qs; userAnswers = saved.answers; resumed = true; }
+    else { EXAM_QS = pickExamQuestions(); userAnswers = {}; }
+  }
+  let picked = 0;
+  if (resumed) Object.keys(userAnswers).forEach(k => { picked += (userAnswers[k] || []).length; });
+  let html = `<div class="exam-header"><h1 class="exam-title">🎯 终极通关测验</h1><p class="exam-desc">本卷 ${EXAM_QS.length} 题，由 ${QUIZ_BANK.length} 题全库随机抽取（每题 ${pointsPerQuestion()} 分，满分 100 分；选项 4~5 个，含 1~5 个正确项，个别题为单选）。必须全选对才得分。交卷前无法查看答案。</p></div>`;
+  if (resumed) html += `<div class="exam-resume">已恢复上次未交卷的答题进度（已选 ${picked} 项）。<button type="button" id="btn-resume-reset">重新开始</button></div>`;
+  html += `<div id="quiz-list">`;
   EXAM_QS.forEach((q, qIdx) => {
     html += `<div class="q-card" id="q-card-${qIdx}"><div class="q-title"><span>Q${qIdx+1}.</span> ${q.q}</div><div class="opt-list">`;
     q.o.forEach((opt, oIdx) => {
@@ -1770,6 +1811,11 @@ function openGate() {
 }
 
 function bindExamEvents() {
+  const resumeReset = document.getElementById('btn-resume-reset');
+  if (resumeReset) resumeReset.addEventListener('click', () => {
+    if (!confirm('重新开始会丢掉已选的答案，确定？')) return;
+    clearExamState(); EXAM_QS = null; userAnswers = {}; article.innerHTML = renderExamUI(); bindExamEvents();
+  });
   const inputs = document.querySelectorAll('#quiz-list input[type="checkbox"]');
   const submitBtn = document.getElementById('btn-submit');
   inputs.forEach(input => {
@@ -1779,12 +1825,14 @@ function bindExamEvents() {
       if (!userAnswers[qIdx]) userAnswers[qIdx] = [];
       if (e.target.checked) { userAnswers[qIdx].push(oIdx); e.target.closest('.opt-item').classList.add('selected'); }
       else { userAnswers[qIdx] = userAnswers[qIdx].filter(x => x !== oIdx); e.target.closest('.opt-item').classList.remove('selected'); }
+      saveExamState();
     });
   });
   submitBtn.addEventListener('click', () => {
     if (!window._gatePassed) { openGate(); return; }
     submitBtn.disabled = true; submitBtn.textContent = '已交卷'; submitBtn.style.display = 'none';
     const examCta = document.getElementById('exam-cta'); if (examCta) examCta.style.display = 'none';
+    clearExamState();
     let correctCount = 0, wrongCount = 0;
     EXAM_QS.forEach((q, qIdx) => {
       const userAns = (userAnswers[qIdx] || []).sort();
@@ -1845,7 +1893,7 @@ rb.style.flex = '1';
 rb.style.background = 'var(--o)';
 rb.style.color = '#fff';
 rb.textContent = '刷新题目';
-rb.addEventListener('click', () => { userAnswers = {}; window._gatePassed = false; EXAM_QS = pickExamQuestions(); article.innerHTML = renderExamUI(); bindExamEvents(); });
+rb.addEventListener('click', () => { if (!confirm('刷新会开始一张新卷，当前成绩与解析会丢失。确定？')) return; clearExamState(); userAnswers = {}; window._gatePassed = false; EXAM_QS = pickExamQuestions(); article.innerHTML = renderExamUI(); bindExamEvents(); });
 document.getElementById('panel-actions').appendChild(rb);
 const mapBtn = document.createElement('button');
 mapBtn.id = 'btn-knowledge-map';
