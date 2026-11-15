@@ -395,7 +395,7 @@ def render():
     return (
         '<div class="rm-app" id="rm-app">'
         '<div class="rm-head"><div class="rm-kicker">AI 通识 · 六个问题</div>'
-        '<p class="rm-sub">从「它是什么」到「它怎么落地」。悬停看一句话，点节点看五问卡片；节点右上角的 ＋/－ 展开或收起整棵子树。全部展开时概念显示为圆点，放大或点分支看名字。</p>'
+        '<p class="rm-sub"><span class="rm-sub-pc">从「它是什么」到「它怎么落地」。悬停看一句话，点节点看五问卡片；节点右上角的 ＋/－ 展开或收起整棵子树。全部展开时概念显示为圆点，放大或点分支看名字。</span><span class="rm-sub-mb">六个域，从模型怎么来，到系统怎么跑。点开一个域，再点主题，点概念看五问卡片。</span></p>'
         '<div class="rm-tools"><button type="button" data-rm="expand">全部展开</button>'
         '<button type="button" data-rm="collapse">全部收起</button>'
         '<button type="button" data-rm="reset">重置视图</button>'
@@ -404,6 +404,7 @@ def render():
         '<div class="rm-stage" id="rm-stage"><svg class="rm-links" id="rm-links" viewBox="0 0 900 760" preserveAspectRatio="xMidYMid meet"></svg>'
         '<div class="rm-nodes" id="rm-nodes"></div></div>'
         '<div class="rm-hint">拖拽平移 · 点节点看解释 · ＋/－ 整棵子树</div>'
+        '<div class="rm-list" id="rm-list"></div>'
         '<aside class="rm-panel" id="rm-panel" aria-live="polite"><button type="button" class="rm-close" aria-label="关闭">×</button><div class="rm-empty">点一个节点，这里用五个问题把它讲清楚。</div></aside>'
         '</div></div><div id="rm-data" hidden>' + data + '</div></div>'
     )
