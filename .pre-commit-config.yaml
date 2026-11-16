@@ -1,0 +1,13 @@
+# Local hook only: the commit message rules live in .pi/ai-git-commit.json as
+# prose, and this is the half of them a script can see. Nothing here needs
+# network, an environment to build, or a package manager.
+minimum_pre_commit_version: '3.0.0'
+fail_fast: true
+repos:
+  - repo: local
+    hooks:
+      - id: commit-message
+        name: commit message shape
+        entry: ci/check-commit-message.sh
+        language: system
+        stages: [commit-msg]
