@@ -11,7 +11,7 @@ message never reaches history with a type prefix, an over-long line or a
 marketing word. Install it once per clone:
 
 ```sh
-pre-commit install --hook-type commit-msg
+make hooks
 ```
 
 The hook cannot see whether the body explains why, or whether a commit is one
