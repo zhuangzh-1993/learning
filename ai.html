@@ -2291,7 +2291,7 @@ function initMap(){
     scale = ns; applyView(); updateDensity();
   }, { passive: false });
   canvas.addEventListener('pointerdown', function(e){
-    if (e.target.closest('.rm-node')) return;
+    if (e.target.closest('.rm-node') || e.target.closest('.rm-panel')) return;
     drag = { x: e.clientX, y: e.clientY, tx: tx, ty: ty };
     canvas.classList.add('grabbing');
     if (canvas.setPointerCapture) canvas.setPointerCapture(e.pointerId);
@@ -2313,12 +2313,21 @@ function initMap(){
       else if (m === 'expand') { domains.forEach(function(d){ openD.add(d._id); (d.children || []).forEach(function(t){ openT.add(t._id); }); }); layout(true); select(ROOT); }
     });
   });
+  function closeCard(){
+    panel.classList.remove('show');
+    selected = null;
+    all.forEach(function(x){ x._el.classList.remove('rm-sel'); });
+    hideTip();
+  }
   panel.addEventListener('click', function(e){
-    if (e.target.closest('.rm-close')) { panel.classList.remove('show'); return; }
+    if (e.target.closest('.rm-close')) { e.stopPropagation(); closeCard(); return; }
     const b = e.target.closest('.rm-goto');
     if (!b) return;
     const nav = side.querySelector('.nav[data-id="' + b.dataset.link + '"]');
     if (nav) render(b.dataset.link, nav);
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && panel.classList.contains('show')) closeCard();
   });
   window.addEventListener('resize', function(){ fit(); });
   updateMore();
