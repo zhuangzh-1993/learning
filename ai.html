@@ -114,6 +114,20 @@
   tr:last-child td{border-bottom:none}tr:hover td{background:#f8fafc}
   .code{background:var(--code-bg);color:#e2e8f0;padding:16px 20px;border-radius:8px;font-family:Consolas,monospace;font-size:14px;line-height:1.6;overflow-x:auto;margin:20px 0}
   .code .c{color:#64748b;font-style:italic}
+  .doc{border:1px solid var(--border);border-radius:10px;background:#fff;margin:14px 0;overflow:hidden;transition:box-shadow .2s}
+  .doc[open]{box-shadow:0 8px 24px -12px rgba(15,23,42,.25)}
+  .doc>summary{cursor:pointer;list-style:none;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:13px 16px;background:#f8fafc;font-size:14px;font-weight:800;color:var(--title)}
+  .doc>summary::-webkit-details-marker{display:none}
+  .doc>summary::before{content:"▸";order:-1;font-size:11px;color:var(--muted);transition:transform .15s}
+  .doc[open]>summary::before{transform:rotate(90deg)}
+  .doc>summary:hover{background:#f1f5f9}
+  .doc-f{font-family:Consolas,Menlo,monospace;font-size:13px;color:#1d4ed8;letter-spacing:-.2px}
+  .doc-x{font-size:12.5px;font-weight:500;color:var(--muted);line-height:1.5}
+  .doc-l{margin-left:auto;font-size:11px;font-weight:800;letter-spacing:.6px;color:#94a3b8;white-space:nowrap}
+  .doc pre{margin:0;padding:16px 18px;background:var(--code-bg);color:#dbe3ef;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;overflow-x:auto;white-space:pre}
+  .doc pre .h{color:#7dd3fc;font-weight:700}
+  .doc pre .m{color:#7c8aa5}
+  @media(max-width:768px){.doc>summary{font-size:13px;padding:12px 14px}.doc-x{flex-basis:100%;order:3}.doc-l{order:2}.doc pre{font-size:11.5px;padding:14px}
   .exam-header{text-align:center;margin-bottom:32px}
   .exam-title{font-size:32px;font-weight:900;color:var(--title);letter-spacing:-1px}
   .exam-desc{color:var(--muted);font-size:14.5px;margin-top:8px}
@@ -1023,6 +1037,116 @@ m14_5:{tag:"第 14 幕 · 我们自己写代码",title:"三层指令，一套工
 <tr><td>任务级：规格文件</td><td>要解决什么问题、验收标准、边界</td><td>这一次的改动</td></tr>
 <tr><td>技能级：SKILL</td><td>可复用的步骤，比如「怎么发版」</td><td>需要时按名字调用</td></tr>
 </table></div>
+<p>写完才发现，这三层没有一层是「文档」，全是一条条约束。下面是仓库里的原文，客户名字删了两处，点开看，三份加起来不到两百行。</p>
+<details class="doc" open>
+<summary><span class="doc-f">AGENTS.md</span><span class="doc-x">项目怎么跑、哪里不许动、提交怎么交</span><span class="doc-l">仓库级 · 每个 AI 和新人都读</span></summary>
+<pre><span class="h"># AGENTS.md</span>
+
+座舱语音助手。六个人，三家车厂，一套代码。
+
+<span class="h">## 怎么跑</span>
+make env      装依赖，只跑一次
+make test     单测，约 90 秒，沙箱内跑，不联网
+make golden   黄金集 300 条，约 8 分钟，要联网
+make dev      本地起服务，默认连 mock 车机
+
+<span class="h">## 目录</span>
+src/turns/    一轮对话的状态机。改这里等于改所有人。
+src/tools/    一个工具一个目录：实现、schema.json、录制样本。
+src/prompts/  只放静态模板。动态内容在代码里拼。
+config/de/    德系。config/nv/ 新势力。口吻、规范、权限都在这。
+goldenset/    300 条标注样本。只读。
+
+<span class="h">## 不许动</span>
+- goldenset/** 和 tests/** 里的断言与用例：只读。要改先开 issue，
+  写清现有标准错在哪。删断言、跳用例、调大超时，都算改标准。
+- 不许给客户开分支，也不许写 if (client === 'de')。
+  差异一律进 config/。
+- 不许在 src/tools/ 之外发外部请求。工具调用要能录放，
+  否则评测跑不了。
+- 不许为了过测试去改温度、max_tokens、超时。
+
+<span class="h">## 提交</span>
+- 一个提交只做一件事。动超过 5 个文件，先说明理由。
+- 提交信息说清为什么改，不是改了什么。首行大写，不加类型前缀。
+- 附完整测试输出。CI 挂了不要连着重试三次以上。
+- 新工具要连 schema 和录制样本一起提交。
+
+<span class="h">## 判据</span>
+一句话说不清这次改动，就拆成两次。
+</pre>
+</details>
+<details class="doc">
+<summary><span class="doc-f">specs/seat-memory-restore.md</span><span class="doc-x">要解决什么、验收标准、边界</span><span class="doc-l">任务级 · 只对这一版负责</span></summary>
+<pre><span class="h"># 规格：座椅记忆恢复的播报</span>
+
+<span class="h">## 要解决什么</span>
+车主调过座椅，下次上车车机恢复记忆位置，但一句话不说，
+车主以为座椅在自己乱动。上季度这类投诉 37 条，
+其中 21 条车主的第一反应是「车坏了」。
+
+<span class="h">## 验收标准</span>
+1. 恢复动作完成后 1.5 秒内播报一次，含「已恢复」和位置名。
+2. 位置名不在 config/*/seat_names.yaml 里时用通用句，
+   不许编一个名字出来。
+3. 恢复失败（3 秒超时）不播报，改中控提示。宁可不说，不许说错。
+4. 德系配置下，同一段行程内只播报一次。
+5. golden 里 seat_* 的 18 条通过率 ≥ 95%，且不低于上一版。
+
+<span class="h">## 边界</span>
+- 不动 src/turns/ 状态机。这是播报时机问题，不是对话流程问题。
+- 不新增工具。位置名走检索通路，取不到就用通用句。
+- 播报文案由晓雯定。代码里不许出现中文字符串。
+
+<span class="h">## 不做什么</span>
+- 不做座椅自动调节建议。这一版只播报，不做动作。
+- 不做更多语言。光文案就够改一轮了。
+
+<span class="h">## 怎么验证</span>
+make test &amp;&amp; make golden --filter seat_
+附播报时长 p50 / p95。p95 超过 1.5 秒要写清原因。
+</pre>
+</details>
+<details class="doc">
+<summary><span class="doc-f">SKILL.md · release</span><span class="doc-x">怎么发版，什么时候回滚</span><span class="doc-l">技能级 · 按名字调用</span></summary>
+<pre><span class="m">---</span>
+<span class="m">name:</span> release
+<span class="m">description:</span> 发版与回滚的固定步骤。要发版、要灰度、要回滚时用。
+<span class="m">---</span>
+
+<span class="h"># 发版</span>
+
+按顺序走。任一步失败就停，不许「下一版再说」。
+
+<span class="h">## 1 冻结</span>
+- 记下版本和 commit：git rev-parse --short HEAD
+- 确认 goldenset/ 与 config/ 没有未提交的改动
+- 确认这一版只有一件事
+
+<span class="h">## 2 过闸</span>
+- make test 全绿
+- make golden 跑完，报总通过率和分客户通过率
+- 任一客户比上一版低 1 个点就停，先查是哪一类掉的
+
+<span class="h">## 3 写 CHANGELOG</span>
+三段：改了什么、哪一类错误变少了、回滚到哪一版。
+第三段没写，这一版不许进灰度。
+
+<span class="h">## 4 灰度</span>
+- 先 5% 车辆，看 24 小时
+- 盯三个数：播报触发率、误报投诉数、TTFT p95
+- 误报涨 20% 直接回滚，不在群里投票
+
+<span class="h">## 5 回滚</span>
+make rollback VERSION=2.3.1
+确认那 5% 的车已经回到旧版，再补一条 CHANGELOG，写清原因。
+
+<span class="h">## 不许</span>
+- 不许在生产环境手改提示词
+- 不许跳过灰度，哪怕只改了一个字
+</pre>
+</details>
+<p>老周的话是：「写多了没人读，写少了每次都问。」判据就一条——这句话不说，下一次是不是还得有人再说一遍。</p>
 <p>工具链的差别也在这三层上：有的只能补全当前文件，有的能读全仓库、能跑测试、能提 PR。差别不在模型多聪明，在「它看得见多少上下文、能不能自己验证」。</p>
 <p>小赵在笔记本上又贴了一张贴纸，这次写的是：「看不全仓库的助手，只能当输入法用。」</p>
 <p class="plain-text">本节只讲到这里：给 AI 用的文档和给新人用的文档是同一份。写不清楚，人和模型都会跑偏，只是模型跑偏得更快。</p>
@@ -2615,7 +2739,7 @@ function annotateTerms(){
     var walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),node;
     while((node=walker.nextNode())){
       var p=node.parentNode;if(!p)continue;
-      if(p.closest('a,code,h1,h2,h3,.fig,.tbl,.term-tip'))continue;
+      if(p.closest('a,code,pre,summary,h1,h2,h3,.fig,.tbl,.code,.term-tip'))continue;
       var idx=findTerm(node.nodeValue,term);
       if(idx<0)continue;
       var span=document.createElement('span');
